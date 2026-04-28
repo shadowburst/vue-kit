@@ -1,0 +1,15 @@
+pre-start = [
+    { copy = "wt step copy-ignored" },
+    { env = "lerd env" },
+    { migrate = "lerd php artisan migrate" },
+]
+
+[pre-remove]
+lerd-cleanup = '''
+DB=$(grep '^DB_DATABASE=' .env 2>/dev/null | cut -d= -f2-)
+if [ -n "$DB" ]; then
+    podman exec lerd-postgres psql -U postgres -c "DROP DATABASE IF EXISTS \"$DB\" WITH (FORCE);"
+    podman exec lerd-postgres psql -U postgres -c "DROP DATABASE IF EXISTS \"${DB}_testing\" WITH (FORCE);"
+fi
+lerd unlink
+'''
