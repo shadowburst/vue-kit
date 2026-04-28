@@ -1,20 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
 
+use function Pest\Laravel\actingAs;
+
 beforeEach(function () {
-    $this->skipUnlessFortifyHas(Features::emailVerification());
+    test()->skipUnlessFortifyHas(Features::emailVerification());
 });
 
 test('sends verification notification', function () {
     Notification::fake();
 
-    $user = User::factory()->unverified()->create();
+    $user = User::factory()->unverified()->createOne();
 
-    $this->actingAs($user)
+    actingAs($user)
         ->post(route('verification.send'))
         ->assertRedirect(route('home'));
 
@@ -24,9 +28,9 @@ test('sends verification notification', function () {
 test('does not send verification notification if email is verified', function () {
     Notification::fake();
 
-    $user = User::factory()->create();
+    $user = User::factory()->createOne();
 
-    $this->actingAs($user)
+    actingAs($user)
         ->post(route('verification.send'))
         ->assertRedirect(route('dashboard', absolute: false));
 
