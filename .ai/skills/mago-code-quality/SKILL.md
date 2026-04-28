@@ -69,11 +69,6 @@ Mago is an extremely fast PHP linter, formatter, and static analyzer written in 
 
 **Primary Purpose**: Automatically format PHP code to match configured style preferences.
 
-### Key Behaviors
-
-- **DEFAULT**: Auto-fixes formatting (modifies files)
-- **Reporting Only**: Use `--check` flag (no modifications)
-
 ### Common Usage
 
 ```bash
@@ -100,41 +95,27 @@ vendor/bin/sail bin mago format --staged
 - `--dry-run` - Shows diff without modifying files
 - `--staged` - Format files staged in git (for pre-commit hooks)
 
-## Lint Command
+## Lint & Analyze Commands
 
-**Primary Purpose**: Check PHP code against linting rules to identify style violations, code smells, and potential bugs.
-
-### Key Behaviors
-
-- **DEFAULT**: Reporting only (does NOT modify files)
-- **Auto-fix**: Use `--fix` flag (modifies files)
+`lint` checks code quality and style; `analyze` does deep static analysis including type checking and control flow. Both **report by default** (no file modifications); use `--fix` to apply auto-fixes.
 
 ### Common Usage
 
 ```bash
-# Report linting issues (DEFAULT - no modifications)
-vendor/bin/sail bin mago lint
+# Report issues (DEFAULT - no modifications)
+vendor/bin/sail bin mago lint app/Models/User.php
+vendor/bin/sail bin mago analyze app/Models/User.php
 
-# Auto-fix linting issues (modifies files)
-vendor/bin/sail bin mago lint --fix
+# Auto-fix issues (modifies files)
+vendor/bin/sail bin mago lint --fix app/Models/User.php
+vendor/bin/sail bin mago analyze --fix app/Models/User.php
 
-# Show only fixable issues (reporting)
-vendor/bin/sail bin mago lint --fixable-only
-
-# Preview fixes without applying
-vendor/bin/sail bin mago lint --fix --dry-run
-
-# Auto-fix and format after
-vendor/bin/sail bin mago lint --fix --format-after-fix
-
-# Lint specific files
-vendor/bin/sail bin mago lint app/Http/Controllers/UserController.php
-
-# Lint only staged git files
-vendor/bin/sail bin mago lint --staged
+# Staged files only
+vendor/bin/sail bin mago lint --staged --fix
+vendor/bin/sail bin mago analyze --staged
 ```
 
-### Important Flags
+### Important Flags (shared by lint and analyze)
 
 - **NO FLAG** - Reporting only (does NOT modify files)
 - `--fix` - Apply automatic fixes (modifies files)
@@ -143,7 +124,7 @@ vendor/bin/sail bin mago lint --staged
 - `--unsafe` - Apply unsafe fixes (requires `--fix`, use with caution)
 - `--potentially-unsafe` - Apply potentially unsafe fixes (requires `--fix`)
 - `--format-after-fix` - Format files after fixing (requires `--fix`)
-- `--staged` - Lint files staged in git
+- `--staged` - Target files staged in git
 
 ### Advanced Lint Options
 
@@ -164,52 +145,6 @@ vendor/bin/sail bin mago lint --ignore-baseline
 vendor/bin/sail bin mago lint --baseline baseline-lint.toml --generate-baseline
 ```
 
-## Analyze Command
-
-**Primary Purpose**: Perform deep static analysis including type checking, control flow analysis, and logical error detection.
-
-### Key Behaviors
-
-- **DEFAULT**: Reporting only (does NOT modify files)
-- **Auto-fix**: Use `--fix` flag (modifies files)
-
-### Common Usage
-
-```bash
-# Report analysis issues (DEFAULT - no modifications)
-vendor/bin/sail bin mago analyze
-
-# Auto-fix analysis issues (modifies files)
-vendor/bin/sail bin mago analyze --fix
-
-# Show only fixable issues (reporting)
-vendor/bin/sail bin mago analyze --fixable-only
-
-# Preview fixes without applying
-vendor/bin/sail bin mago analyze --fix --dry-run
-
-# Auto-fix and format after
-vendor/bin/sail bin mago analyze --fix --format-after-fix
-
-# Analyze specific files
-vendor/bin/sail bin mago analyze app/Models/User.php
-
-# Analyze only staged git files
-vendor/bin/sail bin mago analyze --staged
-```
-
-### Important Flags
-
-- **NO FLAG** - Reporting only (does NOT modify files)
-- `--fix` - Apply automatic fixes (modifies files)
-- `--fixable-only` - Filter output to show only auto-fixable issues
-- `--dry-run` - Preview fixes without writing (requires `--fix`)
-- `--unsafe` - Apply unsafe fixes (requires `--fix`, use with caution)
-- `--potentially-unsafe` - Apply potentially unsafe fixes (requires `--fix`)
-- `--format-after-fix` - Format files after fixing (requires `--fix`)
-- `--staged` - Analyze files staged in git
-- `--watch` - Continuous analysis (experimental)
-
 ## Configuration
 
 Mago is configured in `mago.toml` at the project root:
@@ -227,19 +162,12 @@ Baselines contain existing issues that are temporarily ignored. Do NOT add new i
 
 ## Recommended Workflow After Code Changes
 
-When you create or edit PHP files, follow this workflow. **Always scope to the files you changed** — either pass them explicitly or use the `MAGO_FILES` pattern from the Scope section.
+Always scope to the files you changed — pass them explicitly or use the `MAGO_FILES` pattern from the Scope section above.
 
 If you know exactly which files you just edited, prefer passing them by name:
 
 ```bash
 vendor/bin/sail bin mago format app/Models/Property.php app/Http/Controllers/PropertyController.php
-```
-
-Otherwise, derive the list from git:
-
-```bash
-MAGO_FILES=$(git diff --name-only -z --diff-filter=ACMR HEAD -- '*.php' '*.blade.php')
-[ -z "$MAGO_FILES" ] && echo "No modified PHP files." && exit 0
 ```
 
 ### 1. **Format Code** (Auto-fix)
@@ -263,13 +191,6 @@ printf '%s' "$MAGO_FILES" | xargs -0 vendor/bin/sail bin mago lint --fix
 - ✅ Modifies files in place
 - Reports any issues that cannot be auto-fixed
 - If unfixable issues remain, report them with file:line references
-
-**Alternative**: Check first, then fix if needed:
-
-```bash
-printf '%s' "$MAGO_FILES" | xargs -0 vendor/bin/sail bin mago lint
-printf '%s' "$MAGO_FILES" | xargs -0 vendor/bin/sail bin mago lint --fix
-```
 
 ### 3. **Analyze Code** (Check first, fix if auto-fixable)
 
@@ -296,36 +217,6 @@ Remaining issues to address:
 - app/Http/Controllers/UserController.php:102 - [issue description]
 ```
 
-## Error Handling Strategy
-
-### Format Errors
-
-If `mago format` fails:
-
-1. Report the error with file:line reference
-2. Attempt to fix the underlying issue (syntax errors, parse errors)
-3. Run format again after fixing
-
-### Lint Errors
-
-If `mago lint --fix` reports unfixable issues:
-
-1. Report each issue with file:line reference
-2. Attempt to fix the issues manually following the error messages
-3. Run `mago lint --fix` again to verify fixes
-4. If unable to fix, ask user for guidance
-
-### Analysis Warnings
-
-If `mago analyze` reports issues:
-
-1. First try auto-fixing: `mago analyze --fix`
-2. Report issues that cannot be auto-fixed with file:line references
-3. Assess severity (errors vs warnings vs notes)
-4. Fix critical issues manually (type errors, undefined variables)
-5. Report non-critical warnings for user review
-6. If uncertain about fix, ask user for guidance
-
 ## Best Practices
 
 ### DO:
@@ -346,28 +237,12 @@ If `mago analyze` reports issues:
 - ❌ Pipe an empty file list into `xargs` without an emptiness check — that also falls back to the whole codebase
 - ❌ Run Mago across the whole project unless the user explicitly asked for it
 - ❌ Skip Mago validation after PHP changes
-- ❌ Use `mago lint` without `--fix` as default (wastes time)
 - ❌ Add new issues to baselines without user approval
 - ❌ Ignore static analysis errors (especially type errors)
-- ❌ Use `--check` flag on format unless explicitly validating
 - ❌ Apply `--unsafe` fixes without understanding the implications
 - ❌ Run Mago on non-PHP files (JavaScript, TypeScript, etc.)
 
-## Integration with Other Tools
-
-### Pint (Laravel's Formatter)
-
-Mago's formatter uses the Pint preset for Laravel compatibility. Prefer Mago since it provides formatting + linting + analysis in one tool.
-
-### Pest (Testing)
-
-After fixing code quality issues, always run relevant tests:
-
-```bash
-vendor/bin/sail artisan test --compact --filter=UserTest
-```
-
-### Version Control
+## Integration with Version Control
 
 Run Mago before committing — always scoped to staged files:
 
@@ -435,51 +310,6 @@ vendor/bin/sail bin mago analyze --fix app/Http/Controllers/V3/PropertyControlle
 ✓ No remaining issues
 ```
 
-### Example 3: Full Project Validation (only on explicit user request)
-
-Only run unscoped Mago commands when the user explicitly asks for a whole-codebase pass (e.g. "run mago on everything", "format the entire project"). Confirm first if there's any ambiguity, since the resulting diff can be huge.
-
-```bash
-# User explicitly requested validation of all PHP code
-
-# 1. Format all files
-vendor/bin/sail bin mago format
-# ✓ Formatted 152 files
-
-# 2. Lint with auto-fix
-vendor/bin/sail bin mago lint --fix
-# ✓ Fixed 8 issues automatically
-# ✓ No unfixable issues
-
-# 3. Analyze with auto-fix attempt
-vendor/bin/sail bin mago analyze --fix
-# ✓ Fixed 2 issues automatically
-# ℹ Found 3 warnings (see baseline-analyze.toml)
-
-# Report to user:
-✓ Formatted 152 files
-✓ Auto-fixed 8 linting issues
-✓ Auto-fixed 2 analysis issues
-ℹ 3 analysis warnings exist in baseline (pre-existing issues)
-✓ All code passes quality checks
-```
-
-### Example 4: Using Dry Run to Preview Changes
-
-```bash
-# Check what lint would fix before applying
-vendor/bin/sail bin mago lint --fixable-only
-# Shows: 5 fixable issues found
-
-# Preview the fixes without applying
-vendor/bin/sail bin mago lint --fix --dry-run
-# Shows diff of changes that would be made
-
-# Apply the fixes
-vendor/bin/sail bin mago lint --fix
-# ✓ Fixed 5 issues
-```
-
 ## Common Issues
 
 ### Issue: "Cannot find mago binary"
@@ -545,29 +375,8 @@ vendor/bin/sail bin mago analyze <paths> --fixable-only   # Show only auto-fixab
 vendor/bin/sail bin mago analyze <paths> --fix --dry-run  # Preview fixes
 ```
 
-## Skill Activation Triggers
-
-This skill should activate when the user's request or your work involves:
-
-- Keywords: "format", "lint", "analyze", "validate", "check code quality", "mago"
-- Creating files: "create model", "add controller", "new migration", "write class"
-- Editing files: "update", "modify", "change", "refactor", "fix"
-- Code review: "review code", "check for issues", "validate code"
-- Before commits: "ready to commit", "prepare commit", "pre-commit"
-- Any PHP file work in general
-
 ## Related Skills
 
 - `spatie-laravel-php-standards` - Coding standards (run before Mago for compliance)
 - `laravel-best-practices` - Laravel patterns (apply when writing code)
 - `pest-testing` - Run tests after fixing Mago issues
-
-## Summary: Report vs Auto-Fix
-
-| Command        | Default Behavior | Auto-Fix Flag | Reporting Only Flag |
-| -------------- | ---------------- | ------------- | ------------------- |
-| `mago format`  | ✅ Auto-fixes    | N/A (default) | `--check`           |
-| `mago lint`    | 📊 Reports only  | `--fix`       | N/A (default)       |
-| `mago analyze` | 📊 Reports only  | `--fix`       | N/A (default)       |
-
-**Key Takeaway**: Format auto-fixes by default. Lint and analyze report by default, use `--fix` to auto-fix.
