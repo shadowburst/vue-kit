@@ -13,6 +13,9 @@
         "fortify-development",
         "laravel-best-practices",
         "wayfinder-development",
-        "pest-testing"
+        "pest-testing",
+        "inertia-vue-development",
+        "tailwindcss-development",
+        "mago-code-quality"
     ]
 }
