@@ -33,8 +33,14 @@ jobs:
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
           npm install
 
-      - name: Run Pint
-        run: composer lint
+      - name: Check PHP format
+        run: composer format:check
+
+      - name: Lint PHP
+        run: composer lint:check
+
+      - name: Analyze PHP types
+        run: composer types:check
 
       - name: Format Frontend
         run: npm run format
