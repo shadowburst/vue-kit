@@ -38,14 +38,13 @@
         "vue-tsc": "^2.2.12"
     },
     "dependencies": {
-        "@hugeicons/core-free-icons": "^4.1.1",
-        "@hugeicons/vue": "^1.0.5",
         "@inertiajs/vite": "^3.0.3",
         "@inertiajs/vue3": "^3.0.3",
+        "@lucide/vue": "^1.14.0",
         "@vueuse/core": "^12.8.2",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
-        "laravel-vite-plugin": "^3.0.1",
+        "laravel-vite-plugin": "^3.1.0",
         "reka-ui": "^2.9.6",
         "shadcn-vue": "^2.6.2",
         "tailwind-merge": "^3.5.0",
