@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { cn } from '@/lib/utils';
+import { AvatarRoot } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 import type { AvatarVariants } from '.';
-import { AvatarRoot } from 'reka-ui';
-import { cn } from '@/lib/utils';
 import { avatarVariants } from '.';
 
 const props = defineProps<{
@@ -12,11 +12,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <AvatarRoot
-        data-slot="avatar"
-        :data-size="size ?? 'default'"
-        :class="cn(avatarVariants({ size }), props.class)"
-    >
+    <AvatarRoot data-slot="avatar" :data-size="size ?? 'default'" :class="cn(avatarVariants({ size }), props.class)">
         <slot />
     </AvatarRoot>
 </template>

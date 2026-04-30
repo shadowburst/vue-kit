@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { SelectTriggerProps } from 'reka-ui';
 
-import type { HTMLAttributes } from 'vue';
-import { reactiveOmit } from '@vueuse/core';
-import { ChevronDownIcon } from '@lucide/vue';
-import { SelectIcon, SelectTrigger, useForwardProps } from 'reka-ui';
 import { cn } from '@/lib/utils';
+import { ChevronDownIcon } from '@lucide/vue';
+import { reactiveOmit } from '@vueuse/core';
+import { SelectIcon, SelectTrigger, useForwardProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
 
 const props = withDefaults(
     defineProps<
@@ -35,9 +35,7 @@ const forwardedProps = useForwardProps(delegatedProps);
     >
         <slot />
         <SelectIcon as-child>
-            <ChevronDownIcon
-                class="pointer-events-none size-4 text-muted-foreground"
-            />
+            <ChevronDownIcon class="pointer-events-none size-4 text-muted-foreground" />
         </SelectIcon>
     </SelectTrigger>
 </template>

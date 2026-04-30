@@ -1,22 +1,13 @@
 <script setup lang="ts">
-import type {
-    DropdownMenuRadioItemEmits,
-    DropdownMenuRadioItemProps,
-} from 'reka-ui';
+import type { DropdownMenuRadioItemEmits, DropdownMenuRadioItemProps } from 'reka-ui';
 
-import type { HTMLAttributes } from 'vue';
-import { reactiveOmit } from '@vueuse/core';
-import { CheckIcon } from '@lucide/vue';
-import {
-    DropdownMenuItemIndicator,
-    DropdownMenuRadioItem,
-    useForwardPropsEmits,
-} from 'reka-ui';
 import { cn } from '@/lib/utils';
+import { CheckIcon } from '@lucide/vue';
+import { reactiveOmit } from '@vueuse/core';
+import { DropdownMenuItemIndicator, DropdownMenuRadioItem, useForwardPropsEmits } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    DropdownMenuRadioItemProps & { class?: HTMLAttributes['class'] }
->();
+const props = defineProps<DropdownMenuRadioItemProps & { class?: HTMLAttributes['class'] }>();
 
 const emits = defineEmits<DropdownMenuRadioItemEmits>();
 

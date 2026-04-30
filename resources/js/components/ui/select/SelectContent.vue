@@ -1,27 +1,19 @@
 <script setup lang="ts">
-import type { SelectContentEmits, SelectContentProps } from 'reka-ui';
-import type { HTMLAttributes } from 'vue';
-import { reactiveOmit } from '@vueuse/core';
-import {
-    SelectContent,
-    SelectPortal,
-    SelectViewport,
-    useForwardPropsEmits,
-} from 'reka-ui';
 import { cn } from '@/lib/utils';
+import { reactiveOmit } from '@vueuse/core';
+import type { SelectContentEmits, SelectContentProps } from 'reka-ui';
+import { SelectContent, SelectPortal, SelectViewport, useForwardPropsEmits } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
 import { SelectScrollDownButton, SelectScrollUpButton } from '.';
 
 defineOptions({
     inheritAttrs: false,
 });
 
-const props = withDefaults(
-    defineProps<SelectContentProps & { class?: HTMLAttributes['class'] }>(),
-    {
-        position: 'item-aligned',
-        align: 'center',
-    },
-);
+const props = withDefaults(defineProps<SelectContentProps & { class?: HTMLAttributes['class'] }>(), {
+    position: 'item-aligned',
+    align: 'center',
+});
 const emits = defineEmits<SelectContentEmits>();
 
 const delegatedProps = reactiveOmit(props, 'class');

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue';
+import { cn } from '@/lib/utils';
 import { reactiveOmit } from '@vueuse/core';
 import { useForwardProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
 import { computed } from 'vue';
 import { useVueOTPContext } from 'vue-input-otp';
-import { cn } from '@/lib/utils';
 
 const props = defineProps<{ index: number; class?: HTMLAttributes['class'] }>();
 
@@ -30,13 +30,8 @@ const slot = computed(() => context?.value.slots[props.index]);
         "
     >
         {{ slot?.char }}
-        <div
-            v-if="slot?.hasFakeCaret"
-            class="pointer-events-none absolute inset-0 flex items-center justify-center"
-        >
-            <div
-                class="h-4 w-px animate-caret-blink bg-foreground duration-1000"
-            />
+        <div v-if="slot?.hasFakeCaret" class="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div class="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
         </div>
     </div>
 </template>

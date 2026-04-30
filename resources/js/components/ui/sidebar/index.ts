@@ -1,6 +1,6 @@
 import type { VariantProps } from 'class-variance-authority';
-import type { HTMLAttributes } from 'vue';
 import { cva } from 'class-variance-authority';
+import type { HTMLAttributes } from 'vue';
 
 export interface SidebarProps {
     side?: 'left' | 'right';
@@ -40,8 +40,7 @@ export const sidebarMenuButtonVariants = cva(
     {
         variants: {
             variant: {
-                default:
-                    'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                default: 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
                 outline:
                     'bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]',
             },
@@ -58,6 +57,4 @@ export const sidebarMenuButtonVariants = cva(
     },
 );
 
-export type SidebarMenuButtonVariants = VariantProps<
-    typeof sidebarMenuButtonVariants
->;
+export type SidebarMenuButtonVariants = VariantProps<typeof sidebarMenuButtonVariants>;

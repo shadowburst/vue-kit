@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from 'vue';
-import type { OTPInputEmits, OTPInputProps } from 'vue-input-otp';
+import { cn } from '@/lib/utils';
 import { reactiveOmit } from '@vueuse/core';
 import { useForwardPropsEmits } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
+import type { OTPInputEmits, OTPInputProps } from 'vue-input-otp';
 import { OTPInput } from 'vue-input-otp';
-import { cn } from '@/lib/utils';
 
-const props = defineProps<
-    OTPInputProps & { class?: HTMLAttributes['class'] }
->();
+const props = defineProps<OTPInputProps & { class?: HTMLAttributes['class'] }>();
 
 const emits = defineEmits<OTPInputEmits>();
 
@@ -21,9 +19,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
     <OTPInput
         v-slot="slotProps"
         v-bind="forwarded"
-        :container-class="
-            cn('gap-2 flex items-center has-disabled:opacity-50', props.class)
-        "
+        :container-class="cn('gap-2 flex items-center has-disabled:opacity-50', props.class)"
         data-slot="input-otp"
         :spellcheck="false"
         class="disabled:cursor-not-allowed"

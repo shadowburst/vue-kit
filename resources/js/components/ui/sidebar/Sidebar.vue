@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { SidebarProps } from '.';
-import { cn } from '@/lib/utils';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import SheetDescription from '@/components/ui/sheet/SheetDescription.vue';
 import SheetHeader from '@/components/ui/sheet/SheetHeader.vue';
 import SheetTitle from '@/components/ui/sheet/SheetTitle.vue';
+import { cn } from '@/lib/utils';
+import type { SidebarProps } from '.';
 import { SIDEBAR_WIDTH_MOBILE, useSidebar } from './utils';
 
 defineOptions({
@@ -24,23 +24,13 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
     <div
         v-if="collapsible === 'none'"
         data-slot="sidebar"
-        :class="
-            cn(
-                'flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground',
-                props.class,
-            )
-        "
+        :class="cn('flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground', props.class)"
         v-bind="$attrs"
     >
         <slot />
     </div>
 
-    <Sheet
-        v-else-if="isMobile"
-        :open="openMobile"
-        v-bind="$attrs"
-        @update:open="setOpenMobile"
-    >
+    <Sheet v-else-if="isMobile" :open="openMobile" v-bind="$attrs" @update:open="setOpenMobile">
         <SheetContent
             data-sidebar="sidebar"
             data-slot="sidebar"
@@ -53,9 +43,7 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
         >
             <SheetHeader class="sr-only">
                 <SheetTitle>Sidebar</SheetTitle>
-                <SheetDescription
-                    >Displays the mobile sidebar.</SheetDescription
-                >
+                <SheetDescription>Displays the mobile sidebar.</SheetDescription>
             </SheetHeader>
             <div class="flex h-full w-full flex-col">
                 <slot />

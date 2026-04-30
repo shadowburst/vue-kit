@@ -1,20 +1,13 @@
 <script setup lang="ts">
 import type { SelectItemProps } from 'reka-ui';
 
-import type { HTMLAttributes } from 'vue';
-import { reactiveOmit } from '@vueuse/core';
-import { CheckIcon } from '@lucide/vue';
-import {
-    SelectItem,
-    SelectItemIndicator,
-    SelectItemText,
-    useForwardProps,
-} from 'reka-ui';
 import { cn } from '@/lib/utils';
+import { CheckIcon } from '@lucide/vue';
+import { reactiveOmit } from '@vueuse/core';
+import { SelectItem, SelectItemIndicator, SelectItemText, useForwardProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
 
-const props = defineProps<
-    SelectItemProps & { class?: HTMLAttributes['class'] }
->();
+const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'] }>();
 
 const delegatedProps = reactiveOmit(props, 'class');
 
@@ -32,9 +25,7 @@ const forwardedProps = useForwardProps(delegatedProps);
             )
         "
     >
-        <span
-            class="pointer-events-none absolute right-2 flex size-4 items-center justify-center"
-        >
+        <span class="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
             <SelectItemIndicator>
                 <slot name="indicator-icon">
                     <CheckIcon class="pointer-events-none" />

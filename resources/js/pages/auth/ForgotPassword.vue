@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
+import { Form, Head } from '@inertiajs/vue3';
 
 defineOptions({
     layout: {
@@ -24,10 +24,7 @@ defineProps<{
 <template>
     <Head title="Forgot password" />
 
-    <div
-        v-if="status"
-        class="mb-4 text-center text-sm font-medium text-green-600"
-    >
+    <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
         {{ status }}
     </div>
 
@@ -47,11 +44,7 @@ defineProps<{
             </div>
 
             <div class="my-6 flex items-center justify-start">
-                <Button
-                    class="w-full"
-                    :disabled="processing"
-                    data-test="email-password-reset-link-button"
-                >
+                <Button class="w-full" :disabled="processing" data-test="email-password-reset-link-button">
                     <Spinner v-if="processing" />
                     Email password reset link
                 </Button>

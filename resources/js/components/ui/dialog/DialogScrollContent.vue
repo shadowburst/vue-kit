@@ -1,25 +1,17 @@
 <script setup lang="ts">
 import type { DialogContentEmits, DialogContentProps } from 'reka-ui';
 
-import type { HTMLAttributes } from 'vue';
-import { reactiveOmit } from '@vueuse/core';
-import { XIcon } from '@lucide/vue';
-import {
-    DialogClose,
-    DialogContent,
-    DialogOverlay,
-    DialogPortal,
-    useForwardPropsEmits,
-} from 'reka-ui';
 import { cn } from '@/lib/utils';
+import { XIcon } from '@lucide/vue';
+import { reactiveOmit } from '@vueuse/core';
+import { DialogClose, DialogContent, DialogOverlay, DialogPortal, useForwardPropsEmits } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
 
 defineOptions({
     inheritAttrs: false,
 });
 
-const props = defineProps<
-    DialogContentProps & { class?: HTMLAttributes['class'] }
->();
+const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();
 const emits = defineEmits<DialogContentEmits>();
 
 const delegatedProps = reactiveOmit(props, 'class');
@@ -44,10 +36,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
                     (event) => {
                         const originalEvent = event.detail.originalEvent;
                         const target = originalEvent.target as HTMLElement;
-                        if (
-                            originalEvent.offsetX > target.clientWidth ||
-                            originalEvent.offsetY > target.clientHeight
-                        ) {
+                        if (originalEvent.offsetX > target.clientWidth || originalEvent.offsetY > target.clientHeight) {
                             event.preventDefault();
                         }
                     }
@@ -55,9 +44,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
             >
                 <slot />
 
-                <DialogClose
-                    class="absolute top-4 right-4 rounded-md p-0.5 transition-colors hover:bg-secondary"
-                >
+                <DialogClose class="absolute top-4 right-4 rounded-md p-0.5 transition-colors hover:bg-secondary">
                     <XIcon class="h-4 w-4" />
                     <span class="sr-only">Close</span>
                 </DialogClose>

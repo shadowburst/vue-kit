@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { Form, Head } from '@inertiajs/vue3';
-import { ShieldCheck } from '@lucide/vue';
-import { onUnmounted, ref } from 'vue';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
@@ -13,6 +10,9 @@ import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import { edit } from '@/routes/security';
 import { disable, enable } from '@/routes/two-factor';
+import { Form, Head } from '@inertiajs/vue3';
+import { ShieldCheck } from '@lucide/vue';
+import { onUnmounted, ref } from 'vue';
 
 type Props = {
     canManageTwoFactor?: boolean;
@@ -61,11 +61,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                 preserveScroll: true,
             }"
             reset-on-success
-            :reset-on-error="[
-                'password',
-                'password_confirmation',
-                'current_password',
-            ]"
+            :reset-on-error="['password', 'password_confirmation', 'current_password']"
             class="space-y-6"
             v-slot="{ errors, processing }"
         >
@@ -106,12 +102,7 @@ onUnmounted(() => clearTwoFactorAuthData());
             </div>
 
             <div class="flex items-center gap-4">
-                <Button
-                    :disabled="processing"
-                    data-test="update-password-button"
-                >
-                    Save password
-                </Button>
+                <Button :disabled="processing" data-test="update-password-button"> Save password </Button>
             </div>
         </Form>
     </div>
@@ -123,49 +114,29 @@ onUnmounted(() => clearTwoFactorAuthData());
             description="Manage your two-factor authentication settings"
         />
 
-        <div
-            v-if="!twoFactorEnabled"
-            class="flex flex-col items-start justify-start space-y-4"
-        >
+        <div v-if="!twoFactorEnabled" class="flex flex-col items-start justify-start space-y-4">
             <p class="text-sm text-muted-foreground">
-                When you enable two-factor authentication, you will be prompted
-                for a secure pin during login. This pin can be retrieved from a
-                TOTP-supported application on your phone.
+                When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin
+                can be retrieved from a TOTP-supported application on your phone.
             </p>
 
             <div>
-                <Button v-if="hasSetupData" @click="showSetupModal = true">
-                    <ShieldCheck />Continue setup
-                </Button>
-                <Form
-                    v-else
-                    v-bind="enable.form()"
-                    @success="showSetupModal = true"
-                    #default="{ processing }"
-                >
-                    <Button type="submit" :disabled="processing">
-                        Enable 2FA
-                    </Button>
+                <Button v-if="hasSetupData" @click="showSetupModal = true"> <ShieldCheck />Continue setup </Button>
+                <Form v-else v-bind="enable.form()" @success="showSetupModal = true" #default="{ processing }">
+                    <Button type="submit" :disabled="processing"> Enable 2FA </Button>
                 </Form>
             </div>
         </div>
 
         <div v-else class="flex flex-col items-start justify-start space-y-4">
             <p class="text-sm text-muted-foreground">
-                You will be prompted for a secure, random pin during login,
-                which you can retrieve from the TOTP-supported application on
-                your phone.
+                You will be prompted for a secure, random pin during login, which you can retrieve from the
+                TOTP-supported application on your phone.
             </p>
 
             <div class="relative inline">
                 <Form v-bind="disable.form()" #default="{ processing }">
-                    <Button
-                        variant="destructive"
-                        type="submit"
-                        :disabled="processing"
-                    >
-                        Disable 2FA
-                    </Button>
+                    <Button variant="destructive" type="submit" :disabled="processing"> Disable 2FA </Button>
                 </Form>
             </div>
 
