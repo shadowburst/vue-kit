@@ -10,7 +10,7 @@
     "scripts": {
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
-        "dev": "vite",
+        "dev": "concurrently -c '#c4b5fd,#fb7185,#fdba74' --kill-others --names=queue,logs,vite 'php artisan queue:listen --tries=1 --timeout=0' 'php artisan pail --timeout=0' 'vite' ",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
@@ -19,7 +19,6 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.39.4",
-        "@laravel/vite-plugin-wayfinder": "^0.1.7",
         "@stylistic/eslint-plugin": "^5.10.0",
         "@tailwindcss/vite": "^4.2.4",
         "@types/node": "^22.19.17",
@@ -38,6 +37,7 @@
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.59.1",
         "vite": "^8.0.10",
+        "vite-plugin-watch-and-run": "^1.8.0",
         "vue-tsc": "^2.2.12"
     },
     "dependencies": {
