@@ -11,7 +11,8 @@
     "packages": [
         "spatie/guidelines-skills",
         "fruitcake/laravel-debugbar",
-        "spatie/laravel-permission"
+        "spatie/laravel-permission",
+        "spatie/laravel-sluggable"
     ],
     "sail": false,
     "skills": [
@@ -24,6 +25,7 @@
         "inertia-vue-development",
         "tailwindcss-development",
         "laravel-permission-development",
+        "sluggable-development",
         "debug-using-debugbar",
         "spatie-javascript",
         "spatie-laravel-php",
@@ -34,6 +36,7 @@
         "grill-me",
         "grill-with-docs",
         "improve-codebase-architecture",
+        "laravel-filament",
         "setup-matt-pocock-skills",
         "tdd",
         "to-epic",

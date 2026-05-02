@@ -33,6 +33,18 @@ The level of access a **Team** has, derived from its **Subscription** state. Lis
 A tier-gated capability resolved at runtime via Laravel Pennant, scoped to the **Team**. Distinct from a **Permission**: a Permission answers "is this role allowed to do this?", a Feature answers "did this team pay for this?". Per ADR-0008 the two axes are evaluated independently and surface to the frontend as parallel shapes: the `AuthAbilitiesData` DTO (policy results) and the `Team::features` accessor (Pennant feature values). Defined feature names are listed in the `Feature` enum.
 _Avoid_: flag, ability.
 
+**Operator panel**:
+The Filament-rendered admin UI mounted at `/admin`, used by application staff (not tenants) to support customers and inspect cross-tenant state. Gated by the global `admin` **Permission**; auth piggybacks on the existing Fortify session — there is no separate `/admin/login`. Distinct from the team-scoped **Manager** role, which is the tenant-side admin and operates on a single **Team**.
+_Avoid_: admin panel (ambiguous with the `admin` role string), back office, ops dashboard.
+
+**Impersonation**:
+The act of an Operator (a User with `admin` permission) assuming a target **User**'s full session state — including their `current_team_id`, **Permissions**, and **Tier**-derived **Features** — for support purposes. The original Operator identity is stashed in the session as the *impersonator*; a globally-rendered, localized banner offers a "Leave impersonation" affordance. Mutations to the target's password, email, or **Subscription** are refused server-side while impersonating. Admin-impersonates-admin is forbidden. Every start/stop is recorded in the **Activity Log**.
+_Avoid_: sudo, login-as.
+
+**Activity Log**:
+The audit trail for Operator-initiated actions (impersonation start/stop, `admin` role grant/revoke, **Subscription** mutations, soft-deletes via the panel). Backed by `spatie/laravel-activitylog` with `log_name = 'admin'`. Not surfaced to the impersonated **User**.
+_Avoid_: audit log (the package term is "activity log"; keep them aligned).
+
 **Over-cap**:
 The state where a **Team**'s non-Owner **Membership** count exceeds its **Tier**'s **Member cap**. While over-cap, the team has no team-management feature access except cap-reducing actions (`user.delete`). Because voluntary subscription transitions that would land the team over-cap are blocked at the controller (per ADR-0016, superseding ADR-0013), the only path into this state is involuntary cancellation (payment failure) or resubscribe-after-failure to a tier whose cap is below the current member count. Recovery is by removing members until under cap, or by upgrading to a tier whose cap accommodates the current count.
 _Avoid_: locked, frozen, suspended, read-only-team.
@@ -55,7 +67,7 @@ _Avoid_: locked, frozen, suspended, read-only-team.
 ## Permissions
 
 ```
-admin                    # global — gates the admin panel
+admin                    # global — gates the Operator panel
 test                     # global — gates feature-test access
 user.viewAny             # team — list members
 user.view                # team — view a member
@@ -84,5 +96,5 @@ subscription.view        # team — see current Subscription, invoices, upcoming
 
 ## Flagged ambiguities
 
-- "Admin" was used to mean both a global role and a team-scoped role — resolved: the global one is **Admin** (`admin`), the team-scoped one is **Manager** (`manager`). The team-scoped role was renamed to `manager` because every signed-up user receives it on their **Personal Team**, diluting "admin" of meaning. The role string `admin` and the permission string `admin` (`Permission::Admin`, which gates the admin panel) coexist intentionally: they live in separate Spatie tables and are disambiguated by the API surface (`hasRole` vs `can`), not by name.
+- "Admin" was used to mean both a global role and a team-scoped role — resolved: the global one is **Admin** (`admin`), the team-scoped one is **Manager** (`manager`). The team-scoped role was renamed to `manager` because every signed-up user receives it on their **Personal Team**, diluting "admin" of meaning. The role string `admin` and the permission string `admin` (`Permission::Admin`, which gates the Operator panel) coexist intentionally: they live in separate Spatie tables and are disambiguated by the API surface (`hasRole` vs `can`), not by name.
 - "user.create scoped to a team" sounded like creating a User row — resolved: it means creating a **Membership**.
