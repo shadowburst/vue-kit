@@ -15,7 +15,8 @@
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
         "lint:check": "eslint .",
-        "types:check": "vue-tsc --noEmit"
+        "analysis:check": "vue-tsc --noEmit",
+        "check": "pnpm run format:check && pnpm run lint:check && pnpm run analysis:check"
     },
     "devDependencies": {
         "@eslint/js": "^9.39.4",

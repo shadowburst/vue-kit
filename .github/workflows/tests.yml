@@ -1,0 +1,100 @@
+name: tests
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: testing
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Start Postgres
+        run: |
+          docker run -d --name postgres \
+            -e POSTGRES_USER="$DB_USERNAME" \
+            -e POSTGRES_PASSWORD="$DB_PASSWORD" \
+            -e POSTGRES_DB="$DB_DATABASE" \
+            -p "$DB_PORT:5432" \
+            --health-cmd "pg_isready -U $DB_USERNAME" \
+            --health-interval 2s \
+            --health-timeout 3s \
+            --health-retries 10 \
+            postgres:17-alpine
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v4
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: PHP format check
+        run: composer format:check
+
+      - name: JS format check
+        run: pnpm run format:check
+
+      - name: PHP lint
+        run: composer lint:check
+
+      - name: JS lint
+        run: pnpm run lint:check
+
+      - name: PHP static analysis
+        run: composer analysis:check
+
+      - name: Regenerate TypeScript types
+        run: php artisan typescript:transform
+
+      - name: JS static analysis
+        run: pnpm run analysis:check
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Build assets
+        run: pnpm run build
+
+      - name: Wait for Postgres
+        run: |
+          until [ "$(docker inspect -f '{{.State.Health.Status}}' postgres)" = "healthy" ]; do
+            sleep 1
+          done
+
+      - name: Run migrations
+        run: php artisan migrate --force
+
+      - name: Run Pest tests
+        run: ./vendor/bin/pest --bail --compact

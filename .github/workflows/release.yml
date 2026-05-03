@@ -1,4 +1,4 @@
-name: release-please
+name: release
 
 on:
   push:
@@ -10,14 +10,14 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: release-please-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v5
         with:
           config-file: .github/release-please-config.json
           manifest-file: .github/.release-please-manifest.json

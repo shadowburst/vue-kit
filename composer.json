@@ -56,8 +56,13 @@
         "lint:check": [
             "vendor/bin/mago lint"
         ],
-        "types:check": [
+        "analysis:check": [
             "vendor/bin/mago analyze"
+        ],
+        "check": [
+            "@composer format:check",
+            "@composer lint:check",
+            "@composer analysis:check"
         ],
         "test": [
             "@php artisan config:clear --ansi",
@@ -69,8 +74,7 @@
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
-            "@php artisan boost:update --ansi",
-            "@php artisan typescript:transform"
+            "@php artisan boost:update --ansi"
         ],
         "post-root-package-install": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
