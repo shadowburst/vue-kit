@@ -2,8 +2,7 @@
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { logout } from '@/routes';
-import { send } from '@/routes/verification';
+import { route } from '@/spatie/helpers/route';
 import { Form, Head } from '@inertiajs/vue3';
 
 defineOptions({
@@ -25,12 +24,12 @@ defineProps<{
         A new verification link has been sent to the email address you provided during registration.
     </div>
 
-    <Form v-bind="send.form()" class="space-y-6 text-center" v-slot="{ processing }">
+    <Form :action="route('verification.send')" method="post" class="space-y-6 text-center" v-slot="{ processing }">
         <Button :disabled="processing" variant="secondary">
             <Spinner v-if="processing" />
             Resend verification email
         </Button>
 
-        <TextLink :href="logout()" as="button" class="mx-auto block text-sm"> Log out </TextLink>
+        <TextLink :href="route('logout')" as="button" class="mx-auto block text-sm"> Log out </TextLink>
     </Form>
 </template>

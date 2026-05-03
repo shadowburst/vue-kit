@@ -12,7 +12,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+import { route } from '@/spatie/helpers/route';
 import type { NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
@@ -20,7 +20,7 @@ import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: route('dashboard'),
         icon: LayoutGrid,
     },
 ];
@@ -45,7 +45,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="dashboard()">
+                        <Link :href="route('dashboard')">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>

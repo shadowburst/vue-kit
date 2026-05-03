@@ -1,13 +1,11 @@
 <script setup lang="ts">
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/DeleteUser.vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { edit } from '@/routes/profile';
-import { send } from '@/routes/verification';
+import { route } from '@/spatie/helpers/route';
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -23,7 +21,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Profile settings',
-                href: edit(),
+                href: route('profile.edit'),
             },
         ],
     },
@@ -41,7 +39,7 @@ const user = computed(() => page.props.auth.user);
     <div class="flex flex-col space-y-6">
         <Heading variant="small" title="Profile information" description="Update your name and email address" />
 
-        <Form v-bind="ProfileController.update.form()" class="space-y-6" v-slot="{ errors, processing }">
+        <Form :action="route('profile.update')" method="patch" class="space-y-6" v-slot="{ errors, processing }">
             <div class="grid gap-2">
                 <Label for="name">Name</Label>
                 <Input
@@ -75,7 +73,7 @@ const user = computed(() => page.props.auth.user);
                 <p class="-mt-4 text-sm text-muted-foreground">
                     Your email address is unverified.
                     <Link
-                        :href="send()"
+                        :href="route('verification.send')"
                         as="button"
                         class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                     >

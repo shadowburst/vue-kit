@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { login } from '@/routes';
-import { email } from '@/routes/password';
+import { route } from '@/spatie/helpers/route';
 import { Form, Head } from '@inertiajs/vue3';
 
 defineOptions({
@@ -29,7 +28,7 @@ defineProps<{
     </div>
 
     <div class="space-y-6">
-        <Form v-bind="email.form()" v-slot="{ errors, processing }">
+        <Form :action="route('password.email')" method="post" v-slot="{ errors, processing }">
             <div class="grid gap-2">
                 <Label for="email">Email address</Label>
                 <Input
@@ -53,7 +52,7 @@ defineProps<{
 
         <div class="space-x-1 text-center text-sm text-muted-foreground">
             <span>Or, return to</span>
-            <TextLink :href="login()">log in</TextLink>
+            <TextLink :href="route('login')">log in</TextLink>
         </div>
     </div>
 </template>

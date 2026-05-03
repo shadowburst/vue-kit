@@ -1,4 +1,4 @@
-import { qrCode, recoveryCodes, secretKey } from '@/routes/two-factor';
+import { route } from '@/spatie/helpers/route';
 import { useHttp } from '@inertiajs/vue3';
 import type { ComputedRef, Ref } from 'vue';
 import { computed, ref } from 'vue';
@@ -26,14 +26,13 @@ const recoveryCodesList = ref<string[]>([]);
 const hasSetupData = computed<boolean>(() => qrCodeSvg.value !== null && manualSetupKey.value !== null);
 
 export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
-    const http = useHttp();
+    const qrCodeHttp = useHttp<object, { svg: string; url: string }>();
+    const secretKeyHttp = useHttp<object, { secretKey: string }>();
+    const recoveryCodesHttp = useHttp<object, string[]>();
 
     const fetchQrCode = async (): Promise<void> => {
         try {
-            const { svg } = (await http.submit(qrCode())) as {
-                svg: string;
-                url: string;
-            };
+            const { svg } = await qrCodeHttp.get(route('two-factor.qr-code'));
 
             qrCodeSvg.value = svg;
         } catch {
@@ -44,9 +43,7 @@ export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
 
     const fetchSetupKey = async (): Promise<void> => {
         try {
-            const { secretKey: key } = (await http.submit(secretKey())) as {
-                secretKey: string;
-            };
+            const { secretKey: key } = await secretKeyHttp.get(route('two-factor.secret-key'));
 
             manualSetupKey.value = key;
         } catch {
@@ -74,7 +71,7 @@ export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
     const fetchRecoveryCodes = async (): Promise<void> => {
         try {
             clearErrors();
-            recoveryCodesList.value = (await http.submit(recoveryCodes())) as string[];
+            recoveryCodesList.value = await recoveryCodesHttp.get(route('two-factor.recovery-codes'));
         } catch {
             errors.value.push('Failed to fetch recovery codes');
             recoveryCodesList.value = [];
