@@ -24,6 +24,18 @@
         "spatie-laravel-php",
         "spatie-security",
         "spatie-version-control",
-        "mago-code-quality"
+        "caveman",
+        "diagnose",
+        "grill-me",
+        "grill-with-docs",
+        "improve-codebase-architecture",
+        "mago-code-quality",
+        "setup-matt-pocock-skills",
+        "tdd",
+        "to-issues",
+        "to-prd",
+        "triage",
+        "write-a-skill",
+        "zoom-out"
     ]
 }
