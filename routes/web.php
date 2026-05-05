@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\CurrentTeamController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TeamsController;
@@ -11,6 +12,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::get('teams/create', [TeamsController::class, 'create'])->name('teams.create');
+    Route::put('current-team', [CurrentTeamController::class, 'update'])->name('current-team.update');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

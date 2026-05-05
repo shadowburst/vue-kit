@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { route } from '@/spatie/helpers/route';
 import type { BreadcrumbItem } from '@/types';
+import { useForm, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 withDefaults(
     defineProps<{
@@ -11,6 +15,21 @@ withDefaults(
         breadcrumbs: () => [],
     },
 );
+
+const page = usePage();
+
+const currentTeam = computed(() => page.props.currentTeam ?? null);
+const userTeams = computed(() => page.props.auth?.user?.teams ?? []);
+const showTeamSwitcher = computed(() => currentTeam.value !== null && userTeams.value.length > 1);
+
+const form = useForm({
+    team_id: null as number | null,
+});
+
+function switchTeam(value: string): void {
+    form.team_id = Number(value);
+    form.put(route('current-team.update'));
+}
 </script>
 
 <template>
@@ -22,6 +41,19 @@ withDefaults(
             <template v-if="breadcrumbs && breadcrumbs.length > 0">
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
+        </div>
+
+        <div v-if="showTeamSwitcher" class="ml-auto">
+            <Select :model-value="String(currentTeam?.id)" @update:model-value="switchTeam">
+                <SelectTrigger class="w-48">
+                    <SelectValue :placeholder="currentTeam?.name" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem v-for="team in userTeams" :key="team.id" :value="String(team.id)">
+                        {{ team.name }}
+                    </SelectItem>
+                </SelectContent>
+            </Select>
         </div>
     </header>
 </template>
