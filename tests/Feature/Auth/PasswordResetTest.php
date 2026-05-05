@@ -11,7 +11,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 beforeEach(function () {
-    skipUnlessFortifyHas(Features::resetPasswords());
+    skip_unless_fortify_has(Features::resetPasswords());
 });
 
 test('reset password link screen can be rendered', function () {

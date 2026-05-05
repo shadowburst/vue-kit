@@ -11,14 +11,21 @@ use Symfony\Component\Finder\Finder;
 /**
  * @return list<class-string>
  */
-function controllerClasses(): array
+function controller_classes(): array
 {
     $base    = app_path('Http/Controllers');
     $classes = [];
 
-    foreach ((new Finder())->in($base)->files()->name('*.php') as $file) {
-        $relative = str_replace([$base.DIRECTORY_SEPARATOR, '.php', DIRECTORY_SEPARATOR], ['', '', '\\'], $file->getRealPath());
-        $class    = 'App\\Http\\Controllers\\'.$relative;
+    foreach ((new Finder)
+        ->in($base)
+        ->files()
+        ->name('*.php') as $file) {
+        $relative = str_replace(
+            [$base.DIRECTORY_SEPARATOR, '.php', DIRECTORY_SEPARATOR],
+            ['', '', '\\'],
+            $file->getPathname(),
+        );
+        $class = 'App\\Http\\Controllers\\'.$relative;
 
         if (! class_exists($class)) {
             continue;
@@ -40,7 +47,7 @@ it('only exposes resource verbs as public instance methods', function (): void {
     $allowed    = ['__construct', 'index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];
     $violations = [];
 
-    foreach (controllerClasses() as $class) {
+    foreach (controller_classes() as $class) {
         $reflection = new ReflectionClass($class);
 
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
@@ -58,25 +65,27 @@ it('only exposes resource verbs as public instance methods', function (): void {
         }
     }
 
-    expect($violations)->toBe([], 'Controllers must only expose resource verbs as public instance methods. Found: '.implode(', ', $violations));
+    expect($violations)->toBeEmpty();
 });
 
 it('does not use __invoke', function (): void {
     $violations = [];
 
-    foreach (controllerClasses() as $class) {
-        if ((new ReflectionClass($class))->hasMethod('__invoke')) {
-            $violations[] = $class;
+    foreach (controller_classes() as $class) {
+        if (! (new ReflectionClass($class))->hasMethod('__invoke')) {
+            continue;
         }
+
+        $violations[] = $class;
     }
 
-    expect($violations)->toBe([], '__invoke is banned on controllers. Found: '.implode(', ', $violations));
+    expect($violations)->toBeEmpty();
 });
 
 it('declares non-public methods as private, never protected', function (): void {
     $violations = [];
 
-    foreach (controllerClasses() as $class) {
+    foreach (controller_classes() as $class) {
         $reflection = new ReflectionClass($class);
 
         foreach ($reflection->getMethods(ReflectionMethod::IS_PROTECTED) as $method) {
@@ -88,5 +97,5 @@ it('declares non-public methods as private, never protected', function (): void 
         }
     }
 
-    expect($violations)->toBe([], 'Non-public controller methods must be private, not protected. Found: '.implode(', ', $violations));
+    expect($violations)->toBeEmpty();
 });

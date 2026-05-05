@@ -11,7 +11,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
-    skipUnlessFortifyHas(Features::emailVerification());
+    skip_unless_fortify_has(Features::emailVerification());
 });
 
 test('email verification screen can be rendered', function () {

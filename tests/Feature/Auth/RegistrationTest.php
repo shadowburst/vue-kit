@@ -9,7 +9,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 beforeEach(function () {
-    skipUnlessFortifyHas(Features::registration());
+    skip_unless_fortify_has(Features::registration());
 });
 
 test('registration screen can be rendered', function () {

@@ -44,8 +44,7 @@ pest()
  |
  */
 
-/** @mago-expect lint:function-name */
-function skipUnlessFortifyHas(string $feature, ?string $message = null): void
+function skip_unless_fortify_has(string $feature, ?string $message = null): void
 {
     if (! Features::enabled($feature)) {
         PHPUnit\Framework\Assert::markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");

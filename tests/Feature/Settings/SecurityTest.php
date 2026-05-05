@@ -10,7 +10,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\actingAs;
 
 test('security page is displayed', function () {
-    skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skip_unless_fortify_has(Features::twoFactorAuthentication());
 
     Features::twoFactorAuthentication([
         'confirm'         => true,
@@ -32,7 +32,7 @@ test('security page is displayed', function () {
 });
 
 test('security page requires password confirmation when enabled', function () {
-    skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skip_unless_fortify_has(Features::twoFactorAuthentication());
 
     $user = User::factory()->createOne();
 
@@ -47,7 +47,7 @@ test('security page requires password confirmation when enabled', function () {
 });
 
 test('security page does not require password confirmation when disabled', function () {
-    skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skip_unless_fortify_has(Features::twoFactorAuthentication());
 
     $user = User::factory()->createOne();
 
@@ -67,7 +67,7 @@ test('security page does not require password confirmation when disabled', funct
 });
 
 test('security page renders without two factor when feature is disabled', function () {
-    skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skip_unless_fortify_has(Features::twoFactorAuthentication());
 
     config(['fortify.features' => []]);
 
