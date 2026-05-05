@@ -22,19 +22,32 @@ A named bundle of **Permissions**. Either *global* (`team_id = null` — applies
 A single capability check expressed in dot notation (`user.view`, `team.update`). The unit on which all authorization decisions are made. Listed in the `PermissionName` enum.
 _Avoid_: ability, capability, gate.
 
+**Subscription**:
+A Stripe-backed billing relationship between a **Team** and the application, managed via Cashier. The **Team** is the billable entity (not the User) — per ADR-0007 every Team carries the `Billable` trait and `teams.stripe_id` references the Stripe Customer. A Team with no active subscription is on the `Free` **Tier**.
+_Avoid_: plan, account.
+
+**Tier**:
+The level of access a **Team** has, derived from its **Subscription** state. Listed in the `SubscriptionTier` enum (`Free`, `Pro`) and strictly ordered — `Pro` is a superset of `Free`. `Free` is represented by the absence of an active subscription, not a `$0` Stripe row.
+
+**Feature**:
+A tier-gated capability resolved at runtime via Laravel Pennant, scoped to the **Team**. Distinct from a **Permission**: a Permission answers "is this role allowed to do this?", a Feature answers "did this team pay for this?". Per ADR-0008 the two axes are evaluated independently and surface to the frontend as parallel DTOs (`UserAbilitiesData`, `TeamFeaturesData`).
+_Avoid_: flag, ability.
+
 ## Roles
 
 | Role | Scope | Permissions |
 |---|---|---|
 | `super-admin` | global | `admin` |
 | `tester` | global | `test` |
-| `owner` | team | `user.*`, `team.*` |
-| `admin` | team | `user.*` |
+| `owner` | team | `user.*`, `team.*`, `subscription.*` |
+| `admin` | team | `user.*`, `subscription.view` |
 | `member` | team | `user.viewAny`, `user.view`, `team.view` |
 
 `user.*` covers **Membership** management within the team (invite, view, change role, remove) — not editing of global User profile fields.
 
 `team.*` excludes `team.create`: creating a team has no team context yet, so it is ungated and any authenticated user may create one. The creator becomes the **Owner** of the new team.
+
+`subscription.*` covers viewing and managing the team's **Subscription**. Owner gets both; Admin gets only `subscription.view` (they can read the current plan but cannot rack up charges on the Owner's card); Member gets neither. Deleting a team via `team.delete` cancels the Stripe subscription immediately, not at period end.
 
 ## Permissions
 
@@ -49,6 +62,8 @@ user.delete              # team — remove a member
 team.view                # team — view team settings
 team.update              # team — edit team settings
 team.delete              # team — delete the team
+subscription.view        # team — see current Subscription, invoices, upcoming charge
+subscription.update      # team — start/swap/cancel Subscription, manage payment method
 ```
 
 ## Relationships
