@@ -9,9 +9,10 @@ arch('actions are final')
     ->classes()
     ->toBeFinal();
 
-// Non-Fortify actions must end with 'Action' and use QueueableAction.
-arch('non-Fortify actions end with the Action suffix')
+// Non-Fortify actions must: not end with 'Action', be final, and use QueueableAction.
+arch('non-Fortify actions do not end with the Action suffix')
     ->expect('App\Actions')
+    ->not
     ->toHaveSuffix('Action')
     ->ignoring('App\Actions\Fortify');
 

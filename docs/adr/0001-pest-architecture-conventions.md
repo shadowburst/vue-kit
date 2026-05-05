@@ -77,21 +77,31 @@ is intentionally left unconstrained.
 
 Every non-Fortify class under `App\Actions` must satisfy all five constraints:
 
-1. Class name ends with `Action`
+1. Class name does **not** end with `Action`
 2. Class is `final`
 3. Class uses the `Spatie\QueueableAction\QueueableAction` trait
 4. Exactly one own public method: `execute`
 5. No own protected methods
 
-Fortify action classes are excluded from constraints 1, 3, 4, and 5 because
+Fortify action classes are excluded from constraints 3, 4, and 5 because
 they implement framework contracts with different method names (`create`,
-`reset`). They are still required to be `final` (constraint 2).
+`reset`). They are still required to be `final` (constraint 2) and naturally
+satisfy constraint 1 (`CreateNewUser`, `ResetUserPassword`).
 
 ### Alternatives Considered
 
 **No shape convention** — each developer decides how to structure actions.
 *Rejected:* leads to inconsistency: some actions have `handle`, some `__invoke`,
 some `run`; callers need to inspect each class individually.
+
+**Required `Action` suffix on the class name** — match conventions like
+`App\Data` where every class ends with its namespace's name.
+*Rejected:* actions are typically constructor-injected, so the namespace import
+already labels them at every use site (`private CreateNewUser $createNewUser`).
+The suffix is redundant. Compare to `App\Data`, where classes are instantiated
+inline (`new UserSettingsData(...)`) and the suffix carries weight at the call
+site. Fortify's existing classes (`CreateNewUser`, `ResetUserPassword`)
+demonstrate the no-suffix style is readable.
 
 **`__invoke` instead of `execute`** — makes actions callable as closures.
 *Rejected:* `execute` is the method name `QueueableAction` dispatches via the
