@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Actions\Teams\CreateTeam;
 use App\Enums\RoleName;
-
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Spatie\Permission\PermissionRegistrar;
@@ -12,11 +11,11 @@ use Spatie\Permission\PermissionRegistrar;
 it('reassigns current_team_id when removing a member who belongs to multiple teams', function (): void {
     $this->seed(RolePermissionSeeder::class);
 
-    $ownerA  = User::factory()->create();
-    $teamA   = (new CreateTeam)->execute('Team A', $ownerA);
+    $ownerA = User::factory()->create();
+    $teamA  = (new CreateTeam)->execute('Team A', $ownerA);
 
-    $ownerB  = User::factory()->create();
-    $teamB   = (new CreateTeam)->execute('Team B', $ownerB);
+    $ownerB = User::factory()->create();
+    $teamB  = (new CreateTeam)->execute('Team B', $ownerB);
 
     $member = User::factory()->create(['current_team_id' => $teamA->id]);
 
@@ -35,8 +34,8 @@ it('reassigns current_team_id when removing a member who belongs to multiple tea
 it('sets current_team_id to null when removing the only role in the current team with no other teams', function (): void {
     $this->seed(RolePermissionSeeder::class);
 
-    $owner  = User::factory()->create();
-    $teamA  = (new CreateTeam)->execute('Team A', $owner);
+    $owner = User::factory()->create();
+    $teamA = (new CreateTeam)->execute('Team A', $owner);
 
     $member = User::factory()->create(['current_team_id' => $teamA->id]);
 
@@ -114,6 +113,5 @@ it('reassigns current_team_id for all members when a team is deleted', function 
 
     $teamA->delete();
 
-    expect($member1->fresh()->current_team_id)->toBe($teamB->id)
-        ->and($member2->fresh()->current_team_id)->toBeNull();
+    expect($member1->fresh()->current_team_id)->toBe($teamB->id)->and($member2->fresh()->current_team_id)->toBeNull();
 });

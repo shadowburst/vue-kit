@@ -22,7 +22,9 @@ final class TeamPolicy
 
     public function delete(User $user, Team $team): bool
     {
-        return $user->can(PermissionName::TeamDelete->value)
-            && $user->ownedTeams()->where('teams.id', '!=', $team->id)->exists();
+        return (
+            $user->can(PermissionName::TeamDelete->value)
+            && $user->ownedTeams()->where('teams.id', '!=', $team->id)->exists()
+        );
     }
 }

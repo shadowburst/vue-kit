@@ -20,9 +20,10 @@ beforeEach(function (): void {
 test('guest request shares null currentTeam and null auth.user', function (): void {
     get(route('home'))
         ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('currentTeam', null)
-            ->where('auth.user', null)
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('currentTeam', null)
+                ->where('auth.user', null),
         );
 });
 
@@ -41,21 +42,23 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
     actingAs($user);
 
     $expectedPermissions = collect(RoleName::Owner->permissions())
-        ->map->value
+        ->map
+        ->value
         ->sort()
         ->values()
         ->all();
 
     get(route('home'))
         ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('currentTeam.id', $team->id)
-            ->where('currentTeam.name', 'Acme Corp')
-            ->where('currentTeam.slug', 'acme-corp')
-            ->has('auth.user.teams', 1)
-            ->where('auth.user.teams.0.id', $team->id)
-            ->where('auth.user.teams.0.name', 'Acme Corp')
-            ->where('auth.user.permissions', $expectedPermissions)
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('currentTeam.id', $team->id)
+                ->where('currentTeam.name', 'Acme Corp')
+                ->where('currentTeam.slug', 'acme-corp')
+                ->has('auth.user.teams', 1)
+                ->where('auth.user.teams.0.id', $team->id)
+                ->where('auth.user.teams.0.name', 'Acme Corp')
+                ->where('auth.user.permissions', $expectedPermissions),
         );
 });
 
@@ -73,16 +76,18 @@ test('authenticated Admin gets correct currentTeam, teams, and permissions', fun
     actingAs($admin);
 
     $expectedPermissions = collect(RoleName::Admin->permissions())
-        ->map->value
+        ->map
+        ->value
         ->sort()
         ->values()
         ->all();
 
     get(route('home'))
         ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('currentTeam.id', $team->id)
-            ->where('auth.user.permissions', $expectedPermissions)
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('currentTeam.id', $team->id)
+                ->where('auth.user.permissions', $expectedPermissions),
         );
 });
 
@@ -100,15 +105,17 @@ test('authenticated Member gets correct currentTeam, teams, and permissions', fu
     actingAs($member);
 
     $expectedPermissions = collect(RoleName::Member->permissions())
-        ->map->value
+        ->map
+        ->value
         ->sort()
         ->values()
         ->all();
 
     get(route('home'))
         ->assertOk()
-        ->assertInertia(fn (AssertableInertia $page) => $page
-            ->where('currentTeam.id', $team->id)
-            ->where('auth.user.permissions', $expectedPermissions)
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('currentTeam.id', $team->id)
+                ->where('auth.user.permissions', $expectedPermissions),
         );
 });

@@ -46,17 +46,19 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name'        => config('app.name'),
             'auth'        => [
-                'user' => $user ? [
-                    ...$user->toArray(),
-                    'teams'       => $user->teams()->get(['teams.id', 'teams.name', 'teams.slug']),
-                    'permissions' => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
-                ] : null,
+                'user' => $user
+                    ? [
+                        ...$user->toArray(),
+                        'teams'       => $user->teams()->get(['teams.id', 'teams.name', 'teams.slug']),
+                        'permissions' => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
+                    ] : null,
             ],
-            'currentTeam' => $currentTeam instanceof Team ? [
-                'id'   => $currentTeam->id,
-                'name' => $currentTeam->name,
-                'slug' => $currentTeam->slug,
-            ] : null,
+            'currentTeam' => $currentTeam instanceof Team
+                ? [
+                    'id'   => $currentTeam->id,
+                    'name' => $currentTeam->name,
+                    'slug' => $currentTeam->slug,
+                ] : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale'      => app()->getLocale(),
             'appLocales'  => AppLocale::cases(),

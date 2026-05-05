@@ -57,8 +57,8 @@ test('null current_team_id self-heals to first available team and persists', fun
 test('current_team_id pointing at non-member team self-heals to own team', function (): void {
     $this->seed(RolePermissionSeeder::class);
 
-    $user      = User::factory()->create();
-    $userTeam  = (new CreateTeam)->execute('User Team', $user);
+    $user     = User::factory()->create();
+    $userTeam = (new CreateTeam)->execute('User Team', $user);
 
     $otherUser = User::factory()->create();
     $otherTeam = (new CreateTeam)->execute('Other Team', $otherUser);

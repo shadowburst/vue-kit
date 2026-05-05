@@ -14,7 +14,7 @@ beforeEach(function (): void {
 });
 
 test('member can switch to a team they belong to and current_team_id persists', function (): void {
-    $user = User::factory()->create();
+    $user  = User::factory()->create();
     $teamA = (new CreateTeam)->execute('Team A', $user);
     $teamB = (new CreateTeam)->execute('Team B', $user);
     $user->update(['current_team_id' => $teamA->id]);
@@ -27,8 +27,8 @@ test('member can switch to a team they belong to and current_team_id persists', 
 });
 
 test('non-member gets 403 and current_team_id is unchanged', function (): void {
-    $owner = User::factory()->create();
-    $other = User::factory()->create();
+    $owner     = User::factory()->create();
+    $other     = User::factory()->create();
     $ownerTeam = (new CreateTeam)->execute('Owner Team', $owner);
     $otherTeam = (new CreateTeam)->execute('Other Team', $other);
     $owner->update(['current_team_id' => $ownerTeam->id]);
