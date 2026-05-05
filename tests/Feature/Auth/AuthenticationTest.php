@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
@@ -11,6 +12,8 @@ use function Pest\Laravel\assertAuthenticated;
 use function Pest\Laravel\assertGuest;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
+
+beforeEach(fn () => $this->withoutMiddleware(SetCurrentTeam::class));
 
 test('login screen can be rendered', function () {
     $response = get(route('login'));

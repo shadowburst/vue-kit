@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Notification;
@@ -11,6 +12,7 @@ use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
     skip_unless_fortify_has(Features::emailVerification());
+    $this->withoutMiddleware(SetCurrentTeam::class);
 });
 
 test('sends verification notification', function () {

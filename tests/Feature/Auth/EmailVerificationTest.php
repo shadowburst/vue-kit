@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
@@ -12,6 +13,7 @@ use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
     skip_unless_fortify_has(Features::emailVerification());
+    $this->withoutMiddleware(SetCurrentTeam::class);
 });
 
 test('email verification screen can be rendered', function () {

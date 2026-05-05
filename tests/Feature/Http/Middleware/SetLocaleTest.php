@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Data\UserSettingsData;
 use App\Enums\AppLocale;
+use App\Http\Middleware\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\withUnencryptedCookies;
 
 beforeEach(function (): void {
+    $this->withoutMiddleware(SetCurrentTeam::class);
     Route::get('/_test/locale', fn () => response()->json(['locale' => app()->getLocale()]))->middleware('web');
 });
 
