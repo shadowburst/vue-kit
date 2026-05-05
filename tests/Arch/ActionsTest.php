@@ -61,10 +61,21 @@ test('non-Fortify actions declare exactly one public execute method and no prote
 
         $ref = new ReflectionClass($className);
 
-        // Own-declared methods only: filter by ReflectionMethod::$class matching the class under inspection.
+        // PHP flattens trait methods into the using class, so $m->class and getDeclaringClass()
+        // both return the using class — not the trait. Build an exclusion set from all traits
+        // (direct and transitive) so they are not counted as the class's own declarations.
+        $traitMethodNames = [];
+        foreach (class_uses_recursive($ref->getName()) as $traitName) {
+            foreach ((new ReflectionClass($traitName))->getMethods() as $traitMethod) {
+                $traitMethodNames[$traitMethod->getName()] = true;
+            }
+        }
+
+        // Own-declared methods only: on this class, and not sourced from any trait.
         $ownMethods = array_filter(
             $ref->getMethods(),
-            fn (ReflectionMethod $m): bool => $m->class === $ref->getName(),
+            fn (ReflectionMethod $m): bool => $m->class === $ref->getName()
+                && ! isset($traitMethodNames[$m->getName()]),
         );
 
         $publicNonConstructor = array_values(array_filter(
