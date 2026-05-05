@@ -32,14 +32,23 @@ export default defineConfig({
         i18n(),
         watchAndRun([
             {
-                name: 'spatie-typescript',
+                name: 'spatie-data',
+                watch: [path.resolve('app/Data/**/*.php')],
+                run: 'php artisan typescript:transform',
+            },
+            {
+                name: 'wayfinder',
                 watch: [
-                    path.resolve('app/Data/**/*.php'),
+                    path.resolve('app/Models/**/*.php'),
                     path.resolve('app/Enums/**/*.php'),
                     path.resolve('app/Http/Controllers/**/*.php'),
+                    path.resolve('app/Http/Requests/**/*.php'),
+                    path.resolve('app/Http/Resources/**/*.php'),
+                    path.resolve('app/Http/Middleware/**/*.php'),
+                    path.resolve('app/Data/**/*.php'),
                     path.resolve('routes/**/*.php'),
                 ],
-                run: 'php artisan typescript:transform',
+                run: 'php artisan wayfinder:generate',
             },
         ]),
     ],

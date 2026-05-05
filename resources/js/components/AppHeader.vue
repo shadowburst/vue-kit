@@ -17,8 +17,8 @@ import UserMenuContent from '@/components/UserMenuContent.vue';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials } from '@/composables/useInitials';
 import { toUrl } from '@/lib/utils';
-import { route } from '@/spatie/helpers/route';
 import type { BreadcrumbItem, NavItem } from '@/types';
+import DashboardController from '@/wayfinder/App/Http/Controllers/DashboardController';
 import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from '@lucide/vue';
 import { computed } from 'vue';
@@ -40,7 +40,7 @@ const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: route('dashboard'),
+        href: DashboardController.index(),
         icon: LayoutGrid,
     },
 ];
@@ -107,7 +107,7 @@ const rightNavItems: NavItem[] = [
                     </Sheet>
                 </div>
 
-                <Link :href="route('dashboard')" class="flex items-center gap-x-2">
+                <Link :href="DashboardController.index()" class="flex items-center gap-x-2">
                     <AppLogo />
                 </Link>
 

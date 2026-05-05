@@ -14,7 +14,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { route } from '@/spatie/helpers/route';
+import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import { Form } from '@inertiajs/vue3';
 import { useTemplateRef } from 'vue';
 
@@ -35,8 +35,7 @@ const passwordInput = useTemplateRef('passwordInput');
                 </DialogTrigger>
                 <DialogContent>
                     <Form
-                        :action="route('profile.destroy')"
-                        method="delete"
+                        :action="ProfileController.destroy()"
                         reset-on-success
                         @error="() => passwordInput?.focus()"
                         :options="{

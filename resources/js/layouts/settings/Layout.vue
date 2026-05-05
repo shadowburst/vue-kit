@@ -4,26 +4,29 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { toUrl } from '@/lib/utils';
-import { route } from '@/spatie/helpers/route';
 import type { NavItem } from '@/types';
+import AppearanceController from '@/wayfinder/App/Http/Controllers/Settings/AppearanceController';
+import LocaleController from '@/wayfinder/App/Http/Controllers/Settings/LocaleController';
+import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
+import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
 import { Link } from '@inertiajs/vue3';
 
 const sidebarNavItems: NavItem[] = [
     {
         title: 'Profile',
-        href: route('profile.edit'),
+        href: ProfileController.edit(),
     },
     {
         title: 'Security',
-        href: route('security.edit'),
+        href: SecurityController.edit(),
     },
     {
         title: 'Appearance',
-        href: route('appearance.edit'),
+        href: AppearanceController.edit(),
     },
     {
         title: 'Language',
-        href: route('locale.edit'),
+        href: LocaleController.edit(),
     },
 ];
 

@@ -7,7 +7,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { route } from '@/spatie/helpers/route';
+import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
+import PasswordResetLinkController from '@/wayfinder/Laravel/Fortify/Http/Controllers/PasswordResetLinkController';
+import RegisteredUserController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RegisteredUserController';
 import { Form, Head } from '@inertiajs/vue3';
 
 defineOptions({
@@ -32,8 +34,7 @@ defineProps<{
     </div>
 
     <Form
-        :action="route('login.store')"
-        method="post"
+        :action="AuthenticatedSessionController.store()"
         :reset-on-success="['password']"
         v-slot="{ errors, processing }"
         class="flex flex-col gap-6"
@@ -57,7 +58,12 @@ defineProps<{
             <div class="grid gap-2">
                 <div class="flex items-center justify-between">
                     <Label for="password">Password</Label>
-                    <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
+                    <TextLink
+                        v-if="canResetPassword"
+                        :href="PasswordResetLinkController.create()"
+                        class="text-sm"
+                        :tabindex="5"
+                    >
                         Forgot password?
                     </TextLink>
                 </div>
@@ -87,7 +93,7 @@ defineProps<{
 
         <div class="text-center text-sm text-muted-foreground" v-if="canRegister">
             Don't have an account?
-            <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
+            <TextLink :href="RegisteredUserController.create()" :tabindex="5">Sign up</TextLink>
         </div>
     </Form>
 </template>

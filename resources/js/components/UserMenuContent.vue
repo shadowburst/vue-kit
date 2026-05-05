@@ -6,8 +6,9 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import UserInfo from '@/components/UserInfo.vue';
-import { route } from '@/spatie/helpers/route';
 import type { User } from '@/types';
+import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
+import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from '@lucide/vue';
 
@@ -31,7 +32,7 @@ defineProps<Props>();
     <DropdownMenuSeparator />
     <DropdownMenuGroup>
         <DropdownMenuItem :as-child="true">
-            <Link class="block w-full cursor-pointer" :href="route('profile.edit')" prefetch>
+            <Link class="block w-full cursor-pointer" :href="ProfileController.edit()" prefetch>
                 <Settings class="mr-2 h-4 w-4" />
                 Settings
             </Link>
@@ -41,7 +42,7 @@ defineProps<Props>();
     <DropdownMenuItem :as-child="true">
         <Link
             class="block w-full cursor-pointer"
-            :href="route('logout')"
+            :href="AuthenticatedSessionController.destroy()"
             @click="handleLogout"
             as="button"
             data-test="logout-button"

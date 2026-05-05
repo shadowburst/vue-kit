@@ -1,4 +1,6 @@
-import { route } from '@/spatie/helpers/route';
+import RecoveryCodeController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RecoveryCodeController';
+import TwoFactorQrCodeController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorQrCodeController';
+import TwoFactorSecretKeyController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorSecretKeyController';
 import { useHttp } from '@inertiajs/vue3';
 import type { ComputedRef, Ref } from 'vue';
 import { computed, ref } from 'vue';
@@ -32,7 +34,7 @@ export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
 
     const fetchQrCode = async (): Promise<void> => {
         try {
-            const { svg } = await qrCodeHttp.get(route('two-factor.qr-code'));
+            const { svg } = await qrCodeHttp.get(TwoFactorQrCodeController.show.url());
 
             qrCodeSvg.value = svg;
         } catch {
@@ -43,7 +45,7 @@ export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
 
     const fetchSetupKey = async (): Promise<void> => {
         try {
-            const { secretKey: key } = await secretKeyHttp.get(route('two-factor.secret-key'));
+            const { secretKey: key } = await secretKeyHttp.get(TwoFactorSecretKeyController.show.url());
 
             manualSetupKey.value = key;
         } catch {
@@ -71,7 +73,7 @@ export const useTwoFactorAuth = (): UseTwoFactorAuthReturn => {
     const fetchRecoveryCodes = async (): Promise<void> => {
         try {
             clearErrors();
-            recoveryCodesList.value = await recoveryCodesHttp.get(route('two-factor.recovery-codes'));
+            recoveryCodesList.value = await recoveryCodesHttp.get(RecoveryCodeController.index.url());
         } catch {
             errors.value.push('Failed to fetch recovery codes');
             recoveryCodesList.value = [];

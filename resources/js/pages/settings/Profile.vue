@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFormat } from '@/composables/useFormat';
-import { route } from '@/spatie/helpers/route';
+import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
+import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -22,7 +23,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Profile settings',
-                href: route('profile.edit'),
+                href: ProfileController.edit(),
             },
         ],
     },
@@ -41,7 +42,7 @@ const { formatDate } = useFormat();
     <div class="flex flex-col space-y-6">
         <Heading variant="small" title="Profile information" description="Update your name and email address" />
 
-        <Form :action="route('profile.update')" method="patch" class="space-y-6" v-slot="{ errors, processing }">
+        <Form :action="ProfileController.update()" class="space-y-6" v-slot="{ errors, processing }">
             <div class="grid gap-2">
                 <Label for="name">Name</Label>
                 <Input
@@ -75,7 +76,7 @@ const { formatDate } = useFormat();
                 <p class="-mt-4 text-sm text-muted-foreground">
                     Your email address is unverified.
                     <Link
-                        :href="route('verification.send')"
+                        :href="EmailVerificationNotificationController.store()"
                         as="button"
                         class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                     >

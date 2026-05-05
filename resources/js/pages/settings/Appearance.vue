@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import Heading from '@/components/Heading.vue';
-import { route } from '@/spatie/helpers/route';
+import AppearanceController from '@/wayfinder/App/Http/Controllers/Settings/AppearanceController';
 import { Head } from '@inertiajs/vue3';
 
 defineOptions({
@@ -9,7 +9,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Appearance settings',
-                href: route('appearance.edit'),
+                href: AppearanceController.edit(),
             },
         ],
     },

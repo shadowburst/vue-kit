@@ -4,7 +4,7 @@ import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { route } from '@/spatie/helpers/route';
+import ConfirmablePasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/ConfirmablePasswordController';
 import { Form, Head } from '@inertiajs/vue3';
 
 defineOptions({
@@ -18,7 +18,7 @@ defineOptions({
 <template>
     <Head title="Confirm password" />
 
-    <Form :action="route('password.confirm.store')" method="post" reset-on-success v-slot="{ errors, processing }">
+    <Form :action="ConfirmablePasswordController.store()" reset-on-success v-slot="{ errors, processing }">
         <div class="space-y-6">
             <div class="grid gap-2">
                 <Label htmlFor="password">Password</Label>

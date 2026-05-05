@@ -7,8 +7,8 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { Spinner } from '@/components/ui/spinner';
 import { useAppearance } from '@/composables/useAppearance';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import { route } from '@/spatie/helpers/route';
 import type { TwoFactorConfigContent } from '@/types';
+import ConfirmedTwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/ConfirmedTwoFactorAuthenticationController';
 import { Form } from '@inertiajs/vue3';
 import { Check, Copy, ScanLine } from '@lucide/vue';
 import { useClipboard } from '@vueuse/core';
@@ -187,8 +187,7 @@ watch(
 
                 <template v-else>
                     <Form
-                        :action="route('two-factor.confirm')"
-                        method="post"
+                        :action="ConfirmedTwoFactorAuthenticationController.store()"
                         error-bag="confirmTwoFactorAuthentication"
                         reset-on-error
                         @finish="code = ''"

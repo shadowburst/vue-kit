@@ -4,7 +4,7 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { route } from '@/spatie/helpers/route';
+import LocaleController from '@/wayfinder/App/Http/Controllers/Settings/LocaleController';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 
@@ -13,7 +13,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Language settings',
-                href: route('locale.edit'),
+                href: LocaleController.edit(),
             },
         ],
     },
@@ -36,9 +36,9 @@ function localeLabel(locale: string): string {
 
 function submit(): void {
     if (page.props.auth.user) {
-        form.patch(route('locale.store'));
+        form.patch(LocaleController.store.url());
     } else {
-        form.put(route('locale.update'));
+        form.put(LocaleController.update.url());
     }
 }
 </script>

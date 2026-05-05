@@ -3,8 +3,8 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
-import { route } from '@/spatie/helpers/route';
 import type { TwoFactorConfigContent } from '@/types';
+import TwoFactorAuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticatedSessionController';
 import { Form, Head, setLayoutProps } from '@inertiajs/vue3';
 import { computed, ref, watchEffect } from 'vue';
 
@@ -48,8 +48,7 @@ const code = ref<string>('');
     <div class="space-y-6">
         <template v-if="!showRecoveryInput">
             <Form
-                :action="route('two-factor.login.store')"
-                method="post"
+                :action="TwoFactorAuthenticatedSessionController.store()"
                 class="space-y-4"
                 reset-on-error
                 @error="code = ''"
@@ -82,8 +81,7 @@ const code = ref<string>('');
 
         <template v-else>
             <Form
-                :action="route('two-factor.login.store')"
-                method="post"
+                :action="TwoFactorAuthenticatedSessionController.store()"
                 class="space-y-4"
                 reset-on-error
                 #default="{ errors, processing, clearErrors }"

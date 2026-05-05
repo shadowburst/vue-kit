@@ -7,7 +7,8 @@ import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import { route } from '@/spatie/helpers/route';
+import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
+import TwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticationController';
 import { Form, Head } from '@inertiajs/vue3';
 import { ShieldCheck } from '@lucide/vue';
 import { onUnmounted, ref } from 'vue';
@@ -29,7 +30,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Security settings',
-                href: route('security.edit'),
+                href: SecurityController.edit(),
             },
         ],
     },
@@ -54,8 +55,7 @@ onUnmounted(() => clearTwoFactorAuthData());
         />
 
         <Form
-            :action="route('user-password.update')"
-            method="put"
+            :action="SecurityController.update()"
             :options="{
                 preserveScroll: true,
             }"
@@ -123,8 +123,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                 <Button v-if="hasSetupData" @click="showSetupModal = true"> <ShieldCheck />Continue setup </Button>
                 <Form
                     v-else
-                    :action="route('two-factor.enable')"
-                    method="post"
+                    :action="TwoFactorAuthenticationController.store()"
                     @success="showSetupModal = true"
                     #default="{ processing }"
                 >
@@ -140,7 +139,7 @@ onUnmounted(() => clearTwoFactorAuthData());
             </p>
 
             <div class="relative inline">
-                <Form :action="route('two-factor.disable')" method="delete" #default="{ processing }">
+                <Form :action="TwoFactorAuthenticationController.destroy()" #default="{ processing }">
                     <Button variant="destructive" type="submit" :disabled="processing"> Disable 2FA </Button>
                 </Form>
             </div>
