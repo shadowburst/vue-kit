@@ -2,22 +2,17 @@
 
 declare(strict_types=1);
 
-// Fortify actions are exempted from the project's Action shape but must still be final.
-arch('Fortify actions are final')
-    ->expect('App\Actions\Fortify')
+// `final` applies to every action, Fortify or not. The Fortify carve-out only exists
+// for the shape rules below (suffix, trait, execute method).
+arch('actions are final')
+    ->expect('App\Actions')
     ->classes()
     ->toBeFinal();
 
-// Non-Fortify actions must: end with 'Action', be final, and use QueueableAction.
+// Non-Fortify actions must end with 'Action' and use QueueableAction.
 arch('non-Fortify actions end with the Action suffix')
     ->expect('App\Actions')
     ->toHaveSuffix('Action')
-    ->ignoring('App\Actions\Fortify');
-
-arch('non-Fortify actions are final')
-    ->expect('App\Actions')
-    ->classes()
-    ->toBeFinal()
     ->ignoring('App\Actions\Fortify');
 
 arch('non-Fortify actions use the QueueableAction trait')

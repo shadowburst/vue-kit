@@ -193,8 +193,7 @@ used for Action shape checking.
 `final` is enforced on:
 
 - All controllers (except the abstract base `Controller`)
-- All non-Fortify actions
-- All Fortify actions
+- All actions (Fortify and non-Fortify alike)
 - All non-abstract Data classes
 
 `final` is **not** enforced on:
