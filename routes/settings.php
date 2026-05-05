@@ -28,7 +28,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:6,1')
         ->name('user-password.update');
 
-    Route::get('settings/appearance', AppearanceController::class)->name('appearance.edit');
+    Route::get('settings/appearance', [AppearanceController::class, 'edit'])->name('appearance.edit');
 
     Route::get('settings/language', [LocaleController::class, 'edit'])->name('locale.edit');
 });

@@ -1,4 +1,4 @@
-# ADR 0001: Pest Architecture Conventions
+# ADR 0004: Pest Architecture Conventions
 
 - **Status:** Accepted
 - **Date:** May 2026
@@ -36,18 +36,18 @@ Controllers are **not** forbidden from using Eloquent directly.
 
 **Strict MVC layering** — forbid controllers from touching models and require a
 service/repository layer. Eliminates all Eloquent usage from controllers.
-*Rejected:* over-engineering for a kit of this size. Laravel's built-in
+_Rejected:_ over-engineering for a kit of this size. Laravel's built-in
 conventions (route model binding, `authorize()`, inline queries for simple reads)
 are idiomatic and widely understood.
 
 **No layering rules at all** — rely on code review alone.
-*Rejected:* the four chosen seams have inverted in practice: a model importing
+_Rejected:_ the four chosen seams have inverted in practice: a model importing
 an HTTP request class or an action calling back into a controller creates a
 dependency cycle that is hard to detect in review.
 
 **Full hexagonal / ports-and-adapters** — enforce a strict domain/application/
 infrastructure split with no cross-layer imports.
-*Rejected:* requires restructuring the entire namespace tree and adds friction
+_Rejected:_ requires restructuring the entire namespace tree and adds friction
 disproportionate to the app's current scale.
 
 ### Reasoning
@@ -55,7 +55,7 @@ disproportionate to the app's current scale.
 The four rules protect exactly the seams that genuinely should not invert:
 models are persistence-level objects that should be HTTP-agnostic; providers
 bootstrap the application and should not pull in routing artefacts; actions are
-called *by* controllers and must not call back into them. Every other direction
+called _by_ controllers and must not call back into them. Every other direction
 (controllers → models, controllers → actions, etc.) is normal Laravel flow and
 is intentionally left unconstrained.
 
@@ -91,7 +91,7 @@ satisfy constraint 1 (`CreateNewUser`, `ResetUserPassword`).
 ### Alternatives Considered
 
 **No shape convention** — each developer decides how to structure actions.
-*Rejected:* leads to inconsistency: some actions have `handle`, some `__invoke`,
+_Rejected:_ leads to inconsistency: some actions have `handle`, some `__invoke`,
 some `run`; callers need to inspect each class individually.
 
 **Required `Action` suffix on the class name** — match conventions like
@@ -104,23 +104,23 @@ site. Fortify's existing classes (`CreateNewUser`, `ResetUserPassword`)
 demonstrate the no-suffix style is readable.
 
 **`__invoke` instead of `execute`** — makes actions callable as closures.
-*Rejected:* `execute` is the method name `QueueableAction` dispatches via the
+_Rejected:_ `execute` is the method name `QueueableAction` dispatches via the
 queue; using `__invoke` would require extra wiring. The `execute` name also
 makes the entry point unambiguous in IDE navigation.
 
 **No `final`** — allow subclassing for test doubles or specialisations.
-*Rejected:* subclassing an action creates "is this helper actually called from
+_Rejected:_ subclassing an action creates "is this helper actually called from
 outside?" ambiguity. Test doubles are better achieved through the action's
 constructor dependencies; specialisation should be a new action.
 
 **No `QueueableAction` trait** — add the trait only when a specific action needs
 to run on a queue.
-*Rejected:* inconsistency: callers cannot assume every action is queueable. The
+_Rejected:_ inconsistency: callers cannot assume every action is queueable. The
 trait has no runtime cost when synchronous dispatch is used, so mandating it on
 all actions costs nothing and makes every action queueable for free.
 
 **`protected` helpers allowed** — permit protected methods for code organisation.
-*Rejected:* protected methods on a `final` class are accessible to no subclass
+_Rejected:_ protected methods on a `final` class are accessible to no subclass
 yet harder to inline-refactor than private methods. Any helper that needs
 visibility beyond private should be extracted to its own class.
 
@@ -128,7 +128,7 @@ visibility beyond private should be extracted to its own class.
 
 The suffix, `final`, and trait constraints are expressible via `arch()`. The
 "exactly one public `execute`" and "no protected methods" constraints require
-inspecting the set of *own-declared* methods (inherited methods must not be
+inspecting the set of _own-declared_ methods (inherited methods must not be
 counted), which requires `ReflectionClass`. The `toSatisfy()` matcher is not
 available in the installed version of `pest-plugin-arch`, so a plain `test()`
 loop with `ReflectionMethod::$class === $ref->getName()` achieves the same
@@ -158,25 +158,25 @@ Every class under `App\Data` must satisfy all three constraints:
 
 **No dedicated namespace** — put DTOs alongside the models they relate to, or
 in a generic `App\DTO` namespace.
-*Rejected:* `App\Data` is the namespace the Spatie laravel-data package
+_Rejected:_ `App\Data` is the namespace the Spatie laravel-data package
 documentation suggests, making it instantly recognisable to any developer
 familiar with the package.
 
 **No suffix requirement** — rely on the namespace alone to signal that a class
 is a data object.
-*Rejected:* the suffix makes the role visible at every call site (`new
+_Rejected:_ the suffix makes the role visible at every call site (`new
 UserSettingsData(...)`) without requiring the reader to remember the namespace
 convention.
 
 **`final` on abstract classes too** — enforce `final` everywhere with no
 exceptions.
-*Rejected:* PHP does not allow a class to be both `abstract` and `final`.
+_Rejected:_ PHP does not allow a class to be both `abstract` and `final`.
 Abstract base Data classes are a legitimate pattern (shared cast logic), so the
 rule targets only concrete classes.
 
 **Allow subclassing of concrete Data classes** — treat Data classes like models
 and allow extension.
-*Rejected:* Data classes are value objects. Subclassing a concrete value object
+_Rejected:_ Data classes are value objects. Subclassing a concrete value object
 can produce subtypes that violate Liskov's substitution principle silently (e.g.
 a subclass that ignores a validation rule). `final` prevents accidental
 subclassing.
@@ -217,30 +217,30 @@ used for Action shape checking.
 ### Alternatives Considered
 
 **`final` on Models** — prevent subclassing of Eloquent models.
-*Rejected:* Eloquent's own documentation uses inheritance for polymorphism (e.g.
+_Rejected:_ Eloquent's own documentation uses inheritance for polymorphism (e.g.
 `HasFactory` extends). Community packages (Nova, Telescope) routinely extend
 application models. Making models `final` would break a large ecosystem of
 legitimate patterns and prevent the `User extends Authenticatable` chain that
 Eloquent itself requires.
 
 **`final` on FormRequests** — prevent subclassing of request classes.
-*Rejected:* mixed community signal. Some teams use a base request class with
+_Rejected:_ mixed community signal. Some teams use a base request class with
 shared authorisation logic; others do not. The community convention is not
 settled enough to mandate `final` in a kit that should serve diverse teams.
 
 **`final` on Middleware** — prevent subclassing of middleware.
-*Rejected:* same rationale as FormRequests. Laravel's own middleware classes
+_Rejected:_ same rationale as FormRequests. Laravel's own middleware classes
 (e.g. `Authenticate`) are commonly extended by application middleware. Mandating
 `final` would prevent a legitimate customisation pattern.
 
 **`final` on Providers** — prevent subclassing of service providers.
-*Rejected:* Laravel's framework providers (`AuthServiceProvider`,
+_Rejected:_ Laravel's framework providers (`AuthServiceProvider`,
 `EventServiceProvider`) are designed to be extended. Deferred providers and
 package providers also rely on inheritance. Making Providers `final` is
 incompatible with framework expectations.
 
 **No `final` anywhere** — rely on code review to prevent accidental subclassing.
-*Rejected:* without enforcement, "accidentally final" classes (controllers,
+_Rejected:_ without enforcement, "accidentally final" classes (controllers,
 actions, data) drift toward becoming base classes over time, creating hidden
 coupling.
 
@@ -289,21 +289,21 @@ is required.
 
 **Allow either string- or int-backed enums** — the rule originally accepted
 both via a `ReflectionEnum::isBacked()` loop.
-*Rejected:* int-backed enums are rare in this codebase and almost always a
+_Rejected:_ int-backed enums are rare in this codebase and almost always a
 worse fit. String backing values are self-describing in DB columns, JSON
 payloads, URLs, and log lines; int backing values require a separate lookup
 to interpret. Locking the convention to strings removes the ambiguity and
 collapses the test from a reflection loop to a single-line arch rule.
 
 **No backing requirement** — accept any enum (including pure unbacked enums).
-*Rejected:* unbacked enums cannot be persisted, serialised to JSON, or used as
+_Rejected:_ unbacked enums cannot be persisted, serialised to JSON, or used as
 route parameters without manual mapping. Every enum in this kit's expected
 domain (locales, statuses, types) needs a stable wire representation, which
 demands backing.
 
 **Use a `ReflectionEnum::isBacked()` `test()` loop** to allow either backing
 kind with one rule.
-*Rejected:* the loop is more code to maintain than the convention earns.
+_Rejected:_ the loop is more code to maintain than the convention earns.
 Native Pest matchers fail with clear per-file error messages and require no
 manual file traversal or `class_exists()` guards.
 

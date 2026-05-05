@@ -10,7 +10,7 @@ use Inertia\Response;
 
 final class AppearanceController extends Controller
 {
-    public function __invoke(): Response
+    public function edit(): Response
     {
         return Inertia::render('settings/Appearance');
     }

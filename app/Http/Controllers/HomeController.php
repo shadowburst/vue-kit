@@ -10,7 +10,7 @@ use Laravel\Fortify\Features;
 
 final class HomeController extends Controller
 {
-    public function __invoke(): Response
+    public function index(): Response
     {
         return Inertia::render('Welcome', [
             'canRegister' => Features::enabled(Features::registration()),

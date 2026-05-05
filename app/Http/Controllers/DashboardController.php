@@ -9,7 +9,7 @@ use Inertia\Response;
 
 final class DashboardController extends Controller
 {
-    public function __invoke(): Response
+    public function index(): Response
     {
         return Inertia::render('Dashboard');
     }
