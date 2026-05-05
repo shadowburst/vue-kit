@@ -18,13 +18,13 @@ final class TeamObserver
         User::query()
             ->where('current_team_id', $team->id)
             ->each(function (User $user) use ($team): void {
-                $newTeamId = $user
+                /** @var Team|null $newTeam */
+                $newTeam = $user
                     ->teams()
                     ->where('teams.id', '!=', $team->id)
-                    ->first()
-                    ?->id;
+                    ->first();
 
-                $user->update(['current_team_id' => $newTeamId]);
+                $user->update(['current_team_id' => $newTeam?->id]);
             });
     }
 }

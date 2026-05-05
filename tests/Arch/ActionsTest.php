@@ -66,6 +66,10 @@ test('non-Fortify actions declare exactly one public execute method and no prote
         // (direct and transitive) so they are not counted as the class's own declarations.
         $traitMethodNames = [];
         foreach (class_uses_recursive($ref->getName()) as $traitName) {
+            if (! trait_exists($traitName)) {
+                continue;
+            }
+
             foreach ((new ReflectionClass($traitName))->getMethods() as $traitMethod) {
                 $traitMethodNames[$traitMethod->getName()] = true;
             }

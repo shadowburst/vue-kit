@@ -18,13 +18,14 @@ class RolePermissionSeeder extends Seeder
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         foreach (PermissionName::cases() as $case) {
-            Permission::updateOrCreate(
+            Permission::query()->updateOrCreate(
                 ['name' => $case->value, 'guard_name' => 'web'],
             );
         }
 
         foreach (RoleName::cases() as $case) {
-            $role = Role::updateOrCreate(
+            /** @var Role $role */
+            $role = Role::query()->updateOrCreate(
                 ['name' => $case->value, 'guard_name' => 'web', 'team_id' => null],
             );
 

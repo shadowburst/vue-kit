@@ -11,6 +11,8 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;
 
+use function Pest\Laravel\seed;
+
 // Build dataset from enum so future matrix changes propagate automatically.
 $userPermissionMap = [
     'viewAny' => PermissionName::UserViewAny,
@@ -39,11 +41,11 @@ it('is auto-discovered by Laravel for the User model', function (): void {
 });
 
 it('enforces the UserPolicy permission matrix', function (RoleName $role, string $method, bool $expected): void {
-    $this->seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
 
     $team   = Team::query()->create(['name' => 'Test Team']);
-    $user   = User::factory()->create();
-    $target = User::factory()->create();
+    $user   = User::factory()->createOne();
+    $target = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $user->assignRole($role->value);
@@ -59,10 +61,10 @@ it('enforces the UserPolicy permission matrix', function (RoleName $role, string
 })->with($matrixDataset);
 
 it('allows a member to delete themselves (leave team) regardless of user.delete permission', function (): void {
-    $this->seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
 
     $team   = Team::query()->create(['name' => 'Test Team']);
-    $member = User::factory()->create();
+    $member = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $member->assignRole(RoleName::Member->value);
@@ -74,11 +76,11 @@ it('allows a member to delete themselves (leave team) regardless of user.delete 
 });
 
 it('does not grant UserPolicy::update to a super-admin via a before() bypass', function (): void {
-    $this->seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
 
     $team       = Team::query()->create(['name' => 'Test Team']);
-    $superAdmin = User::factory()->create();
-    $target     = User::factory()->create();
+    $superAdmin = User::factory()->createOne();
+    $target     = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $superAdmin->assignRole(RoleName::SuperAdmin->value);

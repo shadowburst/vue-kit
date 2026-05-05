@@ -9,6 +9,7 @@ use App\Observers\TeamObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -33,20 +34,28 @@ class Team extends Model
             ->saveSlugsTo('slug');
     }
 
+    /** @mago-expect analysis:invalid-return-statement */
     public function members(): BelongsToMany
     {
-        return $this
+        $relation = $this
             ->belongsToMany(User::class, 'model_has_roles', 'team_id', 'model_id')
-            ->wherePivot('model_type', (new User)->getMorphClass())
-            ->distinct();
+            ->wherePivot('model_type', (new User)->getMorphClass());
+
+        $relation->getQuery()->distinct();
+
+        return $relation;
     }
 
+    /** @mago-expect analysis:invalid-return-statement */
     public function owners(): BelongsToMany
     {
-        return $this
+        $relation = $this
             ->belongsToMany(User::class, 'model_has_roles', 'team_id', 'model_id')
-            ->wherePivot('model_type', (new User)->getMorphClass())
-            ->where('model_has_roles.role_id', function ($query) {
+            ->wherePivot('model_type', (new User)->getMorphClass());
+
+        $relation
+            ->getQuery()
+            ->where('model_has_roles.role_id', function (QueryBuilder $query): void {
                 $query
                     ->select('id')
                     ->from('roles')
@@ -55,5 +64,7 @@ class Team extends Model
                     ->limit(1);
             })
             ->distinct();
+
+        return $relation;
     }
 }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Teams\CreateTeam;
+use App\Enums\PermissionName;
 use App\Enums\RoleName;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -11,15 +12,16 @@ use Spatie\Permission\PermissionRegistrar;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Laravel\seed;
 
 beforeEach(function (): void {
-    $this->seed(RolePermissionSeeder::class);
-    $this->withoutVite();
+    seed(RolePermissionSeeder::class);
 });
 
 test('guest request shares null currentTeam and null auth.user', function (): void {
     get(route('home'))
         ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
         ->assertInertia(
             fn (AssertableInertia $page) => $page
                 ->where('currentTeam', null)
@@ -32,7 +34,7 @@ test('guest request shares null currentTeam and null auth.user', function (): vo
 // to prevent redirect loops — SetCurrentTeam's own test covers that flow.
 
 test('authenticated Owner gets correct currentTeam, teams, and permissions', function (): void {
-    $user = User::factory()->create();
+    $user = User::factory()->createOne();
     $team = (new CreateTeam)->execute('Acme Corp', $user);
     $user->update(['current_team_id' => $team->id]);
 
@@ -42,14 +44,14 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
     actingAs($user);
 
     $expectedPermissions = collect(RoleName::Owner->permissions())
-        ->map
-        ->value
+        ->map(fn (PermissionName $p) => $p->value)
         ->sort()
         ->values()
         ->all();
 
     get(route('home'))
         ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
         ->assertInertia(
             fn (AssertableInertia $page) => $page
                 ->where('currentTeam.id', $team->id)
@@ -63,10 +65,10 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
 });
 
 test('authenticated Admin gets correct currentTeam, teams, and permissions', function (): void {
-    $owner = User::factory()->create();
+    $owner = User::factory()->createOne();
     $team  = (new CreateTeam)->execute('Acme Corp', $owner);
 
-    $admin = User::factory()->create(['current_team_id' => $team->id]);
+    $admin = User::factory()->createOne(['current_team_id' => $team->id]);
     setPermissionsTeamId($team->id);
     $admin->assignRole(RoleName::Admin->value);
 
@@ -76,14 +78,14 @@ test('authenticated Admin gets correct currentTeam, teams, and permissions', fun
     actingAs($admin);
 
     $expectedPermissions = collect(RoleName::Admin->permissions())
-        ->map
-        ->value
+        ->map(fn (PermissionName $p) => $p->value)
         ->sort()
         ->values()
         ->all();
 
     get(route('home'))
         ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
         ->assertInertia(
             fn (AssertableInertia $page) => $page
                 ->where('currentTeam.id', $team->id)
@@ -92,10 +94,10 @@ test('authenticated Admin gets correct currentTeam, teams, and permissions', fun
 });
 
 test('authenticated Member gets correct currentTeam, teams, and permissions', function (): void {
-    $owner = User::factory()->create();
+    $owner = User::factory()->createOne();
     $team  = (new CreateTeam)->execute('Acme Corp', $owner);
 
-    $member = User::factory()->create(['current_team_id' => $team->id]);
+    $member = User::factory()->createOne(['current_team_id' => $team->id]);
     setPermissionsTeamId($team->id);
     $member->assignRole(RoleName::Member->value);
 
@@ -105,14 +107,14 @@ test('authenticated Member gets correct currentTeam, teams, and permissions', fu
     actingAs($member);
 
     $expectedPermissions = collect(RoleName::Member->permissions())
-        ->map
-        ->value
+        ->map(fn (PermissionName $p) => $p->value)
         ->sort()
         ->values()
         ->all();
 
     get(route('home'))
         ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
         ->assertInertia(
             fn (AssertableInertia $page) => $page
                 ->where('currentTeam.id', $team->id)

@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\URL;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\withoutMiddleware;
 
 beforeEach(function () {
     skip_unless_fortify_has(Features::emailVerification());
-    $this->withoutMiddleware(SetCurrentTeam::class);
+    withoutMiddleware(SetCurrentTeam::class);
 });
 
 test('email verification screen can be rendered', function () {

@@ -11,6 +11,8 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;
 
+use function Pest\Laravel\seed;
+
 // Build dataset from enum so future matrix changes propagate automatically.
 $teamPermissionMap = [
     'view'   => PermissionName::TeamView,
@@ -37,11 +39,11 @@ it('is auto-discovered by Laravel for the Team model', function (): void {
 });
 
 it('enforces the TeamPolicy permission matrix', function (RoleName $role, string $method, bool $expected): void {
-    $this->seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
 
     $team  = Team::query()->create(['name' => 'Team One']);
     $team2 = Team::query()->create(['name' => 'Team Two']);
-    $user  = User::factory()->create();
+    $user  = User::factory()->createOne();
 
     // Assign the role to both teams so the ownedTeams() invariant is satisfied
     // for Owner::delete without masking the permission check for other methods.
@@ -57,10 +59,10 @@ it('enforces the TeamPolicy permission matrix', function (RoleName $role, string
 })->with($matrixDataset);
 
 it('prevents a sole owner from deleting their only owned team', function (): void {
-    $this->seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
 
     $team  = Team::query()->create(['name' => 'Only Team']);
-    $owner = User::factory()->create();
+    $owner = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $owner->assignRole(RoleName::Owner->value);
@@ -71,11 +73,11 @@ it('prevents a sole owner from deleting their only owned team', function (): voi
 });
 
 it('allows an owner of two teams to delete either of their owned teams', function (): void {
-    $this->seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
 
     $team1 = Team::query()->create(['name' => 'Team Alpha']);
     $team2 = Team::query()->create(['name' => 'Team Beta']);
-    $owner = User::factory()->create();
+    $owner = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team1->id);
     $owner->assignRole(RoleName::Owner->value);

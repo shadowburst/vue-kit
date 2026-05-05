@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\Notification;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\withoutMiddleware;
 
 beforeEach(function () {
     skip_unless_fortify_has(Features::emailVerification());
-    $this->withoutMiddleware(SetCurrentTeam::class);
+    withoutMiddleware(SetCurrentTeam::class);
 });
 
 test('sends verification notification', function () {

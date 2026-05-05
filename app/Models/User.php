@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -60,20 +62,28 @@ class User extends Authenticatable
         return $this->belongsTo(Team::class, 'current_team_id');
     }
 
+    /** @mago-expect analysis:invalid-return-statement */
     public function teams(): BelongsToMany
     {
-        return $this
+        $relation = $this
             ->belongsToMany(Team::class, 'model_has_roles', 'model_id', 'team_id')
-            ->wherePivot('model_type', $this->getMorphClass())
-            ->distinct();
+            ->wherePivot('model_type', $this->getMorphClass());
+
+        $relation->getQuery()->distinct();
+
+        return $relation;
     }
 
+    /** @mago-expect analysis:invalid-return-statement */
     public function ownedTeams(): BelongsToMany
     {
-        return $this
+        $relation = $this
             ->belongsToMany(Team::class, 'model_has_roles', 'model_id', 'team_id')
-            ->wherePivot('model_type', $this->getMorphClass())
-            ->where('model_has_roles.role_id', function ($query) {
+            ->wherePivot('model_type', $this->getMorphClass());
+
+        $relation
+            ->getQuery()
+            ->where('model_has_roles.role_id', function (QueryBuilder $query): void {
                 $query
                     ->select('id')
                     ->from('roles')
@@ -82,5 +92,7 @@ class User extends Authenticatable
                     ->limit(1);
             })
             ->distinct();
+
+        return $relation;
     }
 }

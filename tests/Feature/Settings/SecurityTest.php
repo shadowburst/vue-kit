@@ -9,8 +9,9 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\withoutMiddleware;
 
-beforeEach(fn () => $this->withoutMiddleware(SetCurrentTeam::class));
+beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 
 test('security page is displayed', function () {
     skip_unless_fortify_has(Features::twoFactorAuthentication());

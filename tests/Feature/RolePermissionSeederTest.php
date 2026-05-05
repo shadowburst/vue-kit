@@ -8,19 +8,21 @@ use Database\Seeders\RolePermissionSeeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
-it('seeds all permissions and roles', function () {
-    $this->seed(RolePermissionSeeder::class);
+use function Pest\Laravel\seed;
 
-    expect(Permission::count())->toBe(count(PermissionName::cases()));
-    expect(Role::count())->toBe(count(RoleName::cases()));
+it('seeds all permissions and roles', function () {
+    seed(RolePermissionSeeder::class);
+
+    expect(Permission::query()->count())->toBe(count(PermissionName::cases()));
+    expect(Role::query()->count())->toBe(count(RoleName::cases()));
 });
 
 it('is idempotent: running the seeder twice yields the same state', function () {
-    $this->seed(RolePermissionSeeder::class);
-    $this->seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
 
-    expect(Permission::count())->toBe(count(PermissionName::cases()));
-    expect(Role::count())->toBe(count(RoleName::cases()));
+    expect(Permission::query()->count())->toBe(count(PermissionName::cases()));
+    expect(Role::query()->count())->toBe(count(RoleName::cases()));
 
     foreach (RoleName::cases() as $roleName) {
         $role                = Role::findByName($roleName->value, 'web');
@@ -32,7 +34,7 @@ it('is idempotent: running the seeder twice yields the same state', function () 
 });
 
 it('assigns correct permissions per role matching the enum matrix', function () {
-    $this->seed(RolePermissionSeeder::class);
+    seed(RolePermissionSeeder::class);
 
     foreach (RoleName::cases() as $roleName) {
         $role                = Role::findByName($roleName->value, 'web');

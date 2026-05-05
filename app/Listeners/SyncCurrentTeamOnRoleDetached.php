@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listeners;
 
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Events\RoleDetachedEvent;
@@ -19,7 +20,6 @@ final class SyncCurrentTeamOnRoleDetached
             return;
         }
 
-        /** @var int|string|null $teamId */
         $teamId = app(PermissionRegistrar::class)->getPermissionsTeamId();
 
         if ($teamId === null) {
@@ -42,7 +42,8 @@ final class SyncCurrentTeamOnRoleDetached
             return;
         }
 
-        $newTeamId = $user->teams()->where('teams.id', '!=', $teamId)->first()?->id;
-        $user->update(['current_team_id' => $newTeamId]);
+        /** @var Team|null $newTeam */
+        $newTeam = $user->teams()->where('teams.id', '!=', $teamId)->first();
+        $user->update(['current_team_id' => $newTeam?->id]);
     }
 }

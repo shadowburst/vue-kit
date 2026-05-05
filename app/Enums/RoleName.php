@@ -49,6 +49,8 @@ enum RoleName: string
 
     public function label(): string
     {
-        return __("roles.{$this->value}");
+        $translation = __("roles.{$this->value}");
+
+        return is_string($translation) ? $translation : $this->value;
     }
 }

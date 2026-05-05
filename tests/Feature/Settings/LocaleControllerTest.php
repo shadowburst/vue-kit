@@ -8,8 +8,9 @@ use App\Models\User;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\put;
+use function Pest\Laravel\withoutMiddleware;
 
-beforeEach(fn () => $this->withoutMiddleware(SetCurrentTeam::class));
+beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 
 test('language settings page is displayed for authenticated users', function (): void {
     $user = User::factory()->createOne();
