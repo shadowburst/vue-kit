@@ -56,9 +56,7 @@ final class SetCurrentTeam
         }
 
         /** @var Team|null $team */
-        $team = $user->teams()->find($user->current_team_id);
-
-        return $team;
+        return $user->teams()->find($user->current_team_id);
     }
 
     private function resolveFromFirstAvailableTeam(User $user): ?Team

@@ -16,6 +16,10 @@ final class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules, ProfileValidationRules;
 
+    public function __construct(
+        private CreateTeam $createTeam,
+    ) {}
+
     /**
      * Validate and create a newly registered user.
      *
@@ -38,7 +42,7 @@ final class CreateNewUser implements CreatesNewUsers
 
             /** @var string $teamName */
             $teamName = __('team.app');
-            $team     = app(CreateTeam::class)->execute($teamName, $user);
+            $team     = $this->createTeam->execute($teamName, $user);
 
             $user->current_team_id = $team->id;
             $user->save();

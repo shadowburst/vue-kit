@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\Teams\CreateTeam;
 use App\Enums\RoleName;
-use App\Models\Team;
+
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Spatie\Permission\PermissionRegistrar;
