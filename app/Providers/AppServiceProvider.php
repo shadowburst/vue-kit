@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Listeners\PurgeFeaturesOnSubscriptionChange;
 use App\Listeners\SyncCurrentTeamOnRoleDetached;
 use App\Models\Team;
 use App\Policies\SubscriptionPolicy;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Cashier\Cashier;
+use Laravel\Cashier\Events\WebhookHandled;
 use Laravel\Cashier\Subscription;
 use Spatie\Permission\Events\RoleDetachedEvent;
 
@@ -37,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Event::listen(RoleDetachedEvent::class, SyncCurrentTeamOnRoleDetached::class);
+        Event::listen(WebhookHandled::class, PurgeFeaturesOnSubscriptionChange::class);
     }
 
     /**
