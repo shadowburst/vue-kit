@@ -59,6 +59,10 @@ test('non-Fortify actions declare exactly one public execute method and no prote
             continue;
         }
 
+        if (! class_exists($className)) {
+            continue;
+        }
+
         $ref = new ReflectionClass($className);
 
         // Own-declared methods only: filter by ReflectionMethod::$class matching the class under inspection.

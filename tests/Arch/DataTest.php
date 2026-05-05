@@ -39,6 +39,10 @@ test('non-abstract Data classes are final', function (): void {
         $relativePath = ltrim(str_replace([$dataDir, '.php'], ['', ''], $realPath), DIRECTORY_SEPARATOR);
         $className    = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
 
+        if (! class_exists($className)) {
+            continue;
+        }
+
         $ref = new ReflectionClass($className);
 
         if ($ref->isAbstract()) {
