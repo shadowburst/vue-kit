@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware\Inertia;
 
+use App\Data\Team\TeamFeaturesData;
 use App\Data\User\UserAbilitiesData;
 use App\Models\Team;
 use App\Models\User;
@@ -58,6 +59,7 @@ class HandleInertiaRequests extends Middleware
                         'permissions' => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
                     ] : null,
                 'abilities' => fn () => $user instanceof User ? UserAbilitiesData::fromUser($user) : null,
+                'features'  => fn () => $currentTeam instanceof Team ? TeamFeaturesData::fromTeam($currentTeam) : null,
             ],
             'currentTeam' => $currentTeam instanceof Team
                 ? [

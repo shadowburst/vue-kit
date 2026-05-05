@@ -20,7 +20,8 @@ test('guest request shares null currentTeam and null auth.user', function (): vo
             fn (AssertableInertia $page) => $page
                 ->where('currentTeam', null)
                 ->where('auth.user', null)
-                ->where('auth.abilities', null),
+                ->where('auth.abilities', null)
+                ->where('auth.features', null),
         );
 });
 
@@ -65,7 +66,8 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
                 ->where('auth.abilities.team.update', true)
                 ->where('auth.abilities.team.delete', true)
                 ->where('auth.abilities.subscription.view', true)
-                ->where('auth.abilities.subscription.update', true),
+                ->where('auth.abilities.subscription.update', true)
+                ->where('auth.features.values', []),
         );
 });
 
