@@ -73,6 +73,9 @@ jobs:
       - name: PHP static analysis
         run: composer analysis:check
 
+      - name: Regenerate wayfinder
+        run: php artisan wayfinder:generate
+
       - name: Regenerate TypeScript types
         run: php artisan typescript:transform
 

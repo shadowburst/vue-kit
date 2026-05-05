@@ -85,8 +85,8 @@ test('security page renders without two factor when feature is disabled', functi
             fn (Assert $page) => $page
                 ->component('settings/Security')
                 ->where('canManageTwoFactor', false)
-                ->missing('twoFactorEnabled')
-                ->missing('requiresConfirmation'),
+                ->where('twoFactorEnabled', false)
+                ->where('requiresConfirmation', false),
         );
 });
 
