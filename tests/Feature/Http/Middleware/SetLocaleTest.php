@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Data\UserSettingsData;
+use App\Enums\AppLocale;
+use App\Models\User;
+
+use function Pest\Laravel\actingAs;
+
 beforeEach(function (): void {
     Route::get('/_test/locale', function () {
         return response()->json(['locale' => app()->getLocale()]);
@@ -73,4 +79,17 @@ test('middleware does not throw on malformed accept-language header', function (
 
     $response->assertOk();
     expect($response->json('locale'))->toBe(config('app.fallback_locale'));
+});
+
+test('authenticated user stored locale takes priority over cookie', function (): void {
+    $user = User::factory()->createOne([
+        'settings' => new UserSettingsData(AppLocale::Fr),
+    ]);
+
+    $response = actingAs($user)
+        ->withUnencryptedCookies(['locale' => 'en'])
+        ->get('/_test/locale');
+
+    $response->assertOk();
+    expect($response->json('locale'))->toBe('fr');
 });

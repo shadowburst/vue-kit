@@ -35,7 +35,11 @@ function localeLabel(locale: string): string {
 }
 
 function submit(): void {
-    form.put(route('locale.update'));
+    if (page.props.auth.user) {
+        form.patch(route('locale.store'));
+    } else {
+        form.put(route('locale.update'));
+    }
 }
 </script>
 
@@ -53,7 +57,7 @@ function submit(): void {
 
                 <Select
                     :model-value="form.locale"
-                    @update:model-value="(val) => (form.locale = val)"
+                    @update:model-value="(val) => (form.locale = val as string)"
                 >
                     <SelectTrigger id="locale" class="w-48">
                         <SelectValue />

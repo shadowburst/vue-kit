@@ -8,6 +8,7 @@ use App\Enums\AppLocale;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetLocale
@@ -21,9 +22,15 @@ class SetLocale
 
     private function resolveLocale(Request $request): string
     {
-        return $this->resolveFromCookie($request)
+        return $this->resolveFromAuthUser()
+            ?? $this->resolveFromCookie($request)
             ?? $this->resolveFromAcceptLanguage($request)
             ?? config('app.fallback_locale');
+    }
+
+    private function resolveFromAuthUser(): ?string
+    {
+        return Auth::user()?->settings?->locale?->value;
     }
 
     private function resolveFromCookie(Request $request): ?string
