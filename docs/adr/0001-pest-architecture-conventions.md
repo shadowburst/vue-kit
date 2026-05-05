@@ -8,13 +8,14 @@
 
 This kit ships a Pest arch test suite that enforces structural conventions on
 the PHP codebase. Architecture tests catch class-shape violations at CI time
-rather than in code review. Four categories of convention needed explicit
+rather than in code review. Five categories of convention needed explicit
 rationale because each involves a non-obvious trade-off:
 
 1. Which namespace-to-namespace dependency directions to forbid.
 2. What shape every Action class must take.
 3. What shape every Data class must take.
 4. Which layers require `final` and which are deliberately exempted.
+5. What shape every Enum class must take.
 
 ---
 
@@ -254,3 +255,64 @@ The abstract base `Controller` is explicitly ignored in the arch rule:
 - The Pest arch `->classes()` modifier is required for the controllers rule to
   scope it to class declarations only, skipping any traits, enums, or interfaces
   that may exist in the namespace.
+
+---
+
+## Decision 5 — Enum Class Shape
+
+### Choice Made
+
+Every class under `App\Enums` must be a string-backed enum. A single arch rule
+expresses this:
+
+```php
+arch('Enums in App\Enums are string-backed')
+    ->expect('App\Enums')
+    ->toBeStringBackedEnums();
+```
+
+Pest's `toBeStringBackedEnums()` matcher verifies both that the file declares
+an enum and that it is backed by `string`, so no separate `toBeEnums()` rule
+is required.
+
+### Alternatives Considered
+
+**Allow either string- or int-backed enums** — the rule originally accepted
+both via a `ReflectionEnum::isBacked()` loop.
+*Rejected:* int-backed enums are rare in this codebase and almost always a
+worse fit. String backing values are self-describing in DB columns, JSON
+payloads, URLs, and log lines; int backing values require a separate lookup
+to interpret. Locking the convention to strings removes the ambiguity and
+collapses the test from a reflection loop to a single-line arch rule.
+
+**No backing requirement** — accept any enum (including pure unbacked enums).
+*Rejected:* unbacked enums cannot be persisted, serialised to JSON, or used as
+route parameters without manual mapping. Every enum in this kit's expected
+domain (locales, statuses, types) needs a stable wire representation, which
+demands backing.
+
+**Use a `ReflectionEnum::isBacked()` `test()` loop** to allow either backing
+kind with one rule.
+*Rejected:* the loop is more code to maintain than the convention earns.
+Native Pest matchers fail with clear per-file error messages and require no
+manual file traversal or `class_exists()` guards.
+
+### Reasoning
+
+String-backed enums are the dominant Laravel/PHP convention for enums that
+cross any serialisation boundary. The native `toBeStringBackedEnums()` matcher
+was introduced in Pest 3 specifically for this case; using it keeps the arch
+suite uniform with the rest of the file (no bespoke reflection code) and gives
+the rule a single, obvious failure mode.
+
+### Consequences
+
+- A future int-backed enum (e.g. for a bitmask or a sortable rank stored as a
+  smallint) would need an explicit carve-out via `->ignoring(...)` or a rule
+  split. This is a deliberate friction point: the carve-out forces a
+  conversation about whether int backing is actually necessary.
+- Unbacked enums are also rejected, which means feature flags or marker enums
+  must either gain a string backing or live outside `App\Enums`.
+- The rule subsumes a "must be an enum" check: a non-enum class in the
+  namespace will fail `toBeStringBackedEnums()` for the same reason a wrongly
+  backed enum does.
