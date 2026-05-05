@@ -48,6 +48,11 @@
         }
     },
     "scripts": {
+        "setup": [
+            "@php artisan storage:link",
+            "@php artisan migrate --seed",
+            "@php artisan typescript:transform"
+        ],
         "format": [
             "vendor/bin/mago format"
         ],
