@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Data\UserSettingsData;
 use App\Enums\AppLocale;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\patch;
 use function Pest\Laravel\put;
 
 test('language settings page is displayed for authenticated users', function (): void {

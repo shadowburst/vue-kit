@@ -49,16 +49,17 @@ function submit(): void {
     <h1 class="sr-only">{{ trans('settings.language') }}</h1>
 
     <div class="space-y-6">
-        <Heading variant="small" :title="trans('settings.language')" :description="trans('settings.language_description')" />
+        <Heading
+            variant="small"
+            :title="trans('settings.language')"
+            :description="trans('settings.language_description')"
+        />
 
         <form class="space-y-6" @submit.prevent="submit">
             <div class="grid gap-2">
                 <Label for="locale">{{ trans('settings.language') }}</Label>
 
-                <Select
-                    :model-value="form.locale"
-                    @update:model-value="(val) => (form.locale = val as string)"
-                >
+                <Select :model-value="form.locale" @update:model-value="(val) => (form.locale = val as string)">
                     <SelectTrigger id="locale" class="w-48">
                         <SelectValue />
                     </SelectTrigger>

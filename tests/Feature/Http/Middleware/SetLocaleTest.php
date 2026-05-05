@@ -9,9 +9,7 @@ use App\Models\User;
 use function Pest\Laravel\actingAs;
 
 beforeEach(function (): void {
-    Route::get('/_test/locale', function () {
-        return response()->json(['locale' => app()->getLocale()]);
-    })->middleware('web');
+    Route::get('/_test/locale', fn () => response()->json(['locale' => app()->getLocale()]))->middleware('web');
 });
 
 test('cookie branch sets locale from cookie', function (): void {

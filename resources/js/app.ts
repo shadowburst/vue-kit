@@ -27,16 +27,29 @@ createInertiaApp({
         color: '#4B5563',
     },
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
+        if (!el) {
+            return;
+        }
+
+        let mounted = false;
+        const app = createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(i18nVue, {
                 lang: (props.initialPage.props as Record<string, unknown>).locale as string,
                 resolve: async (lang: string) => {
                     const langs = import.meta.glob('../../lang/*.json');
+
                     return await langs[`../../lang/${lang}.json`]();
                 },
-            })
-            .mount(el);
+                onLoad: () => {
+                    if (mounted) {
+                        return;
+                    }
+
+                    mounted = true;
+                    app.mount(el);
+                },
+            });
     },
 });
 

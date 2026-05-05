@@ -22,10 +22,11 @@ class SetLocale
 
     private function resolveLocale(Request $request): string
     {
-        return $this->resolveFromAuthUser()
-            ?? $this->resolveFromCookie($request)
-            ?? $this->resolveFromAcceptLanguage($request)
-            ?? config('app.fallback_locale');
+        return (
+            $this->resolveFromAuthUser() ?? $this->resolveFromCookie($request) ?? $this->resolveFromAcceptLanguage(
+                $request,
+            ) ?? config('app.fallback_locale')
+        );
     }
 
     private function resolveFromAuthUser(): ?string
