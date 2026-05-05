@@ -8,15 +8,11 @@ import { Label } from '@/components/ui/label';
 import { useFormat } from '@/composables/useFormat';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
+import type { Inertia } from '@/wayfinder/types';
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-type Props = {
-    mustVerifyEmail: boolean;
-    status?: string;
-};
-
-defineProps<Props>();
+defineProps<Inertia.Pages.Settings.Profile>();
 
 defineOptions({
     layout: {
@@ -94,7 +90,9 @@ const { formatDate } = useFormat();
             </div>
         </Form>
 
-        <p class="text-sm text-muted-foreground">Member since {{ formatDate(user.created_at) }}</p>
+        <p v-if="user.created_at" class="text-sm text-muted-foreground">
+            Member since {{ formatDate(user.created_at) }}
+        </p>
     </div>
 
     <DeleteUser />

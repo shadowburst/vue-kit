@@ -9,7 +9,7 @@ export type UseFormatReturn = {
 
 export function useFormat(): UseFormatReturn {
     const page = usePage();
-    const locale = computed(() => page.props.locale as string);
+    const locale = computed(() => page.props.locale);
 
     function formatDate(value: Date | string | number, opts?: Intl.DateTimeFormatOptions): string {
         return new Intl.DateTimeFormat(locale.value, opts).format(new Date(value));

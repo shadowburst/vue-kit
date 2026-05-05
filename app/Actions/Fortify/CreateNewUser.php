@@ -6,15 +6,15 @@ namespace App\Actions\Fortify;
 
 use App\Actions\Teams\CreateTeam;
 use App\Concerns\PasswordValidationRules;
-use App\Concerns\ProfileValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 final class CreateNewUser implements CreatesNewUsers
 {
-    use PasswordValidationRules, ProfileValidationRules;
+    use PasswordValidationRules;
 
     public function __construct(
         private CreateTeam $createTeam,
@@ -28,7 +28,8 @@ final class CreateNewUser implements CreatesNewUsers
     public function create(array $input): User
     {
         $validated = Validator::make($input, [
-            ...$this->profileRules(),
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', Rule::unique(User::class)],
             'password' => $this->passwordRules(),
         ])->validate();
 

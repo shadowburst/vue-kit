@@ -6,21 +6,19 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import UserInfo from '@/components/UserInfo.vue';
-import type { User } from '@/types';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
+import type { App } from '@/wayfinder/types';
 import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from '@lucide/vue';
 
-type Props = {
-    user: User;
-};
+defineProps<{
+    user: App.Models.User;
+}>();
 
 const handleLogout = () => {
     router.flushAll();
 };
-
-defineProps<Props>();
 </script>
 
 <template>
