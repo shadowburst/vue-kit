@@ -44,6 +44,7 @@ pest()
  |
  */
 
+/** @mago-expect lint:function-name */
 function skipUnlessFortifyHas(string $feature, ?string $message = null): void
 {
     if (! Features::enabled($feature)) {
