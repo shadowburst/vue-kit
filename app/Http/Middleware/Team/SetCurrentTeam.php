@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware\Team;
 
+use App\Actions\Membership\ResetCurrentTeam;
 use App\Models\Team;
 use App\Models\User;
 use Closure;
@@ -14,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SetCurrentTeam
 {
+    public function __construct(private readonly ResetCurrentTeam $resetCurrentTeam) {}
+
     /**
      * @param  Closure(Request): Response  $next
      */
@@ -43,7 +46,9 @@ final class SetCurrentTeam
         $team = $this->resolveFromCurrentTeamId($user);
 
         if ($team === null) {
-            $team = $this->resolveFromFirstAvailableTeam($user);
+            $this->resetCurrentTeam->execute($user);
+            $user->refresh();
+            $team = $this->resolveFromCurrentTeamId($user);
         }
 
         return $team;
@@ -58,17 +63,5 @@ final class SetCurrentTeam
 
         /** @var Team|null $team */
         return $user->teams()->find($user->current_team_id);
-    }
-
-    private function resolveFromFirstAvailableTeam(User $user): ?Team
-    {
-        /** @var Team|null $team */
-        $team = $user->teams()->first();
-
-        if ($team !== null) {
-            $user->update(['current_team_id' => $team->id]);
-        }
-
-        return $team;
     }
 }
