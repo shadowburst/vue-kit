@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Actions\Team;
 
+use App\Actions\Membership\AssignMembership;
 use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\PermissionRegistrar;
 use Spatie\QueueableAction\QueueableAction;
 
 final class CreateTeam
@@ -21,8 +21,7 @@ final class CreateTeam
         return DB::transaction(function () use ($name, $creator): Team {
             $team = Team::query()->create(['name' => $name]);
 
-            app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-            $creator->assignRole(Role::Owner->value);
+            (new AssignMembership)->execute($creator, $team, Role::Owner);
 
             return $team;
         });
