@@ -17,6 +17,7 @@
         "spatie/laravel-data": "^4.22",
         "spatie/laravel-permission": "^7.4",
         "spatie/laravel-queueable-action": "^2.17",
+        "spatie/laravel-sluggable": "^4.0",
         "spatie/laravel-typescript-transformer": "^3.0"
     },
     "require-dev": {

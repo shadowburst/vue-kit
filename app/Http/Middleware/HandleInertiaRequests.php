@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Enums\AppLocale;
+use App\Models\Team;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -38,12 +40,27 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        /** @var User|null $user */
+        $user        = $request->user();
+        $currentTeam = app()->bound('currentTeam') ? app('currentTeam') : null;
+
         return [
             ...parent::share($request),
             'name'        => config('app.name'),
             'auth'        => [
-                'user' => $request->user(),
+                'user' => $user instanceof User
+                    ? [
+                        ...$user->toArray(),
+                        'teams'       => $user->teams()->get(['teams.id', 'teams.name', 'teams.slug']),
+                        'permissions' => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
+                    ] : null,
             ],
+            'currentTeam' => $currentTeam instanceof Team
+                ? [
+                    'id'   => $currentTeam->id,
+                    'name' => $currentTeam->name,
+                    'slug' => $currentTeam->slug,
+                ] : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale'      => app()->getLocale(),
             'appLocales'  => AppLocale::cases(),

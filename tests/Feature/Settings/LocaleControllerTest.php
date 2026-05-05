@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use App\Enums\AppLocale;
+use App\Http\Middleware\SetCurrentTeam;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\put;
+use function Pest\Laravel\withoutMiddleware;
+
+beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 
 test('language settings page is displayed for authenticated users', function (): void {
     $user = User::factory()->createOne();

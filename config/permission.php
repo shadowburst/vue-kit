@@ -35,7 +35,7 @@ return [
          * Eloquent model should be used to retrieve your teams. Of course, it
          * is often just the "Team" model but you may use whatever you like.
          */
-        'team' => null,
+        'team' => App\Models\Team::class,
 
         /*
          * When using the "HasModels" trait and passing raw IDs to syncModels,
@@ -136,7 +136,7 @@ return [
      *
      * To enable, set to true, and then create listeners to watch these events.
      */
-    'events_enabled' => false,
+    'events_enabled' => true,
 
     /*
      * Teams Feature.
@@ -148,7 +148,7 @@ return [
      * (view the latest version of this package's migration file)
      */
 
-    'teams' => false,
+    'teams' => true,
 
     /*
      * The class to use to resolve the permissions team id

@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\SetCurrentTeam;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertGuest;
+use function Pest\Laravel\withoutMiddleware;
+
+beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 
 test('profile page is displayed', function () {
     $user = User::factory()->createOne();

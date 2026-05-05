@@ -2,12 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\withoutMiddleware;
+
+beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 
 test('security page is displayed', function () {
     skip_unless_fortify_has(Features::twoFactorAuthentication());
