@@ -9,7 +9,7 @@ use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-class UserSettingsData extends Data
+final class UserSettingsData extends Data
 {
     public function __construct(
         public AppLocale $locale,
