@@ -26,7 +26,7 @@ const form = useForm({
     team_id: null as number | null,
 });
 
-function switchTeam(value: string): void {
+function switchTeam(value: unknown): void {
     form.team_id = Number(value);
     form.put(route('current-team.update'));
 }

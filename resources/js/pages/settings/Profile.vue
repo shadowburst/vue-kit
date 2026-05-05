@@ -29,7 +29,7 @@ defineOptions({
 });
 
 const page = usePage();
-const user = computed(() => page.props.auth.user);
+const user = computed(() => page.props.auth.user!);
 const { formatDate } = useFormat();
 </script>
 

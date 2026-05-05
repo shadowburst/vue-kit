@@ -15,10 +15,10 @@ final class CreateTeam
 {
     use QueueableAction;
 
+    /** @mago-expect analysis:mixed-return-statement */
     public function execute(string $name, User $creator): Team
     {
-        /** @var Team $team */
-        $team = DB::transaction(function () use ($name, $creator): Team {
+        return DB::transaction(function () use ($name, $creator): Team {
             $team = Team::query()->create(['name' => $name]);
 
             app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
@@ -26,7 +26,5 @@ final class CreateTeam
 
             return $team;
         });
-
-        return $team;
     }
 }

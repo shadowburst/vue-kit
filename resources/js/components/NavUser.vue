@@ -13,7 +13,7 @@ const { isMobile, state } = useSidebar();
 </script>
 
 <template>
-    <SidebarMenu>
+    <SidebarMenu v-if="user">
         <SidebarMenuItem>
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>

@@ -2,14 +2,17 @@
 
 declare(strict_types=1);
 
+use Database\Seeders\RolePermissionSeeder;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\assertAuthenticated;
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
+use function Pest\Laravel\seed;
 
 beforeEach(function () {
     skip_unless_fortify_has(Features::registration());
+    seed(RolePermissionSeeder::class);
 });
 
 test('registration screen can be rendered', function () {
