@@ -4,13 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 final class CurrentTeamController extends Controller
 {
-    // Stub — real implementation ships in #22
-    public function update(): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        return redirect()->back();
+        $validated = $request->validate([
+            'team_id' => ['required', 'integer', 'exists:teams,id'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        if (! $user->teams()->whereKey($validated['team_id'])->exists()) {
+            abort(403);
+        }
+
+        $user->update(['current_team_id' => $validated['team_id']]);
+
+        return back();
     }
 }
