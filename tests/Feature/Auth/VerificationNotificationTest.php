@@ -10,7 +10,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
-    test()->skipUnlessFortifyHas(Features::emailVerification());
+    skipUnlessFortifyHas(Features::emailVerification());
 });
 
 test('sends verification notification', function () {

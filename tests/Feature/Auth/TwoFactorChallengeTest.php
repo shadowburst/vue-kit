@@ -10,7 +10,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 beforeEach(function () {
-    test()->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 });
 
 test('two factor challenge redirects to login when not authenticated', function () {
@@ -38,6 +38,7 @@ test('two factor challenge can be rendered', function () {
         'password' => 'password',
     ]);
 
+    /** @mago-expect analysis:non-documented-method */
     get(route('two-factor.login'))
         ->assertOk()
         ->assertInertia(

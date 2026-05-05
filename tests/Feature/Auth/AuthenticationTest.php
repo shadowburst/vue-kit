@@ -31,7 +31,7 @@ test('users can authenticate using the login screen', function () {
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {
-    test()->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     Features::twoFactorAuthentication([
         'confirm'         => true,

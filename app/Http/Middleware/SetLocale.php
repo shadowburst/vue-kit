@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Enums\AppLocale;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -13,6 +14,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class SetLocale
 {
+    /**
+     * @param  Closure(Request): Response  $next
+     */
     public function handle(Request $request, Closure $next): Response
     {
         App::setLocale($this->resolveLocale($request));
@@ -25,13 +29,16 @@ class SetLocale
         return (
             $this->resolveFromAuthUser() ?? $this->resolveFromCookie($request) ?? $this->resolveFromAcceptLanguage(
                 $request,
-            ) ?? config('app.fallback_locale')
+            ) ?? (string) config('app.fallback_locale')
         );
     }
 
     private function resolveFromAuthUser(): ?string
     {
-        return Auth::user()?->settings?->locale?->value;
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        return $user?->settings?->locale?->value;
     }
 
     private function resolveFromCookie(Request $request): ?string

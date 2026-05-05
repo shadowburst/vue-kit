@@ -10,7 +10,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\actingAs;
 
 test('security page is displayed', function () {
-    test()->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     Features::twoFactorAuthentication([
         'confirm'         => true,
@@ -19,6 +19,7 @@ test('security page is displayed', function () {
 
     $user = User::factory()->createOne();
 
+    /** @mago-expect analysis:non-documented-method */
     actingAs($user)
         ->withSession(['auth.password_confirmed_at' => time()])
         ->get(route('security.edit'))
@@ -31,7 +32,7 @@ test('security page is displayed', function () {
 });
 
 test('security page requires password confirmation when enabled', function () {
-    test()->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     $user = User::factory()->createOne();
 
@@ -46,7 +47,7 @@ test('security page requires password confirmation when enabled', function () {
 });
 
 test('security page does not require password confirmation when disabled', function () {
-    test()->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     $user = User::factory()->createOne();
 
@@ -55,6 +56,7 @@ test('security page does not require password confirmation when disabled', funct
         'confirmPassword' => false,
     ]);
 
+    /** @mago-expect analysis:non-documented-method */
     actingAs($user)
         ->get(route('security.edit'))
         ->assertOk()
@@ -65,12 +67,13 @@ test('security page does not require password confirmation when disabled', funct
 });
 
 test('security page renders without two factor when feature is disabled', function () {
-    test()->skipUnlessFortifyHas(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     config(['fortify.features' => []]);
 
     $user = User::factory()->createOne();
 
+    /** @mago-expect analysis:non-documented-method */
     actingAs($user)
         ->get(route('security.edit'))
         ->assertOk()

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Fortify\Features;
 use Tests\TestCase;
 
 /*
@@ -42,3 +43,10 @@ pest()
  | global functions to help you to reduce the number of lines of code in your test files.
  |
  */
+
+function skipUnlessFortifyHas(string $feature, ?string $message = null): void
+{
+    if (! Features::enabled($feature)) {
+        PHPUnit\Framework\Assert::markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");
+    }
+}

@@ -14,7 +14,7 @@ test('UserSettingsData round-trip cast stores and retrieves the correct locale',
     $user->refresh();
 
     expect($user->settings)->toBeInstanceOf(UserSettingsData::class);
-    expect($user->settings->locale)->toBe(AppLocale::Fr);
+    expect($user->settings?->locale)->toBe(AppLocale::Fr);
 });
 
 test('UserSettingsData is null when settings column is null', function (): void {

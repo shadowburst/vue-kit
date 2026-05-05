@@ -9,7 +9,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    App::setLocale(config('app.locale'));
+    App::setLocale((string) config('app.locale'));
 });
 
 test('auth.failed returns French string when locale is fr', function (): void {
