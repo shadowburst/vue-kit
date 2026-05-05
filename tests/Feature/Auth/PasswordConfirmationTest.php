@@ -15,6 +15,7 @@ test('confirm password screen can be rendered', function () {
 
     $response->assertOk();
 
+    /** @mago-expect analysis:non-documented-method */
     $response->assertInertia(
         fn (Assert $page) => $page
             ->component('auth/ConfirmPassword'),

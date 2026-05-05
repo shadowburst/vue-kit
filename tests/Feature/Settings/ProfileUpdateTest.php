@@ -48,6 +48,7 @@ test('email verification status is unchanged when the email address is unchanged
         ->assertSessionHasNoErrors()
         ->assertRedirect(route('profile.edit'));
 
+    /** @mago-expect analysis:non-documented-method */
     expect($user->refresh()->email_verified_at)->not->toBeNull();
 });
 
@@ -80,5 +81,6 @@ test('correct password must be provided to delete account', function () {
         ->assertSessionHasErrors('password')
         ->assertRedirect(route('profile.edit'));
 
+    /** @mago-expect analysis:non-documented-method */
     expect($user->fresh())->not->toBeNull();
 });

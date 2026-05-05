@@ -5,6 +5,7 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useFormat } from '@/composables/useFormat';
 import { route } from '@/spatie/helpers/route';
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -29,6 +30,7 @@ defineOptions({
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
+const { formatDate } = useFormat();
 </script>
 
 <template>
@@ -90,6 +92,8 @@ const user = computed(() => page.props.auth.user);
                 <Button :disabled="processing" data-test="update-profile-button">Save</Button>
             </div>
         </Form>
+
+        <p class="text-sm text-muted-foreground">Member since {{ formatDate(user.created_at) }}</p>
     </div>
 
     <DeleteUser />

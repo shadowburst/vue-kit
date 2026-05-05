@@ -21,6 +21,10 @@ const sidebarNavItems: NavItem[] = [
         title: 'Appearance',
         href: route('appearance.edit'),
     },
+    {
+        title: 'Language',
+        href: route('locale.edit'),
+    },
 ];
 
 const { isCurrentOrParentUrl } = useCurrentUrl();

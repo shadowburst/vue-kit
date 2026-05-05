@@ -1,6 +1,7 @@
 import inertia from '@inertiajs/vite';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
+import i18n from 'laravel-vue-i18n/vite';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import path from 'path';
@@ -28,6 +29,7 @@ export default defineConfig({
                 },
             },
         }),
+        i18n(),
         watchAndRun([
             {
                 name: 'spatie-typescript',
