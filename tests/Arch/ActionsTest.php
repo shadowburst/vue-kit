@@ -74,8 +74,10 @@ test('non-Fortify actions declare exactly one public execute method and no prote
         // Own-declared methods only: on this class, and not sourced from any trait.
         $ownMethods = array_filter(
             $ref->getMethods(),
-            fn (ReflectionMethod $m): bool => $m->class === $ref->getName()
-                && ! isset($traitMethodNames[$m->getName()]),
+            fn (ReflectionMethod $m): bool => (
+                $m->class === $ref->getName()
+                && ! isset($traitMethodNames[$m->getName()])
+            ),
         );
 
         $publicNonConstructor = array_values(array_filter(

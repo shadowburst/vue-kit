@@ -16,8 +16,7 @@ it('creates a team with the given name', function (): void {
 
     $team = (new CreateTeam)->execute('Acme Corp', $creator);
 
-    expect(Team::count())->toBe(1)
-        ->and($team->name)->toBe('Acme Corp');
+    expect(Team::count())->toBe(1)->and($team->name)->toBe('Acme Corp');
 });
 
 it('generates a slug from the team name', function (): void {
@@ -63,7 +62,7 @@ it('assigns only the Owner role and no other roles to the creator', function ():
 it('does not change current_team_id when creator already had a current team', function (): void {
     $this->seed(RolePermissionSeeder::class);
     $existingTeam = Team::query()->create(['name' => 'Existing Team']);
-    $creator = User::factory()->create(['current_team_id' => $existingTeam->id]);
+    $creator      = User::factory()->create(['current_team_id' => $existingTeam->id]);
 
     (new CreateTeam)->execute('New Team', $creator);
 
