@@ -7,7 +7,13 @@ return [
     'description'      => 'Manage your team\'s subscription.',
     'current_tier'     => 'Current plan',
     'tier_free'        => 'Free',
+    'tier_pro'         => 'Pro',
     'interval_monthly' => 'Monthly',
     'interval_yearly'  => 'Yearly',
     'upgrade_to_pro'   => 'Upgrade to Pro',
+    'status_grace'     => 'Cancellation scheduled',
+    'billing_interval' => 'Billing interval',
+    'next_charge'      => 'Next charge',
+    'payment_method'   => 'Payment method',
+    'manage_billing'   => 'Manage Billing',
 ];

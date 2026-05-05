@@ -6,8 +6,9 @@ use App\Http\Controllers\Settings\AppearanceController;
 use App\Http\Controllers\Settings\LocaleController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
-use App\Http\Controllers\Settings\Teams\BillingController;
-use App\Http\Controllers\Settings\Teams\CheckoutController;
+use App\Http\Controllers\Settings\Team\BillingController;
+use App\Http\Controllers\Settings\Team\CheckoutController;
+use App\Http\Controllers\Settings\Team\PortalController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -19,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('settings/locale', [LocaleController::class, 'update'])->name('locale.update');
 
     Route::get('settings/teams/billing', [BillingController::class, 'show'])->name('teams.billing.show');
+    Route::get('settings/teams/billing/portal', [PortalController::class, 'show'])->name('teams.billing.portal.show');
     Route::post('settings/teams/billing/checkout', [CheckoutController::class, 'store'])->name('teams.checkout.store');
 });
 

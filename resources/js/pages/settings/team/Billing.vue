@@ -3,13 +3,17 @@ import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { route } from '@/spatie/helpers/route';
-import { Form, Head, router } from '@inertiajs/vue3';
+import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 type Props = {
     tier: 'free' | 'pro';
     interval: 'monthly' | 'yearly' | null;
+    subscriptionStatus: 'active' | 'grace' | null;
+    pmLastFour: string | null;
+    nextChargeDate: string | null;
+    nextChargeAmount: string | null;
 };
 
 defineProps<Props>();
@@ -25,12 +29,26 @@ defineOptions({
     },
 });
 
+type PageProps = {
+    auth: {
+        abilities: {
+            subscription: {
+                update: boolean;
+            };
+        } | null;
+    };
+};
+
+const page = usePage<PageProps>();
+
+const canManageBilling = computed(() => page.props.auth?.abilities?.subscription?.update === true);
+
 const selectedInterval = ref<'monthly' | 'yearly'>('monthly');
 
 onMounted(() => {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.get('checkout') === 'success') {
+    if (params.get('checkout') === 'success' || params.get('portal') === 'return') {
         router.reload({ only: ['auth'] });
     }
 });
@@ -82,6 +100,40 @@ onMounted(() => {
                 <input type="hidden" name="interval" :value="selectedInterval" />
                 <Button type="submit">{{ trans('billing.upgrade_to_pro') }}</Button>
             </Form>
+        </div>
+
+        <div v-else-if="tier === 'pro'" class="space-y-4">
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-muted-foreground">{{ trans('billing.current_tier') }}</span>
+                <Badge>{{ trans('billing.tier_pro') }}</Badge>
+                <Badge v-if="subscriptionStatus === 'grace'" variant="destructive">
+                    {{ trans('billing.status_grace') }}
+                </Badge>
+            </div>
+
+            <div v-if="interval" class="flex items-center gap-2">
+                <span class="text-sm text-muted-foreground">{{ trans('billing.billing_interval') }}</span>
+                <span class="text-sm">{{
+                    interval === 'monthly' ? trans('billing.interval_monthly') : trans('billing.interval_yearly')
+                }}</span>
+            </div>
+
+            <div v-if="nextChargeDate" class="flex items-center gap-2">
+                <span class="text-sm text-muted-foreground">{{ trans('billing.next_charge') }}</span>
+                <span class="text-sm"
+                    >{{ nextChargeDate
+                    }}<template v-if="nextChargeAmount"> ({{ nextChargeAmount }})</template></span
+                >
+            </div>
+
+            <div v-if="pmLastFour" class="flex items-center gap-2">
+                <span class="text-sm text-muted-foreground">{{ trans('billing.payment_method') }}</span>
+                <span class="text-sm">&bull;&bull;&bull;&bull; {{ pmLastFour }}</span>
+            </div>
+
+            <Button v-if="canManageBilling" as="a" :href="route('teams.billing.portal.show')">
+                {{ trans('billing.manage_billing') }}
+            </Button>
         </div>
     </div>
 </template>
