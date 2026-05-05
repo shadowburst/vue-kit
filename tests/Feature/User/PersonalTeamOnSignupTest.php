@@ -81,6 +81,17 @@ test('signup sets current_team_id on the created user', function (): void {
     expect($user->current_team_id)->toBe(Team::query()->firstOrFail()->id);
 });
 
+test('signup does not create a Stripe customer — teams.stripe_id is NULL', function (): void {
+    post(route('register.store'), [
+        'name'                  => 'Test User',
+        'email'                 => 'test@example.com',
+        'password'              => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    expect(Team::query()->firstOrFail()->stripe_id)->toBeNull();
+});
+
 test('signup rolls back the entire flow when team creation fails', function (): void {
     // CreateTeam is final so Mockery cannot subclass it; bind a throwing anonymous class instead.
     app()->instance(CreateTeam::class, new class {
