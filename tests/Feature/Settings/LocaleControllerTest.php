@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Enums\AppLocale;
-use App\Http\Middleware\SetCurrentTeam;
+use App\Enums\Locale\AppLocale;
+use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;

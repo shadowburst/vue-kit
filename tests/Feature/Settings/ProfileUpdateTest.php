@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Http\Middleware\SetCurrentTeam;
+use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;
@@ -66,7 +66,7 @@ test('user can delete their account', function () {
 
     $response
         ->assertSessionHasNoErrors()
-        ->assertRedirect(route('home'));
+        ->assertRedirect('/');
 
     assertGuest();
     expect($user->fresh())->toBeNull();

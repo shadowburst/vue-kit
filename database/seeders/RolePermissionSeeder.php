@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Enums\PermissionName;
-use App\Enums\RoleName;
+use App\Enums\Permission\PermissionName;
+use App\Enums\Role\RoleName;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;

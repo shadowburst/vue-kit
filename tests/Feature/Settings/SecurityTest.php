@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Http\Middleware\SetCurrentTeam;
+use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;

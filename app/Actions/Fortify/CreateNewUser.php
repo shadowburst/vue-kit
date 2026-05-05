@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Fortify;
 
-use App\Actions\Teams\CreateTeam;
+use App\Actions\Team\CreateTeam;
 use App\Concerns\PasswordValidationRules;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;

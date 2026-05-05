@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Http\Middleware\HandleAppearance;
-use App\Http\Middleware\HandleInertiaRequests;
-use App\Http\Middleware\SetCurrentTeam;
-use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\Appearance\HandleAppearance;
+use App\Http\Middleware\Inertia\HandleInertiaRequests;
+use App\Http\Middleware\Locale\SetLocale;
+use App\Http\Middleware\Team\SetCurrentTeam;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;

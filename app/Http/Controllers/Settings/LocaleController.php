@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Data\UserSettingsData;
-use App\Enums\AppLocale;
+use App\Data\User\UserSettingsData;
+use App\Enums\Locale\AppLocale;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\LocaleStoreRequest;
 use App\Http\Requests\Settings\LocaleUpdateRequest;
