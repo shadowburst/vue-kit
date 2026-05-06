@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Actions\Membership\AssignMembership;
 use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
+use App\Models\Team;
+use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Laravel\Fortify\Features;
@@ -64,4 +67,15 @@ function skip_unless_fortify_has(string $feature, ?string $message = null): void
     if (! Features::enabled($feature)) {
         Assert::markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");
     }
+}
+
+/** @mago-expect analysis:mixed-return-statement */
+function actingAsMemberOf(Team $team, Role $role): TestCase
+{
+    $user = User::factory()->createOne();
+    (new AssignMembership)->execute($user, $team, $role);
+    $user->update(['current_team_id' => $team->id]);
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+
+    return test()->actingAs($user);
 }
