@@ -34,9 +34,6 @@ it('flushModelCache forces a fresh lookup', function (): void {
 
     $second = Permission::TeamView->model();
 
-    expect($first)
-        ->not
-        ->toBe($second)
-        ->and($second->name)
-        ->toBe('team.view');
+    expect($first)->not->toBe($second);
+    expect($second->name)->toBe('team.view');
 });

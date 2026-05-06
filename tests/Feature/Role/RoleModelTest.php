@@ -48,9 +48,6 @@ it('flushModelCache forces a fresh lookup', function (): void {
 
     $second = Role::Owner->model();
 
-    expect($first)
-        ->not
-        ->toBe($second)
-        ->and($second->name)
-        ->toBe('owner');
+    expect($first)->not->toBe($second);
+    expect($second->name)->toBe('owner');
 });

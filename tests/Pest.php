@@ -29,6 +29,10 @@ pest()
         app(PermissionRegistrar::class)->forgetCachedPermissions();
         Role::flushModelCache();
         Permission::flushModelCache();
+        /**
+         * @mago-expect analysis:undefined-variable
+         * @mago-expect analysis:mixed-property-access
+         */
         $this->seeder = RolePermissionSeeder::class;
     })
     ->in('Feature');
