@@ -16,10 +16,10 @@ The fact that a **User** belongs to a **Team** with a specific team-scoped **Rol
 _Avoid_: team-user, team membership pivot.
 
 **Role**:
-A named bundle of **Permissions**. Either *global* (`team_id = null` — applies regardless of team context) or *team-scoped* (assigned per-team via Spatie's teams feature). Listed in the `RoleName` enum.
+A named bundle of **Permissions**. Either *global* (`team_id = null` — applies regardless of team context) or *team-scoped* (assigned per-team via Spatie's teams feature). Listed in the `App\Enums\Role\Role` enum.
 
 **Permission**:
-A single capability check expressed in dot notation (`user.view`, `team.update`). The unit on which all authorization decisions are made. Listed in the `PermissionName` enum.
+A single capability check expressed in dot notation (`user.view`, `team.update`). The unit on which all authorization decisions are made. Listed in the `App\Enums\Permission\Permission` enum.
 _Avoid_: ability, capability, gate.
 
 **Subscription**:

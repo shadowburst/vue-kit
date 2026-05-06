@@ -14,7 +14,7 @@ final class ResetCurrentTeam
 
     public function execute(User $user, ?Team $excluding = null): void
     {
-        if ($this->isValid($user, $excluding)) {
+        if (! $this->needsReset($user, $excluding)) {
             return;
         }
 
@@ -26,16 +26,16 @@ final class ResetCurrentTeam
         $user->update(['current_team_id' => $newTeamId]);
     }
 
-    private function isValid(User $user, ?Team $excluding): bool
+    private function needsReset(User $user, ?Team $excluding): bool
     {
         if ($user->current_team_id === null) {
-            return false;
+            return true;
         }
 
         if ($excluding !== null && $user->current_team_id === $excluding->id) {
-            return false;
+            return true;
         }
 
-        return $user->teams()->where('teams.id', $user->current_team_id)->exists();
+        return ! $user->teams()->where('teams.id', $user->current_team_id)->exists();
     }
 }
