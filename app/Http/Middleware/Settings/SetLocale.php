@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Middleware\Locale;
+namespace App\Http\Middleware\Settings;
 
-use App\Enums\Locale\AppLocale;
+use App\Enums\Settings\Locale;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -75,7 +75,7 @@ class SetLocale
     {
         return in_array(
             $locale,
-            array_map(fn (AppLocale $l): string => $l->value, AppLocale::cases()),
+            array_map(fn (Locale $l): string => $l->value, Locale::cases()),
             strict: true,
         );
     }

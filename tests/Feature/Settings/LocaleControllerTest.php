@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Enums\Locale\AppLocale;
+use App\Enums\Settings\Locale;
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
 
@@ -55,7 +55,7 @@ test('authenticated patch updates user settings locale and sets cookie', functio
     $response->assertPlainCookie('locale', 'fr');
 
     $user->refresh();
-    expect($user->settings?->locale)->toBe(AppLocale::Fr);
+    expect($user->settings?->locale)->toBe(Locale::Fr);
 });
 
 test('authenticated patch rejects unsupported locale with validation error', function (): void {

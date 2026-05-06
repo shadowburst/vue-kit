@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Data\User\UserSettingsData;
-use App\Enums\Locale\AppLocale;
+use App\Enums\Settings\Locale;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\LocaleStoreRequest;
 use App\Http\Requests\Settings\LocaleUpdateRequest;
@@ -34,7 +34,7 @@ final class LocaleController extends Controller
         $locale = (string) $request->validated('locale');
 
         $user->update([
-            'settings' => new UserSettingsData(AppLocale::from($locale)),
+            'settings' => new UserSettingsData(Locale::from($locale)),
         ]);
 
         return back()->withCookie(cookie('locale', $locale, 60 * 24 * 365));

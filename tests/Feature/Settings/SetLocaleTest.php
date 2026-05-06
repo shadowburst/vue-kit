@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Data\User\UserSettingsData;
-use App\Enums\Locale\AppLocale;
+use App\Enums\Settings\Locale;
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -87,7 +87,7 @@ test('middleware does not throw on malformed accept-language header', function (
 
 test('authenticated user stored locale takes priority over cookie', function (): void {
     $user = User::factory()->createOne([
-        'settings' => new UserSettingsData(AppLocale::Fr),
+        'settings' => new UserSettingsData(Locale::Fr),
     ]);
 
     $response = actingAs($user)

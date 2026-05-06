@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Enums\Locale;
+namespace App\Enums\Settings;
 
-enum AppLocale: string
+enum Locale: string
 {
     case En = 'en';
     case Fr = 'fr';
