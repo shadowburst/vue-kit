@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Data\User\UserAbilitiesData;
+use App\Data\Auth\AuthAbilitiesData;
 use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
 use App\Models\Team;
@@ -20,11 +20,11 @@ foreach (Role::cases() as $role) {
     $dataset[$role->value] = [
         $role,
         [
-            'viewAny' => in_array(Permission::UserViewAny, $permissions, true),
-            'view'    => in_array(Permission::UserView, $permissions, true),
-            'create'  => in_array(Permission::UserCreate, $permissions, true),
-            'update'  => in_array(Permission::UserUpdate, $permissions, true),
-            'delete'  => in_array(Permission::UserDelete, $permissions, true),
+            'view_any' => in_array(Permission::UserViewAny, $permissions, true),
+            'view'     => in_array(Permission::UserView, $permissions, true),
+            'create'   => in_array(Permission::UserCreate, $permissions, true),
+            'update'   => in_array(Permission::UserUpdate, $permissions, true),
+            'delete'   => in_array(Permission::UserDelete, $permissions, true),
         ],
         [
             'view'   => in_array(Permission::TeamView, $permissions, true),
@@ -38,7 +38,7 @@ foreach (Role::cases() as $role) {
     ];
 }
 
-it('UserAbilitiesData::fromUser returns correct per-policy booleans for each role', function (
+it('AuthAbilitiesData::fromUser returns correct per-policy booleans for each role', function (
     Role $role,
     array $expectedUser,
     array $expectedTeam,
@@ -54,10 +54,10 @@ it('UserAbilitiesData::fromUser returns correct per-policy booleans for each rol
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    $abilities = UserAbilitiesData::fromUser($user);
+    $abilities = AuthAbilitiesData::fromUser($user);
 
     expect($abilities)
-        ->toBeInstanceOf(UserAbilitiesData::class)
+        ->toBeInstanceOf(AuthAbilitiesData::class)
         ->and($abilities->user)
         ->toBe($expectedUser)
         ->and($abilities->team)
@@ -65,3 +65,31 @@ it('UserAbilitiesData::fromUser returns correct per-policy booleans for each rol
         ->and($abilities->subscription)
         ->toBe($expectedSubscription);
 })->with($dataset);
+
+it('AuthAbilitiesData::fromUser returns all-false abilities for a guest (null user)', function (): void {
+    seed(RolePermissionSeeder::class);
+
+    $abilities = AuthAbilitiesData::fromUser();
+
+    expect($abilities)
+        ->toBeInstanceOf(AuthAbilitiesData::class)
+        ->and($abilities->user)
+        ->toBe([
+            'view_any' => false,
+            'view'     => false,
+            'create'   => false,
+            'update'   => false,
+            'delete'   => false,
+        ])
+        ->and($abilities->team)
+        ->toBe([
+            'view'   => false,
+            'update' => false,
+            'delete' => false,
+        ])
+        ->and($abilities->subscription)
+        ->toBe([
+            'view'   => false,
+            'update' => false,
+        ]);
+});

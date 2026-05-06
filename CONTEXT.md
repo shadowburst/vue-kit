@@ -30,7 +30,7 @@ _Avoid_: plan, account.
 The level of access a **Team** has, derived from its **Subscription** state. Listed in the `SubscriptionTier` enum (`Free`, `Pro`) and strictly ordered — `Pro` is a superset of `Free`. `Free` is represented by the absence of an active subscription, not a `$0` Stripe row.
 
 **Feature**:
-A tier-gated capability resolved at runtime via Laravel Pennant, scoped to the **Team**. Distinct from a **Permission**: a Permission answers "is this role allowed to do this?", a Feature answers "did this team pay for this?". Per ADR-0008 the two axes are evaluated independently and surface to the frontend as parallel DTOs (`UserAbilitiesData`, `TeamFeaturesData`).
+A tier-gated capability resolved at runtime via Laravel Pennant, scoped to the **Team**. Distinct from a **Permission**: a Permission answers "is this role allowed to do this?", a Feature answers "did this team pay for this?". Per ADR-0008 the two axes are evaluated independently and surface to the frontend as parallel shapes: the `AuthAbilitiesData` DTO (policy results) and the `Team::features` accessor (Pennant feature values). Defined feature names are listed in the `Feature` enum.
 _Avoid_: flag, ability.
 
 ## Roles

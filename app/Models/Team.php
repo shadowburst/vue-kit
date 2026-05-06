@@ -9,9 +9,12 @@ use App\Enums\Subscription\SubscriptionTier;
 use App\Observers\TeamObserver;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Laravel\Cashier\Billable;
+use Laravel\Pennant\Feature;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -22,9 +25,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $stripe_id
  * @property string|null $pm_type
  * @property string|null $pm_last_four
- * @property \Illuminate\Support\Carbon|null $trial_ends_at
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
+ * @property Carbon|null $trial_ends_at
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read array<string, mixed> $features
  */
 #[ObservedBy(TeamObserver::class)]
 class Team extends Model
@@ -39,6 +43,14 @@ class Team extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
+    }
+
+    /**
+     * @return Attribute<array<string, mixed>, never>
+     */
+    protected function features(): Attribute
+    {
+        return Attribute::get(fn (): array => Feature::for($this)->all());
     }
 
     public function tier(): SubscriptionTier

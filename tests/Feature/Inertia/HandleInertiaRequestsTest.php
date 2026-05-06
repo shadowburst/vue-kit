@@ -20,8 +20,17 @@ test('guest request shares null currentTeam and null auth.user', function (): vo
             fn (AssertableInertia $page) => $page
                 ->where('currentTeam', null)
                 ->where('auth.user', null)
-                ->where('auth.abilities', null)
-                ->where('auth.features', null),
+                ->where('auth.abilities.user.view_any', false)
+                ->where('auth.abilities.user.view', false)
+                ->where('auth.abilities.user.create', false)
+                ->where('auth.abilities.user.update', false)
+                ->where('auth.abilities.user.delete', false)
+                ->where('auth.abilities.team.view', false)
+                ->where('auth.abilities.team.update', false)
+                ->where('auth.abilities.team.delete', false)
+                ->where('auth.abilities.subscription.view', false)
+                ->where('auth.abilities.subscription.update', false)
+                ->where('auth.features', []),
         );
 });
 
@@ -57,7 +66,7 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
                 ->where('auth.user.teams.0.id', $team->id)
                 ->where('auth.user.teams.0.name', 'Acme Corp')
                 ->where('auth.user.permissions', $expectedPermissions)
-                ->where('auth.abilities.user.viewAny', true)
+                ->where('auth.abilities.user.view_any', true)
                 ->where('auth.abilities.user.view', true)
                 ->where('auth.abilities.user.create', true)
                 ->where('auth.abilities.user.update', true)
@@ -67,7 +76,7 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
                 ->where('auth.abilities.team.delete', true)
                 ->where('auth.abilities.subscription.view', true)
                 ->where('auth.abilities.subscription.update', true)
-                ->where('auth.features.values', []),
+                ->where('auth.features', []),
         );
 });
 
