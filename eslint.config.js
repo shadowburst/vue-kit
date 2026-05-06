@@ -51,6 +51,23 @@ export default defineConfigWithVueTs(
         },
     },
     {
+        files: ['resources/js/**/*.{ts,vue}'],
+        rules: {
+            'no-restricted-imports': ['error', {
+                patterns: [{
+                    group: ['@/components/ui/field', '@/components/ui/field/*'],
+                    message: 'Import field components from @/components/ui/custom/form instead — the shadcn field primitives are wrapped there.',
+                }],
+            }],
+        },
+    },
+    {
+        files: ['resources/js/components/ui/**/*.{ts,vue}'],
+        rules: {
+            'no-restricted-imports': 'off',
+        },
+    },
+    {
         ignores: [
             'vendor',
             'node_modules',
@@ -58,8 +75,10 @@ export default defineConfigWithVueTs(
             'bootstrap/ssr',
             'tailwind.config.js',
             'vite.config.ts',
+            'vitest.config.ts',
             'resources/js/actions/**',
             'resources/js/components/ui/*',
+            '!resources/js/components/ui/custom/**',
             'resources/js/routes/**',
             'resources/js/wayfinder/**',
             'resources/js/spatie/**',
