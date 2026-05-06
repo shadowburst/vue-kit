@@ -1,23 +1,22 @@
 <script setup lang="ts">
 import { DialogHeader } from '@/components/ui/dialog';
 import { DrawerHeader } from '@/components/ui/drawer';
-import { cn } from '@/lib/utils';
-import { HTMLAttributes } from 'vue';
-import { injectSmartModalRootContext } from './SmartModal.vue';
+import { useTailwindBreakpoints } from '@/composables';
+import type { HTMLAttributes } from 'vue';
 
 type Props = {
     class?: HTMLAttributes['class'];
 };
 const props = defineProps<Props>();
 
-const { isDesktop } = injectSmartModalRootContext();
+const { md } = useTailwindBreakpoints();
 </script>
 
 <template>
-    <DialogHeader v-if="isDesktop" :class="props.class">
+    <DialogHeader v-if="md" :class="props.class">
         <slot />
     </DialogHeader>
-    <DrawerHeader v-else :class="cn('p-0', props.class)">
+    <DrawerHeader v-else :class="props.class">
         <slot />
     </DrawerHeader>
 </template>

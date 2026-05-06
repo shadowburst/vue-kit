@@ -2,8 +2,8 @@
 import type { AccordionTriggerProps } from 'reka-ui';
 
 import { cn } from '@/lib/utils';
-import { reactiveOmit } from '@vueuse/core';
 import { ChevronDownIcon, ChevronUpIcon } from '@lucide/vue';
+import { reactiveOmit } from '@vueuse/core';
 import { AccordionHeader, AccordionTrigger } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 

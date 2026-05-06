@@ -3,8 +3,8 @@ import type { ListboxFilterProps } from 'reka-ui';
 
 import { InputGroup, InputGroupAddon } from '@/components/ui/input-group';
 import { cn } from '@/lib/utils';
-import { reactiveOmit } from '@vueuse/core';
 import { SearchIcon } from '@lucide/vue';
+import { reactiveOmit } from '@vueuse/core';
 import { ListboxFilter, useForwardProps } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 import { useCommand } from '.';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Field as ShadcnField } from '@/components/ui/field';
 import type { FieldVariants } from '@/components/ui/field';
+import { Field as ShadcnField } from '@/components/ui/field';
 import type { HTMLAttributes } from 'vue';
 import { computed, ref, useId } from 'vue';
 import { provideFieldContext } from './context';

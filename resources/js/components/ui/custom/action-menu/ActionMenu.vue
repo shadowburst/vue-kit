@@ -3,11 +3,12 @@ import { Button } from '@/components/ui/button';
 import { SmartMenu, SmartMenuContent, SmartMenuTrigger } from '@/components/ui/custom/smart-menu';
 import { cn } from '@/lib/utils';
 import { EllipsisVerticalIcon } from '@lucide/vue';
-import { DropdownMenuContentProps } from 'reka-ui';
-import { computed, HTMLAttributes } from 'vue';
+import type { DropdownMenuContentProps } from 'reka-ui';
+import type { HTMLAttributes } from 'vue';
+import { computed } from 'vue';
 import ActionMenuButton from './ActionMenuButton.vue';
 import ActionMenuDropdownItem from './ActionMenuDropdownItem.vue';
-import { ActionItem } from './interface';
+import type { ActionItem } from './interface';
 
 type Props = {
     actions: ActionItem[];
@@ -24,9 +25,11 @@ const dropdownActions = computed((): ActionItem[] => {
     if (props.buttons === true) {
         return [];
     }
+
     if (props.buttons === false) {
         return props.actions;
     }
+
     return props.actions.slice(props.buttons);
 });
 const buttonActions = computed(() => props.actions.slice(0, props.actions.length - dropdownActions.value.length));

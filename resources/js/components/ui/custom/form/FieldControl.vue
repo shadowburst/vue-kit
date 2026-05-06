@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { reactiveOmit } from '@vueuse/core';
 import { Slot } from 'reka-ui';
 import { computed, useAttrs } from 'vue';
 import { injectFieldContext } from './context';
-import { reactiveOmit } from '@vueuse/core';
 
 defineOptions({ inheritAttrs: false });
 
@@ -56,7 +56,7 @@ const resolvedInvalid = computed(() => {
     return ctx?.invalid.value ? true : undefined;
 });
 
-const passthroughAttrs = reactiveOmit(attrs, 'aria-describedby', 'aria-invalid')
+const passthroughAttrs = reactiveOmit(attrs, 'aria-describedby', 'aria-invalid');
 </script>
 
 <template>

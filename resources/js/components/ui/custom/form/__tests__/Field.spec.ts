@@ -35,10 +35,9 @@ describe('Field', () => {
     });
 
     it('uses an explicit prop id over the auto-generated fallback', () => {
-        const wrapper = mountField(
-            () => [h(FieldLabel, () => 'Name'), h(FieldControl, () => h('input'))],
-            { id: 'name-field' },
-        );
+        const wrapper = mountField(() => [h(FieldLabel, () => 'Name'), h(FieldControl, () => h('input'))], {
+            id: 'name-field',
+        });
 
         expect(wrapper.get('input').attributes('id')).toBe('name-field');
         expect(wrapper.get('label').attributes('for')).toBe('name-field');
@@ -58,10 +57,10 @@ describe('Field', () => {
     });
 
     it('propagates required and disabled to the slot child and the root data-*', () => {
-        const wrapper = mountField(
-            () => [h(FieldLabel, () => 'X'), h(FieldControl, () => h('input'))],
-            { required: true, disabled: true },
-        );
+        const wrapper = mountField(() => [h(FieldLabel, () => 'X'), h(FieldControl, () => h('input'))], {
+            required: true,
+            disabled: true,
+        });
 
         const input = wrapper.get('input');
         const root = wrapper.find('[data-slot="field"]');

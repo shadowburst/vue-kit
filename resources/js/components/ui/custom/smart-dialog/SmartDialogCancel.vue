@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import SmartModalClose from './SmartModalClose.vue';
+import SmartDialogClose from './SmartDialogClose.vue';
 </script>
 
 <template>
-    <SmartModalClose as-child>
+    <SmartDialogClose as-child>
         <Button variant="outline">
             {{ $t('cancel') }}
         </Button>
-    </SmartModalClose>
+    </SmartDialogClose>
 </template>

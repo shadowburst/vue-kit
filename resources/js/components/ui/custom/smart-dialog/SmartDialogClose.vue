@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { DialogClose } from '@/components/ui/dialog';
 import { DrawerClose } from '@/components/ui/drawer';
-import { DialogCloseProps, useForwardProps } from 'reka-ui';
-import { DrawerCloseProps } from 'vaul-vue';
-import { injectSmartModalRootContext } from './SmartModal.vue';
+import { useTailwindBreakpoints } from '@/composables';
+import type { DialogCloseProps } from 'reka-ui';
+import { useForwardProps } from 'reka-ui';
+import type { DrawerCloseProps } from 'vaul-vue';
 
 type Props = DialogCloseProps & DrawerCloseProps;
 const props = defineProps<Props>();
@@ -11,11 +12,11 @@ const props = defineProps<Props>();
 const forwardedDialogProps = useForwardProps(props as DialogCloseProps);
 const forwardedDrawerProps = useForwardProps(props as DrawerCloseProps);
 
-const { isDesktop } = injectSmartModalRootContext();
+const { md } = useTailwindBreakpoints();
 </script>
 
 <template>
-    <DialogClose v-if="isDesktop" v-bind="forwardedDialogProps">
+    <DialogClose v-if="md" v-bind="forwardedDialogProps">
         <slot />
     </DialogClose>
     <DrawerClose v-else v-bind="forwardedDrawerProps">

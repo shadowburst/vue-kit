@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { DialogTitle } from '@/components/ui/dialog';
 import { DrawerTitle } from '@/components/ui/drawer';
-import { DialogTitleProps, useForwardProps } from 'reka-ui';
-import { DrawerTitleProps } from 'vaul-vue';
-import { injectSmartModalRootContext } from './SmartModal.vue';
+import { useTailwindBreakpoints } from '@/composables';
+import type { DialogTitleProps } from 'reka-ui';
+import { useForwardProps } from 'reka-ui';
+import type { DrawerTitleProps } from 'vaul-vue';
 
 type Props = DialogTitleProps & DrawerTitleProps;
 const props = defineProps<Props>();
@@ -11,14 +12,14 @@ const props = defineProps<Props>();
 const forwardedDialogProps = useForwardProps(props as DialogTitleProps);
 const forwardedDrawerProps = useForwardProps(props as DrawerTitleProps);
 
-const { isDesktop } = injectSmartModalRootContext();
+const { md } = useTailwindBreakpoints();
 </script>
 
 <template>
-    <DialogTitle v-if="isDesktop" v-bind="forwardedDialogProps" class="text-primary text-lg font-semibold">
+    <DialogTitle v-if="md" v-bind="forwardedDialogProps">
         <slot />
     </DialogTitle>
-    <DrawerTitle v-else v-bind="forwardedDrawerProps" class="text-primary text-lg font-semibold">
+    <DrawerTitle v-else v-bind="forwardedDrawerProps">
         <slot />
     </DrawerTitle>
 </template>

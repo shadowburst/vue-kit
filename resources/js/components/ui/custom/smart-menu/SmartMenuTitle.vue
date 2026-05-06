@@ -1,38 +1,30 @@
 <script setup lang="ts">
-import { DrawerDescription, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { DrawerTitle } from '@/components/ui/drawer';
 import { DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
+import { useTailwindBreakpoints } from '@/composables';
 import { reactiveOmit } from '@vueuse/core';
-import { DropdownMenuLabelProps, useForwardProps, VisuallyHidden } from 'reka-ui';
-import { DrawerTitleProps } from 'vaul-vue';
-import { HTMLAttributes } from 'vue';
-import { injectSmartMenuContext } from './SmartMenu.vue';
+import type { DropdownMenuLabelProps } from 'reka-ui';
+import { useForwardProps } from 'reka-ui';
+import type { DrawerTitleProps } from 'vaul-vue';
+import type { HTMLAttributes } from 'vue';
 
 type Props = DropdownMenuLabelProps &
     DrawerTitleProps & {
-        description?: string;
         class?: HTMLAttributes['class'];
     };
 const props = defineProps<Props>();
 
-const forwardedDropdownMenuProps = useForwardProps(props as DropdownMenuLabelProps);
+const forwardedDropdownMenuProps = useForwardProps(reactiveOmit(props, 'class') as DropdownMenuLabelProps);
 const forwardedDrawerProps = useForwardProps(reactiveOmit(props, 'class') as DrawerTitleProps);
 
-const { isDesktop } = injectSmartMenuContext();
+const { md } = useTailwindBreakpoints();
 </script>
 
 <template>
-    <DropdownMenuLabel v-if="isDesktop" v-bind="forwardedDropdownMenuProps">
+    <DropdownMenuLabel v-if="md" v-bind="forwardedDropdownMenuProps" :class="props.class">
         <slot />
     </DropdownMenuLabel>
-    <DrawerHeader v-else v-bind="forwardedDrawerProps">
-        <DrawerTitle :class="cn('text-primary text-lg font-semibold', props.class)">
-            <slot />
-        </DrawerTitle>
-        <component :is="!description ? VisuallyHidden : 'template'">
-            <DrawerDescription>
-                {{ description ?? $t('components.ui.custom.smart_menu.description') }}
-            </DrawerDescription>
-        </component>
-    </DrawerHeader>
+    <DrawerTitle v-else v-bind="forwardedDrawerProps" :class="props.class">
+        <slot />
+    </DrawerTitle>
 </template>

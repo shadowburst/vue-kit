@@ -1,24 +1,10 @@
-<script lang="ts">
-type SmartMenuContext = {
-    isDesktop: Ref<boolean>;
-};
-
-export const [injectSmartMenuContext, provideSmartMenuContext] = createContext<SmartMenuContext>('SmartMenuContext');
-</script>
-
 <script setup lang="ts">
 import { Drawer } from '@/components/ui/drawer';
 import { DropdownMenu } from '@/components/ui/dropdown-menu';
 import { useTailwindBreakpoints } from '@/composables';
-import {
-    createContext,
-    DialogRootEmits,
-    DropdownMenuRootEmits,
-    DropdownMenuRootProps,
-    useForwardPropsEmits,
-} from 'reka-ui';
-import { DrawerRootProps } from 'vaul-vue';
-import { Ref } from 'vue';
+import type { DialogRootEmits, DropdownMenuRootEmits, DropdownMenuRootProps } from 'reka-ui';
+import { useForwardPropsEmits } from 'reka-ui';
+import type { DrawerRootProps } from 'vaul-vue';
 
 type Props = DropdownMenuRootProps & DrawerRootProps;
 const props = defineProps<Props>();
@@ -33,15 +19,11 @@ const isOpen = defineModel<boolean>('open', {
     default: false,
 });
 
-const { sm: isDesktop } = useTailwindBreakpoints();
-
-provideSmartMenuContext({
-    isDesktop,
-});
+const { md } = useTailwindBreakpoints();
 </script>
 
 <template>
-    <DropdownMenu v-if="isDesktop" v-bind="forwardedDropdownMenuProps" v-model:open="isOpen">
+    <DropdownMenu v-if="md" v-bind="forwardedDropdownMenuProps" v-model:open="isOpen">
         <slot />
     </DropdownMenu>
     <Drawer v-else v-bind="forwardedDrawerProps" v-model:open="isOpen">

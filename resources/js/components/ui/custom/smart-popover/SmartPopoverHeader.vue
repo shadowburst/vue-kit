@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import { DrawerHeader } from '@/components/ui/drawer';
-import { cn } from '@/lib/utils';
-import { HTMLAttributes } from 'vue';
-import { injectSmartPopoverContext } from './SmartPopover.vue';
+import { useTailwindBreakpoints } from '@/composables';
+import type { HTMLAttributes } from 'vue';
 
 type Props = {
     class?: HTMLAttributes['class'];
 };
 const props = defineProps<Props>();
 
-const { isDesktop } = injectSmartPopoverContext();
+const { md } = useTailwindBreakpoints();
 </script>
 
 <template>
-    <div v-if="isDesktop" data-slot="popover-header" :class="cn('flex flex-col gap-1.5 pb-3', props.class)">
+    <div v-if="md" data-slot="popover-header" :class="props.class">
         <slot />
     </div>
-    <DrawerHeader v-else :class="cn('p-0', props.class)">
+    <DrawerHeader v-else :class="props.class">
         <slot />
     </DrawerHeader>
 </template>

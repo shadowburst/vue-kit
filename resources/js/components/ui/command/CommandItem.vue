@@ -2,8 +2,8 @@
 import type { ListboxItemEmits, ListboxItemProps } from 'reka-ui';
 
 import { cn } from '@/lib/utils';
-import { reactiveOmit, useCurrentElement } from '@vueuse/core';
 import { CheckIcon } from '@lucide/vue';
+import { reactiveOmit, useCurrentElement } from '@vueuse/core';
 import { ListboxItem, useForwardPropsEmits, useId } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 import { computed, onMounted, onUnmounted, ref } from 'vue';

@@ -1,6 +1,6 @@
-import { ButtonVariants } from '@/components/ui/button';
-import { LucideIcon } from '@lucide/vue';
-import { Component, HTMLAttributes, MaybeRefOrGetter } from 'vue';
+import type { ButtonVariants } from '@/components/ui/button';
+import type { LucideIcon } from '@lucide/vue';
+import type { Component, HTMLAttributes, MaybeRefOrGetter } from 'vue';
 
 type BaseActionItem = {
     label: string;

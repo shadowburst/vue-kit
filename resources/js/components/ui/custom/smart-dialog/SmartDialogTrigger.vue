@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { DialogTrigger } from '@/components/ui/dialog';
 import { DrawerTrigger } from '@/components/ui/drawer';
-import { DialogTriggerProps, useForwardProps } from 'reka-ui';
-import { DrawerTriggerProps } from 'vaul-vue';
-import { injectSmartModalRootContext } from './SmartModal.vue';
+import { useTailwindBreakpoints } from '@/composables';
+import type { DialogTriggerProps } from 'reka-ui';
+import { useForwardProps } from 'reka-ui';
+import type { DrawerTriggerProps } from 'vaul-vue';
 
 type Props = DialogTriggerProps & DrawerTriggerProps;
 const props = defineProps<Props>();
@@ -11,11 +12,11 @@ const props = defineProps<Props>();
 const forwardedDialogProps = useForwardProps(props as DialogTriggerProps);
 const forwardedDrawerProps = useForwardProps(props as DrawerTriggerProps);
 
-const { isDesktop } = injectSmartModalRootContext();
+const { md } = useTailwindBreakpoints();
 </script>
 
 <template>
-    <DialogTrigger v-if="isDesktop" v-bind="forwardedDialogProps">
+    <DialogTrigger v-if="md" v-bind="forwardedDialogProps">
         <slot />
     </DialogTrigger>
     <DrawerTrigger v-else v-bind="forwardedDrawerProps">

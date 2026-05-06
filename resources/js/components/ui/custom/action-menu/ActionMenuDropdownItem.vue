@@ -3,7 +3,7 @@ import { InertiaLink } from '@/components/ui/custom/link';
 import { SmartMenuItem } from '@/components/ui/custom/smart-menu';
 import { CapitalizeText } from '@/components/ui/custom/typography';
 import { toValue } from 'vue';
-import { ActionItem } from './interface';
+import type { ActionItem } from './interface';
 
 type Props = {
     action: ActionItem;

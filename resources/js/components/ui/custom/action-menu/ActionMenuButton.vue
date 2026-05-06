@@ -2,8 +2,9 @@
 import { Button } from '@/components/ui/button';
 import { InertiaLink } from '@/components/ui/custom/link';
 import { CapitalizeText } from '@/components/ui/custom/typography';
-import { computed, HTMLAttributes, toValue } from 'vue';
-import { ActionItem } from './interface';
+import type { HTMLAttributes } from 'vue';
+import { computed, toValue } from 'vue';
+import type { ActionItem } from './interface';
 
 type Props = {
     action: ActionItem;

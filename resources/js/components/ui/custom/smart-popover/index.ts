@@ -1,4 +1,4 @@
-export { default as SmartPopover, injectSmartPopoverContext } from './SmartPopover.vue';
+export { default as SmartPopover } from './SmartPopover.vue';
 export { default as SmartPopoverContent } from './SmartPopoverContent.vue';
 export { default as SmartPopoverDescription } from './SmartPopoverDescription.vue';
 export { default as SmartPopoverFooter } from './SmartPopoverFooter.vue';

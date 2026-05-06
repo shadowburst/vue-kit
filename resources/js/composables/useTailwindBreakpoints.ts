@@ -1,5 +1,3 @@
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import { breakpointsTailwind, createSharedComposable, useBreakpoints } from '@vueuse/core';
 
-export function useTailwindBreakpoints(options?: Parameters<typeof useBreakpoints>[1]) {
-    return useBreakpoints(breakpointsTailwind, options);
-}
+export const useTailwindBreakpoints = createSharedComposable(() => useBreakpoints(breakpointsTailwind));

@@ -1,4 +1,4 @@
-export { type FieldContext, injectFieldContext, provideFieldContext } from './context';
+export { injectFieldContext, provideFieldContext, type FieldContext } from './context';
 
 export { default as Field } from './Field.vue';
 export { default as FieldContent } from './FieldContent.vue';
