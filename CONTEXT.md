@@ -9,7 +9,7 @@ A shared workspace. Every authenticated user owns at least one **Team**. The use
 _Avoid_: workspace, organization, account.
 
 **Personal Team**:
-A **Team** auto-created on signup with the user as **Owner** and a default name from the `team` translation file. Not a separate type — recognized only by the rule "the last team a user owns cannot be deleted."
+A **Team** auto-created on signup with the user as `owner_id` and a default name from the `team` translation file. Not a separate type — recognized only by the rule "the last team a user owns cannot be deleted."
 
 **Membership**:
 The fact that a **User** belongs to a **Team** with a specific team-scoped **Role**. Stored implicitly as a row in Spatie's `model_has_roles` table — there is no separate `team_user` pivot.
@@ -39,15 +39,14 @@ _Avoid_: flag, ability.
 |---|---|---|
 | `super-admin` | global | `admin` |
 | `tester` | global | `test` |
-| `owner` | team | `user.*`, `team.*`, `subscription.*` |
 | `admin` | team | `user.*`, `subscription.view` |
 | `member` | team | `user.viewAny`, `user.view`, `team.view` |
 
 `user.*` covers **Membership** management within the team (invite, view, change role, remove) — not editing of global User profile fields.
 
-`team.*` excludes `team.create`: creating a team has no team context yet, so it is ungated and any authenticated user may create one. The creator becomes the **Owner** of the new team.
+`team.create` is ungated — any authenticated user may create a team. The creator's `id` is recorded as `teams.owner_id` and they are assigned the **Admin** role for that team.
 
-`subscription.*` covers viewing and managing the team's **Subscription**. Owner gets both; Admin gets only `subscription.view` (they can read the current plan but cannot rack up charges on the Owner's card); Member gets neither. Deleting a team via `team.delete` cancels the Stripe subscription immediately, not at period end.
+`subscription.view` lets Admins see the current plan and invoices. Managing the subscription (start/swap/cancel/payment method) is owner-only and is an identity check, not a permission.
 
 ## Permissions
 
@@ -60,11 +59,10 @@ user.create              # team — invite/add a member
 user.update              # team — change a member's role
 user.delete              # team — remove a member
 team.view                # team — view team settings
-team.update              # team — edit team settings
-team.delete              # team — delete the team
 subscription.view        # team — see current Subscription, invoices, upcoming charge
-subscription.update      # team — start/swap/cancel Subscription, manage payment method
 ```
+
+`team.update`, `team.delete`, and `subscription.update` are not permissions — they are owner-only capabilities enforced by `teams.owner_id` identity checks in the relevant policies.
 
 ## Relationships
 
@@ -76,6 +74,7 @@ subscription.update      # team — start/swap/cancel Subscription, manage payme
 ## Authorization rules
 
 - All authorization checks must use **Permissions**, never **Roles**. Policies call `$user->can('permission.name', ...)`.
+- **Ownership** is checked via `teams.owner_id`, not via roles or permissions. `$team->owner_id === $user->id` is an identity check — it is distinct from the role-bundle branching that ADR-0002 forbids. See ADR-0014.
 - Team context is set per request from `auth()->user()->current_team_id` via middleware that calls `setPermissionsTeamId($team->id)`. Routes that don't apply this middleware (e.g. global account/admin routes) operate with `team_id = null` and only global permissions match.
 - Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0013, voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and `customer.subscription.deleted` detaches over-cap non-Owner **Memberships** at period end, ordered by `model_has_roles.created_at` desc. Involuntary cancellation (payment failure) skips the prune; the team becomes over-cap-but-intact until the Owner resubscribes or removes members.
 

@@ -17,14 +17,12 @@ final class TeamPolicy
 
     public function update(User $user, Team $team): bool
     {
-        return $user->can(Permission::TeamUpdate->value);
+        return $team->owner_id === $user->id;
     }
 
     public function delete(User $user, Team $team): bool
     {
-        return (
-            $user->can(Permission::TeamDelete->value)
-            && $user->ownedTeams()->where('teams.id', '!=', $team->id)->exists()
-        );
+        return $team->owner_id === $user->id
+            && $user->ownedTeams()->whereKeyNot($team)->exists();
     }
 }

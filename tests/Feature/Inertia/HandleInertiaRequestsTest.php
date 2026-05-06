@@ -39,7 +39,7 @@ test('guest request shares null currentTeam and null auth.user', function (): vo
 // because teams.create (the only auth-only Inertia route) is exempt from SetCurrentTeam
 // to prevent redirect loops — SetCurrentTeam's own test covers that flow.
 
-test('authenticated Owner gets correct currentTeam, teams, and permissions', function (): void {
+test('authenticated team creator (Admin + owner_id) gets correct currentTeam, teams, and permissions', function (): void {
     $user = User::factory()->createOne();
     $team = (new CreateTeam)->execute('Acme Corp', $user);
     $user->update(['current_team_id' => $team->id]);
@@ -49,7 +49,7 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
 
     actingAs($user);
 
-    $expectedPermissions = collect(Role::Owner->permissions())
+    $expectedPermissions = collect(Role::Admin->permissions())
         ->map(fn (Permission $p) => $p->value)
         ->sort()
         ->values()
@@ -72,11 +72,11 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
                 ->where('auth.abilities.user.create', true)
                 ->where('auth.abilities.user.update', true)
                 ->where('auth.abilities.user.delete', true)
-                ->where('auth.abilities.team.view', true)
-                ->where('auth.abilities.team.update', true)
-                ->where('auth.abilities.team.delete', true)
+                ->where('auth.abilities.team.view', false)     // Admin has no TeamView permission
+                ->where('auth.abilities.team.update', true)    // owner_id identity check
+                ->where('auth.abilities.team.delete', false)   // sole owned team — personal-team rule
                 ->where('auth.abilities.subscription.view', true)
-                ->where('auth.abilities.subscription.update', true)
+                ->where('auth.abilities.subscription.update', true) // owner_id identity check
                 ->where('auth.features', []),
         );
 });

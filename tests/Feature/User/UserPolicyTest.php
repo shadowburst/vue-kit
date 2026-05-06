@@ -38,7 +38,7 @@ it('is auto-discovered by Laravel for the User model', function (): void {
 });
 
 it('enforces the UserPolicy permission matrix', function (Role $role, string $method, bool $expected): void {
-    $team   = Team::query()->create(['name' => 'Test Team']);
+    $team   = Team::factory()->createOne(['name' => 'Test Team']);
     $user   = User::factory()->createOne();
     $target = User::factory()->createOne();
 
@@ -56,7 +56,7 @@ it('enforces the UserPolicy permission matrix', function (Role $role, string $me
 })->with($matrixDataset);
 
 it('allows a member to delete themselves (leave team) regardless of user.delete permission', function (): void {
-    $team   = Team::query()->create(['name' => 'Test Team']);
+    $team   = Team::factory()->createOne(['name' => 'Test Team']);
     $member = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
@@ -69,7 +69,7 @@ it('allows a member to delete themselves (leave team) regardless of user.delete 
 });
 
 it('does not grant UserPolicy::update to a super-admin via a before() bypass', function (): void {
-    $team       = Team::query()->create(['name' => 'Test Team']);
+    $team       = Team::factory()->createOne(['name' => 'Test Team']);
     $superAdmin = User::factory()->createOne();
     $target     = User::factory()->createOne();
 

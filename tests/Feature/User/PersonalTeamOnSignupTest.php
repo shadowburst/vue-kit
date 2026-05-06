@@ -15,7 +15,7 @@ beforeEach(function (): void {
     skip_unless_fortify_has(Features::registration());
 });
 
-test('signup creates one user, one team, and one owner role assignment', function (): void {
+test('signup creates one user, one team, records owner_id, and assigns Admin role', function (): void {
     post(route('register.store'), [
         'name'                  => 'Test User',
         'email'                 => 'test@example.com',
@@ -24,21 +24,24 @@ test('signup creates one user, one team, and one owner role assignment', functio
     ]);
 
     $user = User::query()->where('email', 'test@example.com')->firstOrFail();
+    $team = Team::query()->firstOrFail();
 
-    $hasOwnerRole = DB::table('model_has_roles')
+    $hasAdminRole = DB::table('model_has_roles')
         ->where('model_has_roles.model_id', $user->id)
         ->where('model_has_roles.model_type', $user->getMorphClass())
         ->where('model_has_roles.team_id', $user->current_team_id)
         ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-        ->where('roles.name', Role::Owner->value)
+        ->where('roles.name', Role::Admin->value)
         ->exists();
 
     expect(Team::query()->count())
         ->toBe(1)
         ->and($user->current_team_id)
-        ->toBe(Team::query()->firstOrFail()->id)
-        ->and($hasOwnerRole)
-        ->toBeTrue();
+        ->toBe($team->id)
+        ->and($hasAdminRole)
+        ->toBeTrue()
+        ->and($team->owner_id)
+        ->toBe($user->id);
 });
 
 test('signup team name resolves from the en locale', function (): void {

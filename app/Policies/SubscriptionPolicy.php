@@ -17,6 +17,6 @@ final class SubscriptionPolicy
 
     public function update(User $user, Team $team): bool
     {
-        return $user->can(Permission::SubscriptionUpdate->value);
+        return $team->owner_id === $user->id;
     }
 }
