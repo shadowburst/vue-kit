@@ -10,6 +10,6 @@ use Spatie\LaravelData\Data;
 final class UserSettingsData extends Data
 {
     public function __construct(
-        public Locale $locale,
+        public Locale $locale = Locale::Fr,
     ) {}
 }

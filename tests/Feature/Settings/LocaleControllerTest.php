@@ -7,7 +7,7 @@ use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\put;
+use function Pest\Laravel\patch;
 use function Pest\Laravel\withoutMiddleware;
 
 beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
@@ -20,36 +20,10 @@ test('language settings page is displayed for authenticated users', function ():
     $response->assertOk();
 });
 
-test('valid locale sets the cookie and redirects back', function (): void {
-    $response = put(route('locale.update'), ['locale' => 'fr']);
-
-    $response->assertRedirect();
-    $response->assertPlainCookie('locale', 'fr');
-});
-
-test('valid locale does not require authentication', function (): void {
-    $response = put(route('locale.update'), ['locale' => 'en']);
-
-    $response->assertRedirect();
-    $response->assertPlainCookie('locale', 'en');
-});
-
-test('invalid locale returns a validation error on the locale field', function (): void {
-    $response = put(route('locale.update'), ['locale' => 'de']);
-
-    $response->assertSessionHasErrors('locale');
-});
-
-test('missing locale returns a validation error', function (): void {
-    $response = put(route('locale.update'), []);
-
-    $response->assertSessionHasErrors('locale');
-});
-
-test('authenticated patch updates user settings locale and sets cookie', function (): void {
+test('valid locale updates user settings, sets cookie and redirects back', function (): void {
     $user = User::factory()->createOne();
 
-    $response = actingAs($user)->patch(route('locale.store'), ['locale' => 'fr']);
+    $response = actingAs($user)->patch(route('locale.update'), ['locale' => 'fr']);
 
     $response->assertRedirect();
     $response->assertPlainCookie('locale', 'fr');
@@ -58,10 +32,24 @@ test('authenticated patch updates user settings locale and sets cookie', functio
     expect($user->settings?->locale)->toBe(Locale::Fr);
 });
 
-test('authenticated patch rejects unsupported locale with validation error', function (): void {
+test('invalid locale returns a validation error on the locale field', function (): void {
     $user = User::factory()->createOne();
 
-    $response = actingAs($user)->patch(route('locale.store'), ['locale' => 'de']);
+    $response = actingAs($user)->patch(route('locale.update'), ['locale' => 'de']);
 
     $response->assertSessionHasErrors('locale');
+});
+
+test('missing locale returns a validation error', function (): void {
+    $user = User::factory()->createOne();
+
+    $response = actingAs($user)->patch(route('locale.update'), []);
+
+    $response->assertSessionHasErrors('locale');
+});
+
+test('unauthenticated request to update locale is redirected to login', function (): void {
+    $response = patch(route('locale.update'), ['locale' => 'fr']);
+
+    $response->assertRedirect(route('login'));
 });

@@ -36,11 +36,7 @@ function localeLabel(locale: string): string {
 }
 
 function submit(): void {
-    if (page.props.auth.user) {
-        form.patch(LocaleController.store.url());
-    } else {
-        form.put(LocaleController.update.url());
-    }
+    form.patch(LocaleController.update.url());
 }
 </script>
 
