@@ -77,7 +77,7 @@ subscription.update      # team — start/swap/cancel Subscription, manage payme
 
 - All authorization checks must use **Permissions**, never **Roles**. Policies call `$user->can('permission.name', ...)`.
 - Team context is set per request from `auth()->user()->current_team_id` via middleware that calls `setPermissionsTeamId($team->id)`. Routes that don't apply this middleware (e.g. global account/admin routes) operate with `team_id = null` and only global permissions match.
-- Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0012, voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and `customer.subscription.deleted` detaches over-cap non-Owner **Memberships** at period end, ordered by `model_has_roles.created_at` desc. Involuntary cancellation (payment failure) skips the prune; the team becomes over-cap-but-intact until the Owner resubscribes or removes members.
+- Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0013, voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and `customer.subscription.deleted` detaches over-cap non-Owner **Memberships** at period end, ordered by `model_has_roles.created_at` desc. Involuntary cancellation (payment failure) skips the prune; the team becomes over-cap-but-intact until the Owner resubscribes or removes members.
 
 ## Flagged ambiguities
 
