@@ -32,9 +32,9 @@ final class BillingController extends Controller
             $subscription = $team->subscription('default');
 
             if ($subscription !== null) {
-                $priceId = $subscription->stripe_price;
+                $priceId = $subscription->getAttribute('stripe_price');
 
-                if ($priceId !== null) {
+                if (is_string($priceId)) {
                     $interval = match (true) {
                         $priceId === SubscriptionTier::Pro->stripeMonthlyId() => SubscriptionInterval::Monthly->value,
                         $priceId === SubscriptionTier::Pro->stripeYearlyId() => SubscriptionInterval::Yearly->value,

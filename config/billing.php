@@ -18,8 +18,8 @@ return [
     'tiers' => [
 
         'pro' => [
-            'monthly' => env('STRIPE_PRICE_PRO_MONTHLY'),
-            'yearly'  => env('STRIPE_PRICE_PRO_YEARLY'),
+            'monthly' => (string) env('STRIPE_PRICE_PRO_MONTHLY', ''),
+            'yearly'  => (string) env('STRIPE_PRICE_PRO_YEARLY', ''),
         ],
 
     ],

@@ -65,6 +65,8 @@ class Team extends Model
             return SubscriptionTier::Free;
         }
 
-        return SubscriptionTier::fromStripePriceId((string) ($subscription->stripe_price ?? ''));
+        return SubscriptionTier::fromStripePriceId(
+            (string) ($subscription->getAttribute('stripe_price') ?? ''),
+        );
     }
 }
