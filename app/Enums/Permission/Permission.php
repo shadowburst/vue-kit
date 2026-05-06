@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums\Permission;
 
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 
 enum Permission: string
@@ -21,23 +22,16 @@ enum Permission: string
 
     public function model(): SpatiePermission
     {
-        $cache = &self::modelCache();
+        $key = "enum.permission.{$this->value}";
 
-        return $cache[$this->value] ??= SpatiePermission::findByName($this->value);
+        // Per-request cache only; cross-request would need invalidation on permission changes.
+        return Cache::driver('array')
+            ->tags(['enum.permission'])
+            ->rememberForever($key, fn (): SpatiePermission => SpatiePermission::findByName($this->value));
     }
 
     public static function flushModelCache(): void
     {
-        $cache = &self::modelCache();
-        $cache = [];
-    }
-
-    /** @return array<string, SpatiePermission> */
-    private static function &modelCache(): array
-    {
-        /** @var array<string, SpatiePermission> $cache */
-        static $cache = [];
-
-        return $cache;
+        Cache::driver('array')->tags(['enum.permission'])->flush();
     }
 }
