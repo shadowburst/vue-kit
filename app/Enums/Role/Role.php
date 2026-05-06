@@ -67,12 +67,8 @@ enum Role: string
         $cache = Cache::driver('array');
 
         // Per-request cache only; cross-request would need invalidation on role changes.
-        $model = $cache->tags(['enum.role'])
+        return $cache->tags(['enum.role'])
             ->rememberForever($key, fn (): SpatieRole => SpatieRole::findByName($this->value));
-
-        \assert($model instanceof SpatieRole, 'rememberForever returns the resolved role model');
-
-        return $model;
     }
 
     public static function flushModelCache(): void

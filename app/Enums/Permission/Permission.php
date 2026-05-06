@@ -29,12 +29,8 @@ enum Permission: string
         $cache = Cache::driver('array');
 
         // Per-request cache only; cross-request would need invalidation on permission changes.
-        $model = $cache->tags(['enum.permission'])
+        return $cache->tags(['enum.permission'])
             ->rememberForever($key, fn (): SpatiePermission => SpatiePermission::findByName($this->value));
-
-        \assert($model instanceof SpatiePermission, 'rememberForever returns the resolved permission model');
-
-        return $model;
     }
 
     public static function flushModelCache(): void
