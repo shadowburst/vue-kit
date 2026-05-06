@@ -15,11 +15,14 @@ final class TeamObserver
     ) {}
 
     /**
-     * Reassign current_team_id before the nullOnDelete FK cascade fires so users
-     * with another team end up with a valid id instead of null.
+     * Cancel any active Stripe subscription and reassign current_team_id before
+     * the nullOnDelete FK cascade fires so users with another team end up with
+     * a valid id instead of null.
      */
     public function deleting(Team $team): void
     {
+        $team->subscription('default')?->cancelNow();
+
         User::query()
             ->where('current_team_id', $team->id)
             ->each(function (User $user) use ($team): void {

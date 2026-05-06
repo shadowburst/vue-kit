@@ -15,8 +15,10 @@
     ],
     "sail": false,
     "skills": [
+        "cashier-stripe-development",
         "fortify-development",
         "laravel-best-practices",
+        "pennant-development",
         "wayfinder-development",
         "pest-testing",
         "inertia-vue-development",

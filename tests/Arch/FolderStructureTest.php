@@ -15,6 +15,7 @@ $enforcedTypeFolders = [
     'Http/Controllers',
     'Http/Middleware',
     'Http/Requests',
+    'Services',
 ];
 
 test('no PHP class lives at the root of a non-exempt type folder under app/', function () use (

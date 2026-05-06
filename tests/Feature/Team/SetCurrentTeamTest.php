@@ -5,8 +5,8 @@ declare(strict_types=1);
 use App\Actions\Team\CreateTeam;
 use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
-use App\Models\Team;
 use App\Models\User;
+use App\Services\Team\TeamContext;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\PermissionRegistrar;
@@ -15,11 +15,10 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
 beforeEach(function (): void {
-    Route::get('/_test/team', function () {
+    Route::get('/_test/team', function (TeamContext $teamContext) {
         $user = Auth::user();
         assert($user === null || $user instanceof User);
-        $currentTeam = app()->has('currentTeam') ? app('currentTeam') : null;
-        assert($currentTeam === null || $currentTeam instanceof Team);
+        $currentTeam = $teamContext->current();
 
         return response()->json([
             'currentTeam'   => $currentTeam?->id,
@@ -32,7 +31,7 @@ beforeEach(function (): void {
 test('guest request passes through without team resolution', function (): void {
     get('/_test/team')->assertOk()->assertJson(['currentTeam' => null]);
 
-    expect(app()->has('currentTeam'))->toBeFalse();
+    expect(app(TeamContext::class)->current())->toBeNull();
 });
 
 test('valid current_team_id stashes active team in container', function (): void {

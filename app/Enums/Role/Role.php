@@ -36,6 +36,8 @@ enum Role: string
                 Permission::TeamView,
                 Permission::TeamUpdate,
                 Permission::TeamDelete,
+                Permission::SubscriptionView,
+                Permission::SubscriptionUpdate,
             ],
             self::Admin => [
                 Permission::UserViewAny,
@@ -43,6 +45,7 @@ enum Role: string
                 Permission::UserCreate,
                 Permission::UserUpdate,
                 Permission::UserDelete,
+                Permission::SubscriptionView,
             ],
             self::Member => [
                 Permission::UserViewAny,

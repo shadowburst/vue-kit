@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware\Inertia;
 
-use App\Models\Team;
+use App\Data\Auth\AuthAbilitiesData;
 use App\Models\User;
+use App\Services\Team\TeamContext;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(
+        private readonly TeamContext $teamContext,
+    ) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -41,7 +46,7 @@ class HandleInertiaRequests extends Middleware
     {
         /** @var User|null $user */
         $user        = $request->user();
-        $currentTeam = app()->bound('currentTeam') ? app('currentTeam') : null;
+        $currentTeam = $this->teamContext->current();
 
         /** @var string $appName */
         $appName = config('app.name');
@@ -50,14 +55,16 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name'        => $appName,
             'auth'        => [
-                'user' => $user instanceof User
+                'user'      => $user instanceof User
                     ? [
                         ...$user->toArray(),
                         'teams'       => $user->teams()->get(['teams.id', 'teams.name', 'teams.slug']),
                         'permissions' => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
                     ] : null,
+                'abilities' => fn () => AuthAbilitiesData::fromUser($user),
+                'features'  => fn () => $currentTeam !== null ? $currentTeam->features : [],
             ],
-            'currentTeam' => $currentTeam instanceof Team
+            'currentTeam' => $currentTeam !== null
                 ? [
                     'id'   => $currentTeam->id,
                     'name' => $currentTeam->name,

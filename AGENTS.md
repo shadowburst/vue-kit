@@ -11,8 +11,10 @@ This application is a Laravel application and its main Laravel ecosystems packag
 
 - php - 8.5
 - inertiajs/inertia-laravel (INERTIA_LARAVEL) - v3
+- laravel/cashier (CASHIER) - v16
 - laravel/fortify (FORTIFY) - v1
 - laravel/framework (LARAVEL) - v13
+- laravel/pennant (PENNANT) - v1
 - laravel/pint (PINT) - v1
 - laravel/prompts (PROMPTS) - v0
 - laravel/wayfinder (WAYFINDER) - v

@@ -7,6 +7,7 @@ namespace App\Http\Middleware\Team;
 use App\Actions\Membership\ResetCurrentTeam;
 use App\Models\Team;
 use App\Models\User;
+use App\Services\Team\TeamContext;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,7 @@ final class SetCurrentTeam
 {
     public function __construct(
         private readonly ResetCurrentTeam $resetCurrentTeam,
+        private readonly TeamContext $teamContext,
     ) {}
 
     /**
@@ -38,7 +40,7 @@ final class SetCurrentTeam
         }
 
         app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-        app()->instance('currentTeam', $team);
+        $this->teamContext->setTeam($team);
 
         return $next($request);
     }
