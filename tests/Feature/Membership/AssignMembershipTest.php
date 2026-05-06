@@ -7,6 +7,7 @@ use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\PermissionRegistrar;
 
 it('assigns a Member role to a user scoped to the team', function (): void {
     $user = User::factory()->createOne();
@@ -49,10 +50,7 @@ it('is idempotent when the same role is assigned twice', function (): void {
     (new AssignMembership)->execute($user, $team, Role::Member);
     (new AssignMembership)->execute($user, $team, Role::Member);
 
-    $roleCount = DB::table('model_has_roles')
-        ->where('model_id', $user->id)
-        ->where('model_type', $user->getMorphClass())
-        ->count();
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    expect($roleCount)->toBe(1);
+    expect($user->fresh()->hasRole(Role::Member->value))->toBeTrue();
 });

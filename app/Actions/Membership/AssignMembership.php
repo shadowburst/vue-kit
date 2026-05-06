@@ -17,9 +17,16 @@ final class AssignMembership
 
     public function execute(User $user, Team $team, Role $role): void
     {
-        DB::transaction(function () use ($user, $team, $role): void {
-            app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-            $user->assignRole($role->value);
-        });
+        $registrar = app(PermissionRegistrar::class);
+        $previousTeamId = $registrar->getPermissionsTeamId();
+
+        try {
+            DB::transaction(function () use ($registrar, $user, $team, $role): void {
+                $registrar->setPermissionsTeamId($team->id);
+                $user->assignRole($role->value);
+            });
+        } finally {
+            $registrar->setPermissionsTeamId($previousTeamId);
+        }
     }
 }

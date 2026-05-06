@@ -74,6 +74,8 @@ function actingAsMemberOf(Team $team, Role $role): TestCase
 {
     $user = User::factory()->createOne();
     (new AssignMembership)->execute($user, $team, $role);
+    $user->update(['current_team_id' => $team->id]);
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
     return test()->actingAs($user);
 }
