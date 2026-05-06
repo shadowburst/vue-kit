@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use Tests\TestCase;
@@ -20,6 +22,10 @@ use Tests\TestCase;
 pest()
     ->extend(TestCase::class)
     ->use(RefreshDatabase::class)
+    ->beforeEach(function (): void {
+        Role::flushModelCache();
+        Permission::flushModelCache();
+    })
     ->in('Feature');
 
 /*

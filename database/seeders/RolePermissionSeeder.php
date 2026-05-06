@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Enums\Permission\PermissionName;
-use App\Enums\Role\RoleName;
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission as SpatiePermission;
+use Spatie\Permission\Models\Role as SpatieRole;
 use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
@@ -17,20 +17,20 @@ class RolePermissionSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        foreach (PermissionName::cases() as $case) {
-            Permission::query()->updateOrCreate(
+        foreach (Permission::cases() as $case) {
+            SpatiePermission::query()->updateOrCreate(
                 ['name' => $case->value, 'guard_name' => 'web'],
             );
         }
 
-        foreach (RoleName::cases() as $case) {
-            /** @var Role $role */
-            $role = Role::query()->updateOrCreate(
+        foreach (Role::cases() as $case) {
+            /** @var SpatieRole $role */
+            $role = SpatieRole::query()->updateOrCreate(
                 ['name' => $case->value, 'guard_name' => 'web', 'team_id' => null],
             );
 
             $role->syncPermissions(
-                array_map(fn (PermissionName $p) => $p->value, $case->permissions()),
+                array_map(fn (Permission $p) => $p->value, $case->permissions()),
             );
         }
     }

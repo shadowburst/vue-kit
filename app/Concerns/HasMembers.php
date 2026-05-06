@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Concerns;
 
-use App\Enums\RoleName;
+use App\Enums\Role\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -20,10 +20,10 @@ trait HasMembers
     /** @mago-expect analysis:invalid-return-statement */
     public function owners(): BelongsToMany
     {
-        return $this->membersQuery(RoleName::Owner);
+        return $this->membersQuery(Role::Owner);
     }
 
-    private function membersQuery(?RoleName $role = null): BelongsToMany
+    private function membersQuery(?Role $role = null): BelongsToMany
     {
         $relation = $this
             ->belongsToMany(User::class, 'model_has_roles', 'team_id', 'model_id')

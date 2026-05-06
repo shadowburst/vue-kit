@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Team;
 
-use App\Enums\Role\RoleName;
+use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +22,7 @@ final class CreateTeam
             $team = Team::query()->create(['name' => $name]);
 
             app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-            $creator->assignRole(RoleName::Owner->value);
+            $creator->assignRole(Role::Owner->value);
 
             return $team;
         });

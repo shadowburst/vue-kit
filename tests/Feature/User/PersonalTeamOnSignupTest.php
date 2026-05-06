@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
-use App\Enums\Role\RoleName;
+use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -33,7 +33,7 @@ test('signup creates one user, one team, and one owner role assignment', functio
         ->where('model_has_roles.model_type', $user->getMorphClass())
         ->where('model_has_roles.team_id', $user->current_team_id)
         ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-        ->where('roles.name', RoleName::Owner->value)
+        ->where('roles.name', Role::Owner->value)
         ->exists();
 
     expect(Team::query()->count())

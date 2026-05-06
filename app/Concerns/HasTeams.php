@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Concerns;
 
-use App\Enums\Role\RoleName;
+use App\Enums\Role\Role;
 use App\Models\Team;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -21,7 +21,7 @@ trait HasTeams
     /** @mago-expect analysis:invalid-return-statement */
     public function ownedTeams(): BelongsToMany
     {
-        return $this->teamsQuery(RoleName::Owner);
+        return $this->teamsQuery(Role::Owner);
     }
 
     public function isMemberOf(Team $team): bool
@@ -31,10 +31,10 @@ trait HasTeams
 
     public function isOwnerOf(Team $team): bool
     {
-        return $this->teamsQuery(RoleName::Owner)->where('teams.id', $team->getKey())->exists();
+        return $this->teamsQuery(Role::Owner)->where('teams.id', $team->getKey())->exists();
     }
 
-    public function roleIn(Team $team): ?RoleName
+    public function roleIn(Team $team): ?Role
     {
         $roleName = DB::table('model_has_roles')
             ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
@@ -43,10 +43,10 @@ trait HasTeams
             ->where('model_has_roles.team_id', $team->getKey())
             ->value('roles.name');
 
-        return $roleName !== null ? RoleName::tryFrom($roleName) : null;
+        return $roleName !== null ? Role::tryFrom($roleName) : null;
     }
 
-    private function teamsQuery(?RoleName $role = null): BelongsToMany
+    private function teamsQuery(?Role $role = null): BelongsToMany
     {
         $relation = $this
             ->belongsToMany(Team::class, 'model_has_roles', 'model_id', 'team_id')

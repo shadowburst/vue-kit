@@ -4,29 +4,29 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\Permission\PermissionName;
+use App\Enums\Permission\Permission;
 use App\Models\User;
 
 final class UserPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can(PermissionName::UserViewAny->value);
+        return $user->can(Permission::UserViewAny->value);
     }
 
     public function view(User $user, User $target): bool
     {
-        return $user->can(PermissionName::UserView->value);
+        return $user->can(Permission::UserView->value);
     }
 
     public function create(User $user): bool
     {
-        return $user->can(PermissionName::UserCreate->value);
+        return $user->can(Permission::UserCreate->value);
     }
 
     public function update(User $user, User $target): bool
     {
-        return $user->can(PermissionName::UserUpdate->value);
+        return $user->can(Permission::UserUpdate->value);
     }
 
     public function delete(User $user, User $target): bool
@@ -35,6 +35,6 @@ final class UserPolicy
             return true;
         }
 
-        return $user->can(PermissionName::UserDelete->value);
+        return $user->can(Permission::UserDelete->value);
     }
 }

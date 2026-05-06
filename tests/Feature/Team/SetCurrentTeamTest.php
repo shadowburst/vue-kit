@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
-use App\Enums\Permission\PermissionName;
-use App\Enums\Role\RoleName;
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -25,7 +25,7 @@ beforeEach(function (): void {
 
         return response()->json([
             'currentTeam'   => $currentTeam?->id,
-            'canViewAny'    => $user?->can(PermissionName::UserViewAny->value),
+            'canViewAny'    => $user?->can(Permission::UserViewAny->value),
             'currentTeamId' => $user?->current_team_id,
         ]);
     })->middleware('web');
@@ -119,7 +119,7 @@ test('admin of active team has user.viewAny permission', function (): void {
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
-    $admin->assignRole(RoleName::Admin->value);
+    $admin->assignRole(Role::Admin->value);
 
     actingAs($admin)
         ->get('/_test/team')
@@ -134,7 +134,7 @@ test('member of active team has user.viewAny permission', function (): void {
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $member = User::factory()->createOne(['current_team_id' => $team->id]);
-    $member->assignRole(RoleName::Member->value);
+    $member->assignRole(Role::Member->value);
 
     actingAs($member)
         ->get('/_test/team')
