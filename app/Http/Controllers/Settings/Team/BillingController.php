@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Settings\Team;
 use App\Enums\Subscription\SubscriptionInterval;
 use App\Enums\Subscription\SubscriptionTier;
 use App\Http\Controllers\Controller;
-use App\Models\Team;
+use App\Services\Team\TeamContext;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,10 +15,9 @@ use Laravel\Cashier\Subscription;
 
 final class BillingController extends Controller
 {
-    public function show(): Response
+    public function show(TeamContext $teamContext): Response
     {
-        /** @var Team $team */
-        $team = app('currentTeam');
+        $team = $teamContext->currentOrFail();
 
         Gate::authorize('view', [Subscription::class, $team]);
 

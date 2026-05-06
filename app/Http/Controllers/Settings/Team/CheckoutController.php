@@ -8,17 +8,16 @@ use App\Enums\Subscription\SubscriptionInterval;
 use App\Enums\Subscription\SubscriptionTier;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\Team\CheckoutRequest;
-use App\Models\Team;
+use App\Services\Team\TeamContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Cashier\Subscription;
 
 final class CheckoutController extends Controller
 {
-    public function store(CheckoutRequest $request): RedirectResponse
+    public function store(CheckoutRequest $request, TeamContext $teamContext): RedirectResponse
     {
-        /** @var Team $team */
-        $team = app('currentTeam');
+        $team = $teamContext->currentOrFail();
 
         Gate::authorize('update', [Subscription::class, $team]);
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Enums\Subscription;
 
+use Illuminate\Support\Facades\Config;
+
 enum SubscriptionTier: string
 {
     case Free = 'free';
@@ -28,10 +30,9 @@ enum SubscriptionTier: string
             return null;
         }
 
-        /** @var mixed $id */
-        $id = config("billing.tiers.{$this->value}.monthly");
+        $id = Config::string("billing.tiers.{$this->value}.monthly");
 
-        return is_string($id) && $id !== '' ? $id : null;
+        return $id !== '' ? $id : null;
     }
 
     public function stripeYearlyId(): ?string
@@ -40,10 +41,9 @@ enum SubscriptionTier: string
             return null;
         }
 
-        /** @var mixed $id */
-        $id = config("billing.tiers.{$this->value}.yearly");
+        $id = Config::string("billing.tiers.{$this->value}.yearly");
 
-        return is_string($id) && $id !== '' ? $id : null;
+        return $id !== '' ? $id : null;
     }
 
     public static function fromStripePriceId(string $priceId): self

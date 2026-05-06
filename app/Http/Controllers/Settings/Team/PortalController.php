@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings\Team;
 
 use App\Http\Controllers\Controller;
-use App\Models\Team;
+use App\Services\Team\TeamContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Cashier\Subscription;
 
 final class PortalController extends Controller
 {
-    public function show(): RedirectResponse
+    public function show(TeamContext $teamContext): RedirectResponse
     {
-        /** @var Team $team */
-        $team = app('currentTeam');
+        $team = $teamContext->currentOrFail();
 
         Gate::authorize('update', [Subscription::class, $team]);
 

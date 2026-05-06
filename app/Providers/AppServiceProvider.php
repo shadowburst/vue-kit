@@ -8,6 +8,7 @@ use App\Listeners\PurgeFeaturesOnSubscriptionChange;
 use App\Listeners\SyncCurrentTeamOnRoleDetached;
 use App\Models\Team;
 use App\Policies\SubscriptionPolicy;
+use App\Services\Team\TeamContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,10 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->app->singleton(TeamContext::class);
+    }
 
     /**
      * Bootstrap any application services.

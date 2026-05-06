@@ -6,6 +6,7 @@ use App\Actions\Team\CreateTeam;
 use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
 use App\Models\User;
+use App\Services\Team\TeamContext;
 use Inertia\Testing\AssertableInertia;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -34,7 +35,7 @@ test('guest request shares null currentTeam and null auth.user', function (): vo
         );
 });
 
-// The remaining tests pre-bind app('currentTeam') and setPermissionsTeamId directly
+// The remaining tests pre-set TeamContext and setPermissionsTeamId directly
 // because teams.create (the only auth-only Inertia route) is exempt from SetCurrentTeam
 // to prevent redirect loops — SetCurrentTeam's own test covers that flow.
 
@@ -44,7 +45,7 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
     $user->update(['current_team_id' => $team->id]);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    app()->instance('currentTeam', $team);
+    app(TeamContext::class)->setTeam($team);
 
     actingAs($user);
 
@@ -89,7 +90,7 @@ test('authenticated Admin gets correct currentTeam, teams, and permissions', fun
     $admin->assignRole(Role::Admin->value);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    app()->instance('currentTeam', $team);
+    app(TeamContext::class)->setTeam($team);
 
     actingAs($admin);
 
@@ -118,7 +119,7 @@ test('authenticated Member gets correct currentTeam, teams, and permissions', fu
     $member->assignRole(Role::Member->value);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    app()->instance('currentTeam', $team);
+    app(TeamContext::class)->setTeam($team);
 
     actingAs($member);
 
