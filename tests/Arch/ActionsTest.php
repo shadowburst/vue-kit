@@ -33,7 +33,7 @@ test('non-Fortify actions declare exactly one public execute method and no prote
 
     $violations = [];
 
-    /** @var \SplFileInfo $file */
+    /** @var SplFileInfo $file */
     foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
         $actionsDir,
         FilesystemIterator::SKIP_DOTS,

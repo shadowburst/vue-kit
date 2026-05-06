@@ -7,11 +7,8 @@ use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
 use App\Policies\UserPolicy;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;
-
-use function Pest\Laravel\seed;
 
 // Build dataset from enum so future matrix changes propagate automatically.
 $userPermissionMap = [
@@ -41,8 +38,6 @@ it('is auto-discovered by Laravel for the User model', function (): void {
 });
 
 it('enforces the UserPolicy permission matrix', function (Role $role, string $method, bool $expected): void {
-    seed(RolePermissionSeeder::class);
-
     $team   = Team::query()->create(['name' => 'Test Team']);
     $user   = User::factory()->createOne();
     $target = User::factory()->createOne();
@@ -61,8 +56,6 @@ it('enforces the UserPolicy permission matrix', function (Role $role, string $me
 })->with($matrixDataset);
 
 it('allows a member to delete themselves (leave team) regardless of user.delete permission', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $team   = Team::query()->create(['name' => 'Test Team']);
     $member = User::factory()->createOne();
 
@@ -76,8 +69,6 @@ it('allows a member to delete themselves (leave team) regardless of user.delete 
 });
 
 it('does not grant UserPolicy::update to a super-admin via a before() bypass', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $team       = Team::query()->create(['name' => 'Test Team']);
     $superAdmin = User::factory()->createOne();
     $target     = User::factory()->createOne();

@@ -7,11 +7,8 @@ use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
 use App\Policies\TeamPolicy;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;
-
-use function Pest\Laravel\seed;
 
 // Build dataset from enum so future matrix changes propagate automatically.
 $teamPermissionMap = [
@@ -39,8 +36,6 @@ it('is auto-discovered by Laravel for the Team model', function (): void {
 });
 
 it('enforces the TeamPolicy permission matrix', function (Role $role, string $method, bool $expected): void {
-    seed(RolePermissionSeeder::class);
-
     $team  = Team::query()->create(['name' => 'Team One']);
     $team2 = Team::query()->create(['name' => 'Team Two']);
     $user  = User::factory()->createOne();
@@ -59,8 +54,6 @@ it('enforces the TeamPolicy permission matrix', function (Role $role, string $me
 })->with($matrixDataset);
 
 it('prevents a sole owner from deleting their only owned team', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $team  = Team::query()->create(['name' => 'Only Team']);
     $owner = User::factory()->createOne();
 
@@ -73,8 +66,6 @@ it('prevents a sole owner from deleting their only owned team', function (): voi
 });
 
 it('allows an owner of two teams to delete either of their owned teams', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $team1 = Team::query()->create(['name' => 'Team Alpha']);
     $team2 = Team::query()->create(['name' => 'Team Beta']);
     $owner = User::factory()->createOne();

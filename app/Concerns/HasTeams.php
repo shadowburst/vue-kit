@@ -12,13 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 trait HasTeams
 {
-    /** @mago-expect analysis:invalid-return-statement */
     public function teams(): BelongsToMany
     {
         return $this->teamsQuery();
     }
 
-    /** @mago-expect analysis:invalid-return-statement */
     public function ownedTeams(): BelongsToMany
     {
         return $this->teamsQuery(Role::Owner);

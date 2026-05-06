@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
 use App\Models\User;
-use Database\Seeders\RolePermissionSeeder;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\put;
-use function Pest\Laravel\seed;
-
-beforeEach(function (): void {
-    seed(RolePermissionSeeder::class);
-});
 
 test('member can switch to a team they belong to and current_team_id persists', function (): void {
     $user  = User::factory()->createOne();

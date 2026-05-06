@@ -6,16 +6,13 @@ use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\DB;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\post;
-use function Pest\Laravel\seed;
 
 beforeEach(function (): void {
     skip_unless_fortify_has(Features::registration());
-    seed(RolePermissionSeeder::class);
 });
 
 test('signup creates one user, one team, and one owner role assignment', function (): void {

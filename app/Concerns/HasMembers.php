@@ -11,13 +11,11 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 
 trait HasMembers
 {
-    /** @mago-expect analysis:invalid-return-statement */
     public function members(): BelongsToMany
     {
         return $this->membersQuery();
     }
 
-    /** @mago-expect analysis:invalid-return-statement */
     public function owners(): BelongsToMany
     {
         return $this->membersQuery(Role::Owner);

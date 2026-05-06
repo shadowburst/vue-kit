@@ -60,7 +60,7 @@ enum Role: string
     public function model(): SpatieRole
     {
         $cache = &self::modelCache();
-        $key   = "{$this->value}:" . (\getPermissionsTeamId() ?? '');
+        $key   = "{$this->value}:".(\getPermissionsTeamId() ?? '');
 
         return $cache[$key] ??= SpatieRole::findByName($this->value);
     }

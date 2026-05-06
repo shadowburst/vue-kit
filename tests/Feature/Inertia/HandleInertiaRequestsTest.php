@@ -6,17 +6,11 @@ use App\Actions\Team\CreateTeam;
 use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
 use App\Models\User;
-use Database\Seeders\RolePermissionSeeder;
 use Inertia\Testing\AssertableInertia;
 use Spatie\Permission\PermissionRegistrar;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
-use function Pest\Laravel\seed;
-
-beforeEach(function (): void {
-    seed(RolePermissionSeeder::class);
-});
 
 test('guest request shares null currentTeam and null auth.user', function (): void {
     get(route('login'))

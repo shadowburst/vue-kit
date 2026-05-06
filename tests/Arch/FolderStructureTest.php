@@ -23,7 +23,7 @@ test('no PHP class lives at the root of a non-exempt type folder under app/', fu
     $appDir = realpath(__DIR__.'/../../app');
 
     if ($appDir === false) {
-        throw new \RuntimeException('Failed to resolve app directory');
+        throw new RuntimeException('Failed to resolve app directory');
     }
 
     // Files permitted at the root of an enforced type folder (ADR 0009).
@@ -63,15 +63,17 @@ test('no PHP test lives at the root of tests/Feature/', function (): void {
     $featurePath = realpath(__DIR__.'/../Feature');
 
     if ($featurePath === false) {
-        throw new \RuntimeException('Failed to resolve tests/Feature directory');
+        throw new RuntimeException('Failed to resolve tests/Feature directory');
     }
 
     $violations = [];
 
     foreach (new DirectoryIterator($featurePath) as $item) {
-        if ($item->isFile() && $item->getExtension() === 'php') {
-            $violations[] = $item->getFilename();
+        if (! ($item->isFile() && $item->getExtension() === 'php')) {
+            continue;
         }
+
+        $violations[] = $item->getFilename();
     }
 
     expect($violations)->toBeEmpty(implode("\n", $violations));

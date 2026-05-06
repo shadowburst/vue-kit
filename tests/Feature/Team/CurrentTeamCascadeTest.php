@@ -5,14 +5,9 @@ declare(strict_types=1);
 use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
 use App\Models\User;
-use Database\Seeders\RolePermissionSeeder;
 use Spatie\Permission\PermissionRegistrar;
 
-use function Pest\Laravel\seed;
-
 it('reassigns current_team_id when removing a member who belongs to multiple teams', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $ownerA = User::factory()->createOne();
     $teamA  = (new CreateTeam)->execute('Team A', $ownerA);
 
@@ -34,8 +29,6 @@ it('reassigns current_team_id when removing a member who belongs to multiple tea
 });
 
 it('sets current_team_id to null when removing the only role in the current team with no other teams', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $owner = User::factory()->createOne();
     $teamA = (new CreateTeam)->execute('Team A', $owner);
 
@@ -51,8 +44,6 @@ it('sets current_team_id to null when removing the only role in the current team
 });
 
 it('leaves current_team_id unchanged when removing a role in a non-current team', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $ownerA = User::factory()->createOne();
     $teamA  = (new CreateTeam)->execute('Team A', $ownerA);
 
@@ -75,8 +66,6 @@ it('leaves current_team_id unchanged when removing a role in a non-current team'
 });
 
 it('does not change current_team_id when user still holds another role in the same team', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $owner = User::factory()->createOne();
     $teamA = (new CreateTeam)->execute('Team A', $owner);
 
@@ -93,8 +82,6 @@ it('does not change current_team_id when user still holds another role in the sa
 });
 
 it('reassigns current_team_id for all members when a team is deleted', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $ownerA = User::factory()->createOne();
     $teamA  = (new CreateTeam)->execute('Team A', $ownerA);
 
