@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Enums\Role;
 
 use App\Enums\Permission\Permission;
+use Illuminate\Cache\Repository as CacheRepository;
 use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Role as SpatieRole;
 
@@ -62,14 +63,22 @@ enum Role: string
     {
         $key = "enum.role.{$this->value}.team.".(\getPermissionsTeamId() ?? 'null');
 
+        /** @var CacheRepository $cache */
+        $cache = Cache::driver('array');
+
         // Per-request cache only; cross-request would need invalidation on role changes.
-        return Cache::driver('array')
-            ->tags(['enum.role'])
+        $model = $cache->tags(['enum.role'])
             ->rememberForever($key, fn (): SpatieRole => SpatieRole::findByName($this->value));
+
+        \assert($model instanceof SpatieRole, 'rememberForever returns the resolved role model');
+
+        return $model;
     }
 
     public static function flushModelCache(): void
     {
-        Cache::driver('array')->tags(['enum.role'])->flush();
+        /** @var CacheRepository $cache */
+        $cache = Cache::driver('array');
+        $cache->tags(['enum.role'])->flush();
     }
 }
