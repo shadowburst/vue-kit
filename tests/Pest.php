@@ -69,6 +69,7 @@ function skip_unless_fortify_has(string $feature, ?string $message = null): void
     }
 }
 
+/** @mago-expect analysis:mixed-return-statement */
 function actingAsMemberOf(Team $team, Role $role): TestCase
 {
     $user = User::factory()->createOne();
