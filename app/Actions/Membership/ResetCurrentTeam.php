@@ -18,8 +18,9 @@ final class ResetCurrentTeam
             return;
         }
 
-        $newTeamId = $user->teams()
-            ->when($excluding !== null, fn ($q) => $q->where('teams.id', '!=', $excluding->id))
+        $newTeamId = $user
+            ->teams()
+            ->when($excluding !== null, fn ($q) => $q->where('teams.id', '!=', $excluding?->id))
             ->first()
             ?->id;
 

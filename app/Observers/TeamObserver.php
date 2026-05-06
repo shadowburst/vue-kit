@@ -10,7 +10,9 @@ use App\Models\User;
 
 final class TeamObserver
 {
-    public function __construct(private readonly ResetCurrentTeam $resetCurrentTeam) {}
+    public function __construct(
+        private readonly ResetCurrentTeam $resetCurrentTeam,
+    ) {}
 
     /**
      * Reassign current_team_id before the nullOnDelete FK cascade fires so users

@@ -25,10 +25,10 @@ it('heals null current_team_id to the first available team', function (): void {
 it('heals a stale current_team_id pointing at a team the user is not a member of', function (): void {
     seed(RolePermissionSeeder::class);
 
-    $user = User::factory()->createOne();
+    $user     = User::factory()->createOne();
     $userTeam = (new CreateTeam)->execute('User Team', $user);
 
-    $other = User::factory()->createOne();
+    $other     = User::factory()->createOne();
     $staleTeam = (new CreateTeam)->execute('Stale Team', $other);
 
     $user->update(['current_team_id' => $staleTeam->id]);
@@ -54,10 +54,10 @@ it('heals current_team_id to another team when the current value matches the exc
     seed(RolePermissionSeeder::class);
 
     $ownerA = User::factory()->createOne();
-    $teamA = (new CreateTeam)->execute('Team A', $ownerA);
+    $teamA  = (new CreateTeam)->execute('Team A', $ownerA);
 
     $ownerB = User::factory()->createOne();
-    $teamB = (new CreateTeam)->execute('Team B', $ownerB);
+    $teamB  = (new CreateTeam)->execute('Team B', $ownerB);
 
     $user = User::factory()->createOne(['current_team_id' => $teamA->id]);
 

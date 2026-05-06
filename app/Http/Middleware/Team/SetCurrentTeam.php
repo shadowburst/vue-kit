@@ -15,7 +15,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SetCurrentTeam
 {
-    public function __construct(private readonly ResetCurrentTeam $resetCurrentTeam) {}
+    public function __construct(
+        private readonly ResetCurrentTeam $resetCurrentTeam,
+    ) {}
 
     /**
      * @param  Closure(Request): Response  $next
