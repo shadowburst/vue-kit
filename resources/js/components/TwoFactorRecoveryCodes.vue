@@ -3,7 +3,7 @@ import AlertError from '@/components/AlertError.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import { route } from '@/spatie/helpers/route';
+import RecoveryCodeController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RecoveryCodeController';
 import { Form } from '@inertiajs/vue3';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from '@lucide/vue';
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
@@ -50,8 +50,7 @@ onMounted(async () => {
 
                 <Form
                     v-if="isRecoveryCodesVisible && recoveryCodesList.length"
-                    :action="route('two-factor.regenerate-recovery-codes')"
-                    method="post"
+                    :action="RecoveryCodeController.store()"
                     :options="{ preserveScroll: true }"
                     @success="fetchRecoveryCodes"
                     #default="{ processing }"

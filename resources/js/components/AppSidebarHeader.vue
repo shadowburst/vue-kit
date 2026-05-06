@@ -2,8 +2,8 @@
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { route } from '@/spatie/helpers/route';
 import type { BreadcrumbItem } from '@/types';
+import CurrentTeamController from '@/wayfinder/App/Http/Controllers/CurrentTeamController';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -28,7 +28,7 @@ const form = useForm({
 
 function switchTeam(value: unknown): void {
     form.team_id = Number(value);
-    form.put(route('current-team.update'));
+    form.put(CurrentTeamController.update.url());
 }
 </script>
 

@@ -23,9 +23,12 @@ final class ProfileController extends Controller
      */
     public function edit(Request $request, #[CurrentUser] User $user): Response
     {
+        /** @var string|null $status */
+        $status = $request->session()->get('status');
+
         return Inertia::render('settings/Profile', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
-            'status'          => $request->session()->get('status'),
+            'status'          => $status,
         ]);
     }
 

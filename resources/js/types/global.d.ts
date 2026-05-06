@@ -1,4 +1,5 @@
-import type { Auth, Team } from '@/types/auth';
+import type { Page, createHeadManager } from '@inertiajs/core';
+import type { router } from '@inertiajs/vue3';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -13,21 +14,9 @@ declare module 'vite/client' {
     }
 }
 
-declare module '@inertiajs/core' {
-    export interface InertiaConfig {
-        sharedPageProps: {
-            name: string;
-            auth: Auth;
-            currentTeam: Team | null;
-            sidebarOpen: boolean;
-            [key: string]: unknown;
-        };
-    }
-}
-
 declare module 'vue' {
     interface ComponentCustomProperties {
-        $inertia: typeof Router;
+        $inertia: typeof router;
         $page: Page;
         $headManager: ReturnType<typeof createHeadManager>;
     }

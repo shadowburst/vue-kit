@@ -7,3 +7,9 @@ export type FlashToast = {
     type: 'success' | 'info' | 'warning' | 'error';
     message: string;
 };
+
+export type TwoFactorConfigContent = {
+    title: string;
+    description: string;
+    buttonText: string;
+};

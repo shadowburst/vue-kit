@@ -2,7 +2,8 @@
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { route } from '@/spatie/helpers/route';
+import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
+import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
 import { Form, Head } from '@inertiajs/vue3';
 
 defineOptions({
@@ -24,12 +25,18 @@ defineProps<{
         A new verification link has been sent to the email address you provided during registration.
     </div>
 
-    <Form :action="route('verification.send')" method="post" class="space-y-6 text-center" v-slot="{ processing }">
+    <Form
+        :action="EmailVerificationNotificationController.store()"
+        class="space-y-6 text-center"
+        v-slot="{ processing }"
+    >
         <Button :disabled="processing" variant="secondary">
             <Spinner v-if="processing" />
             Resend verification email
         </Button>
 
-        <TextLink :href="route('logout')" as="button" class="mx-auto block text-sm"> Log out </TextLink>
+        <TextLink :href="AuthenticatedSessionController.destroy()" as="button" class="mx-auto block text-sm">
+            Log out
+        </TextLink>
     </Form>
 </template>

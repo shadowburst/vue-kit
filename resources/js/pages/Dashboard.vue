@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
-import { route } from '@/spatie/helpers/route';
+import DashboardController from '@/wayfinder/App/Http/Controllers/DashboardController';
 import { Head } from '@inertiajs/vue3';
 
 defineOptions({
@@ -8,7 +8,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Dashboard',
-                href: route('dashboard'),
+                href: DashboardController.index(),
             },
         ],
     },

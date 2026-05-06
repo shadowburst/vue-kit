@@ -12,15 +12,15 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { route } from '@/spatie/helpers/route';
 import type { NavItem } from '@/types';
+import DashboardController from '@/wayfinder/App/Http/Controllers/DashboardController';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: route('dashboard'),
+        href: DashboardController.index(),
         icon: LayoutGrid,
     },
 ];
@@ -45,7 +45,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('dashboard')">
+                        <Link :href="DashboardController.index()">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>

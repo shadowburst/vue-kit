@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { route } from '@/spatie/helpers/route';
+import NewPasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/NewPasswordController';
 import { Form, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -28,8 +28,7 @@ const inputEmail = ref(props.email);
     <Head title="Reset password" />
 
     <Form
-        :action="route('password.update')"
-        method="post"
+        :action="NewPasswordController.store()"
         :transform="(data) => ({ ...data, token, email })"
         :reset-on-success="['password', 'password_confirmation']"
         v-slot="{ errors, processing }"
