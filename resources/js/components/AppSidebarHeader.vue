@@ -18,8 +18,9 @@ withDefaults(
 
 const page = usePage();
 
-const currentTeam = computed(() => page.props.currentTeam ?? null);
-const userTeams = computed(() => page.props.auth?.user?.teams ?? []);
+const user = computed(() => page.props.auth?.user ?? null);
+const userTeams = computed(() => user.value?.teams ?? []);
+const currentTeam = computed(() => userTeams.value.find((team) => team.id === user.value?.current_team_id) ?? null);
 const showTeamSwitcher = computed(() => currentTeam.value !== null && userTeams.value.length > 1);
 
 const form = useForm({
