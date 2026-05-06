@@ -18,7 +18,7 @@ import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials } from '@/composables/useInitials';
 import { toUrl } from '@/lib/utils';
 import type { BreadcrumbItem, NavItem } from '@/types';
-import DashboardController from '@/wayfinder/App/Http/Controllers/DashboardController';
+import DashboardController from '@/wayfinder/App/Http/Controllers/Dashboard/DashboardController';
 import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Menu, Search } from '@lucide/vue';
 import { computed } from 'vue';

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 // Enforced type folder roots under app/: every PHP file here must live in a
 // noun subfolder (domain, integration boundary, or cohesive feature).
-// ADR 0009 exempt dirs (Models, Providers, Concerns) and small type dirs not
-// yet organised by noun (Listeners, Observers) are excluded from this check.
+// ADR 0009 Decision 5 exempts Models/, Policies/, Observers/ (1-to-1 keyed
+// by model) and Providers/, Concerns/, Listeners/ (small, stable,
+// cross-cutting). Subgrouping those would either repeat the noun or break
+// framework auto-discovery.
 $enforcedTypeFolders = [
     'Actions',
     'Data',
@@ -13,7 +15,6 @@ $enforcedTypeFolders = [
     'Http/Controllers',
     'Http/Middleware',
     'Http/Requests',
-    'Policies',
 ];
 
 test('no PHP class lives at the root of a non-exempt type folder under app/', function () use (
@@ -22,7 +23,7 @@ test('no PHP class lives at the root of a non-exempt type folder under app/', fu
     $appDir = realpath(__DIR__.'/../../app');
 
     if ($appDir === false) {
-        return;
+        throw new \RuntimeException('Failed to resolve app directory');
     }
 
     // Files permitted at the root of an enforced type folder (ADR 0009).
@@ -62,7 +63,7 @@ test('no PHP test lives at the root of tests/Feature/', function (): void {
     $featurePath = realpath(__DIR__.'/../Feature');
 
     if ($featurePath === false) {
-        return;
+        throw new \RuntimeException('Failed to resolve tests/Feature directory');
     }
 
     $violations = [];

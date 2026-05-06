@@ -13,7 +13,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types';
-import DashboardController from '@/wayfinder/App/Http/Controllers/DashboardController';
+import DashboardController from '@/wayfinder/App/Http/Controllers/Dashboard/DashboardController';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
 

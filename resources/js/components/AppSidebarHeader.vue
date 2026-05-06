@@ -3,7 +3,7 @@ import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
-import CurrentTeamController from '@/wayfinder/App/Http/Controllers/CurrentTeamController';
+import CurrentTeamController from '@/wayfinder/App/Http/Controllers/Team/CurrentTeamController';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 

@@ -210,42 +210,80 @@ conversation about which domain concept the class actually produces.
 
 ---
 
-## Decision 5 — Exempt Type Folders: `Models/`, `Providers/`, `Concerns/`
+## Decision 5 — Exempt Type Folders
 
 ### Choice Made
 
-Three type folders are exempt from the per-noun subgrouping rule:
+Six type folders are exempt from the per-noun subgrouping rule, in two
+principled groups.
 
-- `app/Models/` — already keyed by model; subgrouping would produce
-  `app/Models/Team/Team.php`, repeating the same word twice.
-- `app/Providers/` — providers are service-bound, not model-bound.
-  Class names are already self-describing, the set is small and stable.
+**Group A — 1-to-1 keyed by model.** Subgrouping these yields
+`Folder/Team/TeamX.php`, repeating the noun in path and filename, with no
+navigation gain because each model has at most one class per folder.
+
+- `app/Models/` — `Models/Team/Team.php` is "Team" twice.
+- `app/Policies/` — `Policies/Team/TeamPolicy.php` is "Team" twice; and
+  Laravel's policy auto-discovery resolves `App\Policies\{Model}Policy`
+  only at the flat path. Subgrouping forces explicit `Gate::policy()`
+  registration in a service provider for every model — a maintenance
+  tax with no payoff.
+- `app/Observers/` — `Observers/Team/TeamObserver.php` is "Team" twice.
+  Discovery is via the `#[ObservedBy]` attribute on the model, so
+  layout doesn't affect functionality, but mirroring `Models/` (flat)
+  is the consistent choice.
+
+**Group B — small, stable, cross-cutting.** Subgrouping these either
+defeats the point or doesn't pay for itself.
+
+- `app/Providers/` — providers are service-bound, not model-bound;
+  `FortifyServiceProvider` already encodes its integration in the class
+  name. Set is small and stable.
 - `app/Concerns/` — by Decision 4, this *is* the cross-cutting bucket;
-  subgrouping would defeat the point.
+  subgrouping defeats the point.
+- `app/Listeners/` — listeners are wired explicitly via
+  `Event::listen()` and aren't naturally keyed by a single domain noun
+  (they handle events from one source, mutate state in another). The
+  set today is small; subgrouping a handful of files is overhead.
+  Re-evaluate if the folder grows past ~5 listeners with clear noun
+  groupings.
 
 Every other type folder under `app/` subgroups: `Actions/`, `Data/`,
-`Enums/`, `Policies/`, `Http/Controllers/`, `Http/Requests/`,
-`Http/Middleware/`.
+`Enums/`, `Http/Controllers/`, `Http/Requests/`, `Http/Middleware/`.
 
 ### Alternatives Considered
 
+**Subgroup `Policies/` by domain noun** to match the dominant pattern.
+*Rejected:* breaks Laravel's policy auto-discovery, forcing explicit
+`Gate::policy()` registration. The earlier draft of this ADR included
+that registration as a `configurePolicies()` method in
+`AppServiceProvider`; removing it is part of adopting this exemption.
+
+**Subgroup `Observers/` by domain noun.**
+*Rejected:* same path-redundancy issue as `Models/`. Discovery via
+`#[ObservedBy]` is unaffected, but there is no upside to subgrouping
+either.
+
+**Subgroup `Listeners/` by domain noun** (e.g. `Listeners/Membership/`,
+`Listeners/Role/`).
+*Rejected at current scale:* a single listener doesn't justify a
+subfolder, and choosing the "right" noun for a listener that bridges
+two domains (a `RoleDetachedEvent` mutating membership state) is a
+judgement call without a clean answer. Revisit if the folder grows.
+
 **Subgroup `Http/Middleware/` only when it grows past N files.**
 *Rejected:* a count-based threshold is harder to remember than "always
-subgroup." Today's five middleware classes (Team, Locale, Appearance,
-Inertia, plus future Fortify) all map cleanly to noun or integration
-buckets, so consistency wins over file-count optimisation.
-
-**Subgroup `Providers/` by integration** (e.g. `Providers/Fortify/`).
-*Rejected:* the class name `FortifyServiceProvider` already encodes the
-integration; a folder layer would duplicate that information without
-adding navigation value.
+subgroup." Today's middleware classes all map cleanly to noun or
+integration buckets, so consistency wins over file-count optimisation.
 
 ### Reasoning
 
-The exemption list is closed, not open. Other type folders that may be
-added in future (e.g. `app/Listeners/`, `app/Jobs/`) default to
-subgrouping unless an explicit case is made — which would require
-revising this ADR.
+The exemption list is not strictly closed, but the bar to add to it is
+specific: either (a) framework auto-discovery breaks at the subgrouped
+path, or (b) the type is 1-to-1 with a model and subgrouping repeats
+the noun, or (c) the type is small, stable, and cross-cutting in a way
+that resists a single-noun grouping. Every exemption above falls into
+one of those buckets. New type folders (e.g. a future `app/Jobs/`)
+default to subgrouping unless they meet one of the criteria.
 
 ### Consequences
 
@@ -254,6 +292,10 @@ revising this ADR.
 - The `Http/Controllers/Controller.php` exception is *not* an
   exemption of the type folder — `Http/Controllers/` does subgroup.
   It is a single-file root exception (Decision 4).
+- Revising the exemption list (as this ADR did once already) requires
+  moving any previously-subgrouped files back to the flat layout and
+  removing any compensating service-provider registration that the
+  subgrouped layout demanded.
 
 ---
 

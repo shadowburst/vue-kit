@@ -6,7 +6,7 @@ use App\Enums\Permission\PermissionName;
 use App\Enums\Role\RoleName;
 use App\Models\Team;
 use App\Models\User;
-use App\Policies\User\UserPolicy;
+use App\Policies\UserPolicy;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;

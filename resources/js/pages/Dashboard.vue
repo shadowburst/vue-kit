@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
-import DashboardController from '@/wayfinder/App/Http/Controllers/DashboardController';
+import DashboardController from '@/wayfinder/App/Http/Controllers/Dashboard/DashboardController';
 import { Head } from '@inertiajs/vue3';
 
 defineOptions({

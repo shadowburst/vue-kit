@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Policies\User;
+namespace App\Policies;
 
 use App\Enums\Permission\PermissionName;
 use App\Models\User;

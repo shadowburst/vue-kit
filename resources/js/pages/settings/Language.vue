@@ -4,7 +4,7 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AppLocale } from '@/wayfinder/App/Enums/AppLocale';
+import { AppLocale } from '@/wayfinder/App/Enums/Locale/AppLocale';
 import LocaleController from '@/wayfinder/App/Http/Controllers/Settings/LocaleController';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
