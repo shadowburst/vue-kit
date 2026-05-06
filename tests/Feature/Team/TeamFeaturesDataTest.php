@@ -11,8 +11,7 @@ it('returns an empty map when no features are defined', function (): void {
 
     $data = TeamFeaturesData::fromTeam($team);
 
-    expect($data)->toBeInstanceOf(TeamFeaturesData::class)
-        ->and($data->values)->toBe([]);
+    expect($data)->toBeInstanceOf(TeamFeaturesData::class)->and($data->values)->toBe([]);
 });
 
 it('returns the resolved feature map when a test-only feature is registered against a Team', function (): void {
@@ -22,6 +21,5 @@ it('returns the resolved feature map when a test-only feature is registered agai
 
     $data = TeamFeaturesData::fromTeam($team);
 
-    expect($data)->toBeInstanceOf(TeamFeaturesData::class)
-        ->and($data->values)->toBe(['test-feature' => true]);
+    expect($data)->toBeInstanceOf(TeamFeaturesData::class)->and($data->values)->toBe(['test-feature' => true]);
 });

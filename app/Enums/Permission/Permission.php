@@ -10,13 +10,13 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
 
 enum Permission: string
 {
-    case Admin       = 'admin';
-    case Test        = 'test';
-    case UserViewAny = 'user.viewAny';
-    case UserView    = 'user.view';
-    case UserCreate  = 'user.create';
-    case UserUpdate  = 'user.update';
-    case UserDelete  = 'user.delete';
+    case Admin              = 'admin';
+    case Test               = 'test';
+    case UserViewAny        = 'user.viewAny';
+    case UserView           = 'user.view';
+    case UserCreate         = 'user.create';
+    case UserUpdate         = 'user.update';
+    case UserDelete         = 'user.delete';
     case TeamView           = 'team.view';
     case TeamUpdate         = 'team.update';
     case TeamDelete         = 'team.delete';

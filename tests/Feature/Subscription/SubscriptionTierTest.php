@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-use App\Enums\SubscriptionTier;
+use App\Enums\Subscription\SubscriptionTier;
 
 test('level ordering: Free is 0, Pro is 1', function (): void {
-    expect(SubscriptionTier::Free->level())->toBe(0)
-        ->and(SubscriptionTier::Pro->level())->toBe(1);
+    expect(SubscriptionTier::Free->level())->toBe(0)->and(SubscriptionTier::Pro->level())->toBe(1);
 });
 
 test('atLeast: same tier satisfies itself', function (): void {
-    expect(SubscriptionTier::Free->atLeast(SubscriptionTier::Free))->toBeTrue()
-        ->and(SubscriptionTier::Pro->atLeast(SubscriptionTier::Pro))->toBeTrue();
+    expect(SubscriptionTier::Free->atLeast(SubscriptionTier::Free))
+        ->toBeTrue()
+        ->and(SubscriptionTier::Pro->atLeast(SubscriptionTier::Pro))
+        ->toBeTrue();
 });
 
 test('atLeast: Pro satisfies a Free requirement', function (): void {

@@ -52,7 +52,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name'        => $appName,
             'auth'        => [
-                'user' => $user instanceof User
+                'user'      => $user instanceof User
                     ? [
                         ...$user->toArray(),
                         'teams'       => $user->teams()->get(['teams.id', 'teams.name', 'teams.slug']),

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings\Team;
 
-use App\Enums\SubscriptionInterval;
-use App\Enums\SubscriptionTier;
+use App\Enums\Subscription\SubscriptionInterval;
+use App\Enums\Subscription\SubscriptionTier;
 use App\Http\Controllers\Controller;
 use App\Models\Team;
 use Illuminate\Support\Facades\Gate;
@@ -38,8 +38,8 @@ final class BillingController extends Controller
                 if ($priceId !== null) {
                     $interval = match (true) {
                         $priceId === SubscriptionTier::Pro->stripeMonthlyId() => SubscriptionInterval::Monthly->value,
-                        $priceId === SubscriptionTier::Pro->stripeYearlyId()  => SubscriptionInterval::Yearly->value,
-                        default                                                => null,
+                        $priceId === SubscriptionTier::Pro->stripeYearlyId() => SubscriptionInterval::Yearly->value,
+                        default => null,
                     };
                 }
 

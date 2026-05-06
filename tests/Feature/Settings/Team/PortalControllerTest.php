@@ -24,8 +24,10 @@ function bindFakeBillingPortalClient(): void
 {
     $fakeSession = StripeBillingPortalSession::constructFrom(['url' => 'https://billing.stripe.com/session/test']);
 
-    $fakeSessions = new class ($fakeSession) {
-        public function __construct(private StripeBillingPortalSession $session) {}
+    $fakeSessions = new class($fakeSession) {
+        public function __construct(
+            private StripeBillingPortalSession $session,
+        ) {}
 
         /** @param array<string, mixed> $params */
         public function create(array $params): StripeBillingPortalSession

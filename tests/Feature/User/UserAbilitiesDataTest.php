@@ -56,8 +56,12 @@ it('UserAbilitiesData::fromUser returns correct per-policy booleans for each rol
 
     $abilities = UserAbilitiesData::fromUser($user);
 
-    expect($abilities)->toBeInstanceOf(UserAbilitiesData::class)
-        ->and($abilities->user)->toBe($expectedUser)
-        ->and($abilities->team)->toBe($expectedTeam)
-        ->and($abilities->subscription)->toBe($expectedSubscription);
+    expect($abilities)
+        ->toBeInstanceOf(UserAbilitiesData::class)
+        ->and($abilities->user)
+        ->toBe($expectedUser)
+        ->and($abilities->team)
+        ->toBe($expectedTeam)
+        ->and($abilities->subscription)
+        ->toBe($expectedSubscription);
 })->with($dataset);

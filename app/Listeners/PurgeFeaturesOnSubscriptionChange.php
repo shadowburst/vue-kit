@@ -25,18 +25,18 @@ final class PurgeFeaturesOnSubscriptionChange
 
         $stripeId = $event->payload['data']['object']['customer'] ?? null;
 
-        if ($stripeId === null) {
+        if (! is_string($stripeId)) {
             return;
         }
 
-        $team = Team::where('stripe_id', $stripeId)->first();
+        $team = Team::query()->where('stripe_id', $stripeId)->first();
 
-        if ($team === null) {
+        if (! $team instanceof Team) {
             return;
         }
 
         $scope = Feature::serializeScope($team);
-        $table = config('pennant.stores.database.table', 'features');
+        $table = (string) config('pennant.stores.database.table', 'features');
 
         /** @var list<string> $stored */
         $stored = DB::table($table)

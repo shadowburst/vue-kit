@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings\Team;
 
-use App\Enums\SubscriptionInterval;
-use App\Enums\SubscriptionTier;
+use App\Enums\Subscription\SubscriptionInterval;
+use App\Enums\Subscription\SubscriptionTier;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\Team\CheckoutRequest;
 use App\Models\Team;
@@ -28,7 +28,9 @@ final class CheckoutController extends Controller
             ? SubscriptionTier::Pro->stripeMonthlyId()
             : SubscriptionTier::Pro->stripeYearlyId();
 
-        abort_if($priceId === null, 500, 'Stripe price ID not configured for the selected interval.');
+        if ($priceId === null) {
+            abort(500, 'Stripe price ID not configured for the selected interval.');
+        }
 
         $successUrl = route('teams.billing.show', ['checkout' => 'success']);
         $cancelUrl  = route('teams.billing.show');

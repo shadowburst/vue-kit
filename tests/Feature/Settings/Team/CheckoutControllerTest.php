@@ -30,9 +30,11 @@ beforeEach(function (): void {
  */
 function bindFakeStripeClient(array &$capturedParams): void
 {
-    $fakeCustomer = StripeCustomer::constructFrom(['id' => 'cus_fake_test']);
-    $fakeCustomers = new class ($fakeCustomer) {
-        public function __construct(private StripeCustomer $customer) {}
+    $fakeCustomer  = StripeCustomer::constructFrom(['id' => 'cus_fake_test']);
+    $fakeCustomers = new class($fakeCustomer) {
+        public function __construct(
+            private StripeCustomer $customer,
+        ) {}
 
         public function create(array $options, array $requestOptions = []): StripeCustomer
         {
@@ -40,8 +42,8 @@ function bindFakeStripeClient(array &$capturedParams): void
         }
     };
 
-    $fakeSession = StripeSession::constructFrom(['url' => 'https://checkout.stripe.com/pay/test-session']);
-    $fakeSessions = new class ($fakeSession, $capturedParams) {
+    $fakeSession  = StripeSession::constructFrom(['url' => 'https://checkout.stripe.com/pay/test-session']);
+    $fakeSessions = new class($fakeSession, $capturedParams) {
         /** @param array<string, mixed> $capturedParams */
         public function __construct(
             private StripeSession $session,
@@ -68,13 +70,14 @@ test('checkout redirects to Stripe for a Monthly interval', function (): void {
     $team = (new CreateTeam)->execute('Test Team', $user);
     $user->update(['current_team_id' => $team->id]);
 
+    /** @var array<string, mixed> $capturedParams */
     $capturedParams = [];
     bindFakeStripeClient($capturedParams);
 
     $response = actingAs($user)->post(route('teams.checkout.store'), ['interval' => 'monthly']);
 
     $response->assertRedirect('https://checkout.stripe.com/pay/test-session');
-    expect($capturedParams['line_items'][0]['price'])->toBe('price_pro_monthly_test');
+    expect(data_get($capturedParams, 'line_items.0.price'))->toBe('price_pro_monthly_test');
     expect($capturedParams['mode'])->toBe('subscription');
     expect($capturedParams['allow_promotion_codes'])->toBeTrue();
 });
@@ -84,13 +87,14 @@ test('checkout redirects to Stripe for a Yearly interval', function (): void {
     $team = (new CreateTeam)->execute('Test Team', $user);
     $user->update(['current_team_id' => $team->id]);
 
+    /** @var array<string, mixed> $capturedParams */
     $capturedParams = [];
     bindFakeStripeClient($capturedParams);
 
     $response = actingAs($user)->post(route('teams.checkout.store'), ['interval' => 'yearly']);
 
     $response->assertRedirect('https://checkout.stripe.com/pay/test-session');
-    expect($capturedParams['line_items'][0]['price'])->toBe('price_pro_yearly_test');
+    expect(data_get($capturedParams, 'line_items.0.price'))->toBe('price_pro_yearly_test');
 });
 
 test('checkout returns 403 for Admin without subscription.update', function (): void {

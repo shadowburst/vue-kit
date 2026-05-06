@@ -2,7 +2,9 @@
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { route } from '@/spatie/helpers/route';
+import BillingController from '@/wayfinder/App/Http/Controllers/Settings/Team/BillingController';
+import CheckoutController from '@/wayfinder/App/Http/Controllers/Settings/Team/CheckoutController';
+import PortalController from '@/wayfinder/App/Http/Controllers/Settings/Team/PortalController';
 import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { computed, onMounted, ref } from 'vue';
@@ -23,7 +25,7 @@ defineOptions({
         breadcrumbs: [
             {
                 title: 'Billing',
-                href: route('teams.billing.show'),
+                href: BillingController.show().url,
             },
         ],
     },
@@ -68,7 +70,7 @@ onMounted(() => {
                 <Badge variant="secondary">{{ trans('billing.tier_free') }}</Badge>
             </div>
 
-            <div class="flex items-center gap-1 rounded-lg border p-1 w-fit">
+            <div class="flex w-fit items-center gap-1 rounded-lg border p-1">
                 <button
                     type="button"
                     :class="[
@@ -96,7 +98,7 @@ onMounted(() => {
                 </button>
             </div>
 
-            <Form :action="route('teams.checkout.store')" method="post">
+            <Form :action="CheckoutController.store().url" method="post">
                 <input type="hidden" name="interval" :value="selectedInterval" />
                 <Button type="submit">{{ trans('billing.upgrade_to_pro') }}</Button>
             </Form>
@@ -121,8 +123,7 @@ onMounted(() => {
             <div v-if="nextChargeDate" class="flex items-center gap-2">
                 <span class="text-sm text-muted-foreground">{{ trans('billing.next_charge') }}</span>
                 <span class="text-sm"
-                    >{{ nextChargeDate
-                    }}<template v-if="nextChargeAmount"> ({{ nextChargeAmount }})</template></span
+                    >{{ nextChargeDate }}<template v-if="nextChargeAmount"> ({{ nextChargeAmount }})</template></span
                 >
             </div>
 
@@ -131,7 +132,7 @@ onMounted(() => {
                 <span class="text-sm">&bull;&bull;&bull;&bull; {{ pmLastFour }}</span>
             </div>
 
-            <Button v-if="canManageBilling" as="a" :href="route('teams.billing.portal.show')">
+            <Button v-if="canManageBilling" as="a" :href="PortalController.show().url">
                 {{ trans('billing.manage_billing') }}
             </Button>
         </div>

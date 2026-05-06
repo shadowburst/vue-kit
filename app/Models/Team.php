@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Concerns\HasMembers;
-use App\Enums\SubscriptionTier;
+use App\Enums\Subscription\SubscriptionTier;
 use App\Observers\TeamObserver;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -49,6 +49,10 @@ class Team extends Model
 
         $subscription = $this->subscription('default');
 
-        return SubscriptionTier::fromStripePriceId($subscription?->stripe_price ?? '');
+        if ($subscription === null) {
+            return SubscriptionTier::Free;
+        }
+
+        return SubscriptionTier::fromStripePriceId((string) ($subscription->stripe_price ?? ''));
     }
 }

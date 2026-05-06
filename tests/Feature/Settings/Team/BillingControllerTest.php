@@ -26,10 +26,11 @@ test('billing page renders Free state for an Owner of a Free team', function ():
 
     $response->assertOk();
     /** @mago-expect analysis:non-documented-method */
-    $response->assertInertia(fn (AssertableInertia $page) => $page
-        ->component('settings/team/Billing')
-        ->where('tier', 'free')
-        ->where('interval', null),
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('settings/team/Billing')
+            ->where('tier', 'free')
+            ->where('interval', null),
     );
 });
 
@@ -45,8 +46,9 @@ test('billing page renders for an Admin (subscription.view only)', function (): 
 
     $response->assertOk();
     /** @mago-expect analysis:non-documented-method */
-    $response->assertInertia(fn (AssertableInertia $page) => $page
-        ->component('settings/team/Billing'),
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('settings/team/Billing'),
     );
 });
 
@@ -91,14 +93,15 @@ test('billing page renders Pro state for an Owner of a Pro team', function (): v
 
     $response->assertOk();
     /** @mago-expect analysis:non-documented-method */
-    $response->assertInertia(fn (AssertableInertia $page) => $page
-        ->component('settings/team/Billing')
-        ->where('tier', 'pro')
-        ->where('interval', 'monthly')
-        ->where('subscriptionStatus', 'active')
-        ->where('pmLastFour', '4242')
-        ->where('nextChargeDate', null)
-        ->where('nextChargeAmount', null),
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('settings/team/Billing')
+            ->where('tier', 'pro')
+            ->where('interval', 'monthly')
+            ->where('subscriptionStatus', 'active')
+            ->where('pmLastFour', '4242')
+            ->where('nextChargeDate', null)
+            ->where('nextChargeAmount', null),
     );
 });
 
@@ -126,10 +129,11 @@ test('billing page renders Pro state read-only for an Admin (no subscription.upd
 
     $response->assertOk();
     /** @mago-expect analysis:non-documented-method */
-    $response->assertInertia(fn (AssertableInertia $page) => $page
-        ->component('settings/team/Billing')
-        ->where('tier', 'pro')
-        ->where('interval', 'monthly')
-        ->where('auth.abilities.subscription.update', false),
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('settings/team/Billing')
+            ->where('tier', 'pro')
+            ->where('interval', 'monthly')
+            ->where('auth.abilities.subscription.update', false),
     );
 });

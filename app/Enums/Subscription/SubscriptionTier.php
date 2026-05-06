@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Enums;
+namespace App\Enums\Subscription;
 
 enum SubscriptionTier: string
 {
@@ -13,7 +13,7 @@ enum SubscriptionTier: string
     {
         return match ($this) {
             self::Free => 0,
-            self::Pro  => 1,
+            self::Pro => 1,
         };
     }
 

@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Models\Team;
 use Stripe\StripeClient;
 
+use function Pest\Laravel\assertDatabaseMissing;
+
 it('cancels active subscription immediately when team is deleted', function (): void {
-    $team = Team::factory()->create();
+    $team = Team::factory()->createOne();
     $team->subscriptions()->create([
         'type'          => 'default',
         'stripe_id'     => 'sub_test',
@@ -28,11 +30,11 @@ it('cancels active subscription immediately when team is deleted', function (): 
     $team->delete();
 
     expect($fakeSubscriptions->cancelCount)->toBe(1);
-    $this->assertDatabaseMissing('teams', ['id' => $team->id]);
+    assertDatabaseMissing('teams', ['id' => $team->id]);
 });
 
 it('performs no stripe call when deleting team without subscription', function (): void {
-    $team = Team::factory()->create();
+    $team = Team::factory()->createOne();
 
     $fakeSubscriptions = new class {
         public int $cancelCount = 0;
@@ -48,5 +50,5 @@ it('performs no stripe call when deleting team without subscription', function (
     $team->delete();
 
     expect($fakeSubscriptions->cancelCount)->toBe(0);
-    $this->assertDatabaseMissing('teams', ['id' => $team->id]);
+    assertDatabaseMissing('teams', ['id' => $team->id]);
 });

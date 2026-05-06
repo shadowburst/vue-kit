@@ -26,14 +26,14 @@ final class UserAbilitiesData extends Data
     public static function fromUser(User $user): self
     {
         return new self(
-            user: [
+            user        : [
                 'viewAny' => $user->can(Permission::UserViewAny->value),
                 'view'    => $user->can(Permission::UserView->value),
                 'create'  => $user->can(Permission::UserCreate->value),
                 'update'  => $user->can(Permission::UserUpdate->value),
                 'delete'  => $user->can(Permission::UserDelete->value),
             ],
-            team: [
+            team        : [
                 'view'   => $user->can(Permission::TeamView->value),
                 'update' => $user->can(Permission::TeamUpdate->value),
                 'delete' => $user->can(Permission::TeamDelete->value),

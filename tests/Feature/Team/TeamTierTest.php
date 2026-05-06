@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Enums\SubscriptionTier;
+use App\Enums\Subscription\SubscriptionTier;
 use App\Models\Team;
 
 beforeEach(function (): void {
@@ -13,13 +13,13 @@ beforeEach(function (): void {
 });
 
 test('tier returns Free when team has no subscription', function (): void {
-    $team = Team::factory()->create();
+    $team = Team::factory()->createOne();
 
     expect($team->tier())->toBe(SubscriptionTier::Free);
 });
 
 test('tier returns Pro for an active monthly Pro subscription', function (): void {
-    $team = Team::factory()->create();
+    $team = Team::factory()->createOne();
     $team->subscriptions()->create([
         'type'          => 'default',
         'stripe_id'     => 'sub_pro_monthly_test',
@@ -31,7 +31,7 @@ test('tier returns Pro for an active monthly Pro subscription', function (): voi
 });
 
 test('tier returns Pro for an active yearly Pro subscription', function (): void {
-    $team = Team::factory()->create();
+    $team = Team::factory()->createOne();
     $team->subscriptions()->create([
         'type'          => 'default',
         'stripe_id'     => 'sub_pro_yearly_test',
@@ -43,7 +43,7 @@ test('tier returns Pro for an active yearly Pro subscription', function (): void
 });
 
 test('tier returns Free after cancellation past grace period', function (): void {
-    $team = Team::factory()->create();
+    $team = Team::factory()->createOne();
     $team->subscriptions()->create([
         'type'          => 'default',
         'stripe_id'     => 'sub_cancelled_test',
@@ -56,7 +56,7 @@ test('tier returns Free after cancellation past grace period', function (): void
 });
 
 test('tier returns Free (defensive) when the active subscription price is not in the config map', function (): void {
-    $team = Team::factory()->create();
+    $team = Team::factory()->createOne();
     $team->subscriptions()->create([
         'type'          => 'default',
         'stripe_id'     => 'sub_unknown_price_test',

@@ -92,9 +92,10 @@ it('gives Admin only subscription.view', function () {
 
     $admin = SpatieRole::findByName(Role::Admin->value, 'web');
 
-    expect($admin->permissions->pluck('name')->all())
-        ->toContain(Permission::SubscriptionView->value)
-        ->not->toContain(Permission::SubscriptionUpdate->value);
+    $names = $admin->permissions->pluck('name')->all();
+
+    expect($names)->toContain(Permission::SubscriptionView->value);
+    expect($names)->not->toContain(Permission::SubscriptionUpdate->value);
 });
 
 it('gives Member no subscription permissions', function () {
@@ -102,7 +103,8 @@ it('gives Member no subscription permissions', function () {
 
     $member = SpatieRole::findByName(Role::Member->value, 'web');
 
-    expect($member->permissions->pluck('name')->all())
-        ->not->toContain(Permission::SubscriptionView->value)
-        ->not->toContain(Permission::SubscriptionUpdate->value);
+    $names = $member->permissions->pluck('name')->all();
+
+    expect($names)->not->toContain(Permission::SubscriptionView->value);
+    expect($names)->not->toContain(Permission::SubscriptionUpdate->value);
 });
