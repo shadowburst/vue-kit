@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @property int $id
@@ -37,9 +36,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, HasTeams, Notifiable, TwoFactorAuthenticatable {
-        HasTeams::teams insteadof HasRoles;
-    }
+    use HasFactory, HasTeams, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
