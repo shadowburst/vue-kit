@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Enums\PermissionName;
+use App\Enums\Permission\PermissionName;
 use App\Models\User;
 
 final class UserPolicy

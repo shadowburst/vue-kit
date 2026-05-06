@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Settings;
 
-use App\Enums\AppLocale;
+use App\Enums\Settings\Locale;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -19,7 +19,7 @@ class LocaleUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'locale' => ['required', Rule::enum(AppLocale::class)],
+            'locale' => ['required', Rule::enum(Locale::class)],
         ];
     }
 }

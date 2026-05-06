@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Data\UserSettingsData;
-use App\Enums\AppLocale;
+use App\Data\User\UserSettingsData;
+use App\Enums\Settings\Locale;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\LocaleStoreRequest;
 use App\Http\Requests\Settings\LocaleUpdateRequest;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -22,21 +21,18 @@ final class LocaleController extends Controller
         return Inertia::render('settings/Language');
     }
 
-    public function update(LocaleUpdateRequest $request): RedirectResponse
+    public function update(LocaleUpdateRequest $request, #[CurrentUser] User $user): RedirectResponse
     {
-        $locale = (string) $request->validated('locale');
+        $request->validated();
 
-        return back()->withCookie(cookie('locale', $locale, 60 * 24 * 365));
-    }
+        $settings = $user->settings ?? new UserSettingsData;
 
-    public function store(LocaleStoreRequest $request, #[CurrentUser] User $user): RedirectResponse
-    {
-        $locale = (string) $request->validated('locale');
+        $settings->locale = $request->enum('locale', Locale::class, Locale::Fr);
 
         $user->update([
-            'settings' => new UserSettingsData(AppLocale::from($locale)),
+            'settings' => $settings,
         ]);
 
-        return back()->withCookie(cookie('locale', $locale, 60 * 24 * 365));
+        return back()->withCookie(cookie('locale', $settings->locale->value, 60 * 24 * 365));
     }
 }
