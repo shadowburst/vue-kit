@@ -17,7 +17,7 @@ final class AssignMembership
 
     public function execute(User $user, Team $team, Role $role): void
     {
-        $registrar = app(PermissionRegistrar::class);
+        $registrar      = app(PermissionRegistrar::class);
         $previousTeamId = $registrar->getPermissionsTeamId();
 
         try {

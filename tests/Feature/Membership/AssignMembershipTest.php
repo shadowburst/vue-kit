@@ -52,5 +52,5 @@ it('is idempotent when the same role is assigned twice', function (): void {
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    expect($user->fresh()->hasRole(Role::Member->value))->toBeTrue();
+    expect($user->refresh()->hasRole(Role::Member->value))->toBeTrue();
 });
