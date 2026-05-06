@@ -2,29 +2,26 @@
 
 declare(strict_types=1);
 
-use App\Enums\Permission\PermissionName;
-use App\Enums\Role\RoleName;
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
 use App\Policies\UserPolicy;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;
 
-use function Pest\Laravel\seed;
-
 // Build dataset from enum so future matrix changes propagate automatically.
 $userPermissionMap = [
-    'viewAny' => PermissionName::UserViewAny,
-    'view'    => PermissionName::UserView,
-    'create'  => PermissionName::UserCreate,
-    'update'  => PermissionName::UserUpdate,
-    'delete'  => PermissionName::UserDelete,
+    'viewAny' => Permission::UserViewAny,
+    'view'    => Permission::UserView,
+    'create'  => Permission::UserCreate,
+    'update'  => Permission::UserUpdate,
+    'delete'  => Permission::UserDelete,
 ];
 
 $matrixDataset = [];
 
-foreach (RoleName::cases() as $role) {
+foreach (Role::cases() as $role) {
     $rolePermissions = $role->permissions();
 
     foreach ($userPermissionMap as $method => $permission) {
@@ -40,9 +37,7 @@ it('is auto-discovered by Laravel for the User model', function (): void {
     expect(Gate::getPolicyFor(User::class))->toBeInstanceOf(UserPolicy::class);
 });
 
-it('enforces the UserPolicy permission matrix', function (RoleName $role, string $method, bool $expected): void {
-    seed(RolePermissionSeeder::class);
-
+it('enforces the UserPolicy permission matrix', function (Role $role, string $method, bool $expected): void {
     $team   = Team::query()->create(['name' => 'Test Team']);
     $user   = User::factory()->createOne();
     $target = User::factory()->createOne();
@@ -61,29 +56,25 @@ it('enforces the UserPolicy permission matrix', function (RoleName $role, string
 })->with($matrixDataset);
 
 it('allows a member to delete themselves (leave team) regardless of user.delete permission', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $team   = Team::query()->create(['name' => 'Test Team']);
     $member = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $member->assignRole(RoleName::Member->value);
+    $member->assignRole(Role::Member->value);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    expect($member->can(PermissionName::UserDelete->value))->toBeFalse();
+    expect($member->can(Permission::UserDelete->value))->toBeFalse();
     expect(Gate::forUser($member)->allows('delete', $member))->toBeTrue();
 });
 
 it('does not grant UserPolicy::update to a super-admin via a before() bypass', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $team       = Team::query()->create(['name' => 'Test Team']);
     $superAdmin = User::factory()->createOne();
     $target     = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $superAdmin->assignRole(RoleName::SuperAdmin->value);
+    $superAdmin->assignRole(Role::SuperAdmin->value);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 

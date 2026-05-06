@@ -3,20 +3,14 @@
 declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
-use App\Enums\Permission\PermissionName;
-use App\Enums\Role\RoleName;
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
 use App\Models\User;
-use Database\Seeders\RolePermissionSeeder;
 use Inertia\Testing\AssertableInertia;
 use Spatie\Permission\PermissionRegistrar;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
-use function Pest\Laravel\seed;
-
-beforeEach(function (): void {
-    seed(RolePermissionSeeder::class);
-});
 
 test('guest request shares null currentTeam and null auth.user', function (): void {
     get(route('login'))
@@ -43,8 +37,8 @@ test('authenticated Owner gets correct currentTeam, teams, and permissions', fun
 
     actingAs($user);
 
-    $expectedPermissions = collect(RoleName::Owner->permissions())
-        ->map(fn (PermissionName $p) => $p->value)
+    $expectedPermissions = collect(Role::Owner->permissions())
+        ->map(fn (Permission $p) => $p->value)
         ->sort()
         ->values()
         ->all();
@@ -70,15 +64,15 @@ test('authenticated Admin gets correct currentTeam, teams, and permissions', fun
 
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
     setPermissionsTeamId($team->id);
-    $admin->assignRole(RoleName::Admin->value);
+    $admin->assignRole(Role::Admin->value);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     app()->instance('currentTeam', $team);
 
     actingAs($admin);
 
-    $expectedPermissions = collect(RoleName::Admin->permissions())
-        ->map(fn (PermissionName $p) => $p->value)
+    $expectedPermissions = collect(Role::Admin->permissions())
+        ->map(fn (Permission $p) => $p->value)
         ->sort()
         ->values()
         ->all();
@@ -99,15 +93,15 @@ test('authenticated Member gets correct currentTeam, teams, and permissions', fu
 
     $member = User::factory()->createOne(['current_team_id' => $team->id]);
     setPermissionsTeamId($team->id);
-    $member->assignRole(RoleName::Member->value);
+    $member->assignRole(Role::Member->value);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     app()->instance('currentTeam', $team);
 
     actingAs($member);
 
-    $expectedPermissions = collect(RoleName::Member->permissions())
-        ->map(fn (PermissionName $p) => $p->value)
+    $expectedPermissions = collect(Role::Member->permissions())
+        ->map(fn (Permission $p) => $p->value)
         ->sort()
         ->values()
         ->all();

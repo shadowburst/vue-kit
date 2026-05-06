@@ -7,12 +7,12 @@ test('test files end in Test', function () {
     $archDir = realpath(__DIR__);
 
     if ($testDir === false || $archDir === false) {
-        throw new \RuntimeException('Failed to resolve test directories');
+        throw new RuntimeException('Failed to resolve test directories');
     }
 
     $violations = [];
 
-    /** @var \SplFileInfo $file */
+    /** @var SplFileInfo $file */
     foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
         $testDir,
         FilesystemIterator::SKIP_DOTS,

@@ -2,8 +2,13 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
+use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Laravel\Fortify\Features;
+use PHPUnit\Framework\Assert;
+use Spatie\Permission\PermissionRegistrar;
 use Tests\TestCase;
 
 /*
@@ -19,7 +24,17 @@ use Tests\TestCase;
 
 pest()
     ->extend(TestCase::class)
-    ->use(RefreshDatabase::class)
+    ->use(LazilyRefreshDatabase::class)
+    ->beforeEach(function (): void {
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+        Role::flushModelCache();
+        Permission::flushModelCache();
+        /**
+         * @mago-expect analysis:undefined-variable
+         * @mago-expect analysis:mixed-property-access
+         */
+        $this->seeder = RolePermissionSeeder::class;
+    })
     ->in('Feature');
 
 /*
@@ -47,6 +62,6 @@ pest()
 function skip_unless_fortify_has(string $feature, ?string $message = null): void
 {
     if (! Features::enabled($feature)) {
-        PHPUnit\Framework\Assert::markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");
+        Assert::markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");
     }
 }

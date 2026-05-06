@@ -2,33 +2,33 @@
 
 declare(strict_types=1);
 
-use App\Enums\Permission\PermissionName;
-use App\Enums\Role\RoleName;
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
 use Database\Seeders\RolePermissionSeeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission as SpatiePermission;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 use function Pest\Laravel\seed;
 
 it('seeds all permissions and roles', function () {
     seed(RolePermissionSeeder::class);
 
-    expect(Permission::query()->count())->toBe(count(PermissionName::cases()));
-    expect(Role::query()->count())->toBe(count(RoleName::cases()));
+    expect(SpatiePermission::query()->count())->toBe(count(Permission::cases()));
+    expect(SpatieRole::query()->count())->toBe(count(Role::cases()));
 });
 
 it('is idempotent: running the seeder twice yields the same state', function () {
     seed(RolePermissionSeeder::class);
     seed(RolePermissionSeeder::class);
 
-    expect(Permission::query()->count())->toBe(count(PermissionName::cases()));
-    expect(Role::query()->count())->toBe(count(RoleName::cases()));
+    expect(SpatiePermission::query()->count())->toBe(count(Permission::cases()));
+    expect(SpatieRole::query()->count())->toBe(count(Role::cases()));
 
-    foreach (RoleName::cases() as $roleName) {
-        $role                = Role::findByName($roleName->value, 'web');
-        $expectedPermissions = array_map(fn (PermissionName $p) => $p->value, $roleName->permissions());
+    foreach (Role::cases() as $role) {
+        $spatieRole          = SpatieRole::findByName($role->value, 'web');
+        $expectedPermissions = array_map(fn (Permission $p) => $p->value, $role->permissions());
 
-        expect($role->permissions->pluck('name')->sort()->values()->all())
+        expect($spatieRole->permissions->pluck('name')->sort()->values()->all())
             ->toBe(collect($expectedPermissions)->sort()->values()->all());
     }
 });
@@ -36,11 +36,11 @@ it('is idempotent: running the seeder twice yields the same state', function () 
 it('assigns correct permissions per role matching the enum matrix', function () {
     seed(RolePermissionSeeder::class);
 
-    foreach (RoleName::cases() as $roleName) {
-        $role                = Role::findByName($roleName->value, 'web');
-        $expectedPermissions = array_map(fn (PermissionName $p) => $p->value, $roleName->permissions());
+    foreach (Role::cases() as $role) {
+        $spatieRole          = SpatieRole::findByName($role->value, 'web');
+        $expectedPermissions = array_map(fn (Permission $p) => $p->value, $role->permissions());
 
-        expect($role->permissions->pluck('name')->sort()->values()->all())
+        expect($spatieRole->permissions->pluck('name')->sort()->values()->all())
             ->toBe(collect($expectedPermissions)->sort()->values()->all());
     }
 });
@@ -48,19 +48,19 @@ it('assigns correct permissions per role matching the enum matrix', function () 
 it('returns the english label for each role', function () {
     app()->setLocale('en');
 
-    expect(RoleName::SuperAdmin->label())->toBe('Super admin');
-    expect(RoleName::Tester->label())->toBe('Tester');
-    expect(RoleName::Owner->label())->toBe('Owner');
-    expect(RoleName::Admin->label())->toBe('Admin');
-    expect(RoleName::Member->label())->toBe('Member');
+    expect(Role::SuperAdmin->label())->toBe('Super admin');
+    expect(Role::Tester->label())->toBe('Tester');
+    expect(Role::Owner->label())->toBe('Owner');
+    expect(Role::Admin->label())->toBe('Admin');
+    expect(Role::Member->label())->toBe('Member');
 });
 
 it('returns the french label for each role', function () {
     app()->setLocale('fr');
 
-    expect(RoleName::SuperAdmin->label())->toBe('Super administrateur');
-    expect(RoleName::Tester->label())->toBe('Testeur');
-    expect(RoleName::Owner->label())->toBe('Propriétaire');
-    expect(RoleName::Admin->label())->toBe('Administrateur');
-    expect(RoleName::Member->label())->toBe('Membre');
+    expect(Role::SuperAdmin->label())->toBe('Super administrateur');
+    expect(Role::Tester->label())->toBe('Testeur');
+    expect(Role::Owner->label())->toBe('Propriétaire');
+    expect(Role::Admin->label())->toBe('Administrateur');
+    expect(Role::Member->label())->toBe('Membre');
 });

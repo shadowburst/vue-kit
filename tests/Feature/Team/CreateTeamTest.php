@@ -3,17 +3,14 @@
 declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
-use App\Enums\Role\RoleName;
+use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Exceptions\RoleDoesNotExist;
-
-use function Pest\Laravel\seed;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 it('creates a team with the given name', function (): void {
-    seed(RolePermissionSeeder::class);
     $creator = User::factory()->createOne();
 
     $team = (new CreateTeam)->execute('Acme Corp', $creator);
@@ -22,7 +19,6 @@ it('creates a team with the given name', function (): void {
 });
 
 it('generates a slug from the team name', function (): void {
-    seed(RolePermissionSeeder::class);
     $creator = User::factory()->createOne();
 
     $team = (new CreateTeam)->execute('Acme Corp', $creator);
@@ -31,7 +27,6 @@ it('generates a slug from the team name', function (): void {
 });
 
 it('assigns the Owner role to the creator scoped to the new team', function (): void {
-    seed(RolePermissionSeeder::class);
     $creator = User::factory()->createOne();
 
     $team = (new CreateTeam)->execute('Acme Corp', $creator);
@@ -41,14 +36,13 @@ it('assigns the Owner role to the creator scoped to the new team', function (): 
         ->where('model_has_roles.model_type', $creator->getMorphClass())
         ->where('model_has_roles.team_id', $team->id)
         ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-        ->where('roles.name', RoleName::Owner->value)
+        ->where('roles.name', Role::Owner->value)
         ->exists();
 
     expect($hasOwnerRole)->toBeTrue();
 });
 
 it('assigns only the Owner role and no other roles to the creator', function (): void {
-    seed(RolePermissionSeeder::class);
     $creator = User::factory()->createOne();
 
     (new CreateTeam)->execute('Acme Corp', $creator);
@@ -62,7 +56,6 @@ it('assigns only the Owner role and no other roles to the creator', function ():
 });
 
 it('does not change current_team_id when creator already had a current team', function (): void {
-    seed(RolePermissionSeeder::class);
     $existingTeam = Team::query()->create(['name' => 'Existing Team']);
     $creator      = User::factory()->createOne(['current_team_id' => $existingTeam->id]);
 
@@ -72,7 +65,6 @@ it('does not change current_team_id when creator already had a current team', fu
 });
 
 it('does not change current_team_id when creator had no current team', function (): void {
-    seed(RolePermissionSeeder::class);
     $creator = User::factory()->createOne(['current_team_id' => null]);
 
     (new CreateTeam)->execute('New Team', $creator);
@@ -81,6 +73,8 @@ it('does not change current_team_id when creator had no current team', function 
 });
 
 it('rolls back team creation when role assignment fails', function (): void {
+    SpatieRole::query()->delete();
+
     // No roles seeded — assignRole throws RoleDoesNotExist, rolling back the transaction
     $creator = User::factory()->createOne();
 

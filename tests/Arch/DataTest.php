@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use Spatie\LaravelData\Data;
+
 arch('Data classes extend Spatie\LaravelData\Data')
     ->expect('App\Data')
-    ->toExtend(\Spatie\LaravelData\Data::class);
+    ->toExtend(Data::class);
 
 arch('Data classes end with the Data suffix')
     ->expect('App\Data')
@@ -21,7 +23,7 @@ test('non-abstract Data classes are final', function (): void {
 
     $violations = [];
 
-    /** @var \SplFileInfo $file */
+    /** @var SplFileInfo $file */
     foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
         $dataDir,
         FilesystemIterator::SKIP_DOTS,

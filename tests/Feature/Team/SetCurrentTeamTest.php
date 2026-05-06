@@ -3,18 +3,16 @@
 declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
-use App\Enums\Permission\PermissionName;
-use App\Enums\Role\RoleName;
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
-use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Spatie\Permission\PermissionRegistrar;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
-use function Pest\Laravel\seed;
 
 beforeEach(function (): void {
     Route::get('/_test/team', function () {
@@ -25,7 +23,7 @@ beforeEach(function (): void {
 
         return response()->json([
             'currentTeam'   => $currentTeam?->id,
-            'canViewAny'    => $user?->can(PermissionName::UserViewAny->value),
+            'canViewAny'    => $user?->can(Permission::UserViewAny->value),
             'currentTeamId' => $user?->current_team_id,
         ]);
     })->middleware('web');
@@ -38,7 +36,6 @@ test('guest request passes through without team resolution', function (): void {
 });
 
 test('valid current_team_id stashes active team in container', function (): void {
-    seed(RolePermissionSeeder::class);
     $user = User::factory()->createOne();
     $team = (new CreateTeam)->execute('Acme', $user);
     $user->update(['current_team_id' => $team->id]);
@@ -50,7 +47,6 @@ test('valid current_team_id stashes active team in container', function (): void
 });
 
 test('null current_team_id self-heals to first available team and persists', function (): void {
-    seed(RolePermissionSeeder::class);
     $user = User::factory()->createOne(['current_team_id' => null]);
     $team = (new CreateTeam)->execute('Acme', $user);
 
@@ -63,8 +59,6 @@ test('null current_team_id self-heals to first available team and persists', fun
 });
 
 test('current_team_id pointing at non-member team self-heals to own team', function (): void {
-    seed(RolePermissionSeeder::class);
-
     $user     = User::factory()->createOne();
     $userTeam = (new CreateTeam)->execute('User Team', $user);
 
@@ -101,7 +95,6 @@ test('teams.create route is exempt from the zero-team redirect to prevent loops'
 });
 
 test('owner of active team has user.viewAny permission', function (): void {
-    seed(RolePermissionSeeder::class);
     $owner = User::factory()->createOne();
     $team  = (new CreateTeam)->execute('Acme', $owner);
     $owner->update(['current_team_id' => $team->id]);
@@ -113,13 +106,12 @@ test('owner of active team has user.viewAny permission', function (): void {
 });
 
 test('admin of active team has user.viewAny permission', function (): void {
-    seed(RolePermissionSeeder::class);
     $owner = User::factory()->createOne();
     $team  = (new CreateTeam)->execute('Acme', $owner);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
-    $admin->assignRole(RoleName::Admin->value);
+    $admin->assignRole(Role::Admin->value);
 
     actingAs($admin)
         ->get('/_test/team')
@@ -128,13 +120,12 @@ test('admin of active team has user.viewAny permission', function (): void {
 });
 
 test('member of active team has user.viewAny permission', function (): void {
-    seed(RolePermissionSeeder::class);
     $owner = User::factory()->createOne();
     $team  = (new CreateTeam)->execute('Acme', $owner);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $member = User::factory()->createOne(['current_team_id' => $team->id]);
-    $member->assignRole(RoleName::Member->value);
+    $member->assignRole(Role::Member->value);
 
     actingAs($member)
         ->get('/_test/team')
@@ -143,7 +134,6 @@ test('member of active team has user.viewAny permission', function (): void {
 });
 
 test('user with no team membership is redirected and cannot access the protected resource', function (): void {
-    seed(RolePermissionSeeder::class);
     $nonMember = User::factory()->createOne(['current_team_id' => null]);
 
     actingAs($nonMember)

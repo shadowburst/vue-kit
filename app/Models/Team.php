@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\Role\RoleName;
+use App\Concerns\HasMembers;
 use App\Observers\TeamObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -23,7 +21,7 @@ use Spatie\Sluggable\SlugOptions;
 #[ObservedBy(TeamObserver::class)]
 class Team extends Model
 {
-    use HasSlug;
+    use HasMembers, HasSlug;
 
     protected $fillable = ['name'];
 
@@ -32,39 +30,5 @@ class Team extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('name')
             ->saveSlugsTo('slug');
-    }
-
-    /** @mago-expect analysis:invalid-return-statement */
-    public function members(): BelongsToMany
-    {
-        $relation = $this
-            ->belongsToMany(User::class, 'model_has_roles', 'team_id', 'model_id')
-            ->wherePivot('model_type', (new User)->getMorphClass());
-
-        $relation->getQuery()->distinct();
-
-        return $relation;
-    }
-
-    /** @mago-expect analysis:invalid-return-statement */
-    public function owners(): BelongsToMany
-    {
-        $relation = $this
-            ->belongsToMany(User::class, 'model_has_roles', 'team_id', 'model_id')
-            ->wherePivot('model_type', (new User)->getMorphClass());
-
-        $relation
-            ->getQuery()
-            ->where('model_has_roles.role_id', function (QueryBuilder $query): void {
-                $query
-                    ->select('id')
-                    ->from('roles')
-                    ->where('name', RoleName::Owner->value)
-                    ->where('guard_name', 'web')
-                    ->limit(1);
-            })
-            ->distinct();
-
-        return $relation;
     }
 }

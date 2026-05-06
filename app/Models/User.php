@@ -5,19 +5,16 @@ declare(strict_types=1);
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Concerns\HasTeams;
 use App\Data\User\UserSettingsData;
-use App\Enums\Role\RoleName;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @property int $id
@@ -39,7 +36,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, HasTeams, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
@@ -59,39 +56,5 @@ class User extends Authenticatable
     public function currentTeam(): BelongsTo
     {
         return $this->belongsTo(Team::class, 'current_team_id');
-    }
-
-    /** @mago-expect analysis:invalid-return-statement */
-    public function teams(): BelongsToMany
-    {
-        $relation = $this
-            ->belongsToMany(Team::class, 'model_has_roles', 'model_id', 'team_id')
-            ->wherePivot('model_type', $this->getMorphClass());
-
-        $relation->getQuery()->distinct();
-
-        return $relation;
-    }
-
-    /** @mago-expect analysis:invalid-return-statement */
-    public function ownedTeams(): BelongsToMany
-    {
-        $relation = $this
-            ->belongsToMany(Team::class, 'model_has_roles', 'model_id', 'team_id')
-            ->wherePivot('model_type', $this->getMorphClass());
-
-        $relation
-            ->getQuery()
-            ->where('model_has_roles.role_id', function (QueryBuilder $query): void {
-                $query
-                    ->select('id')
-                    ->from('roles')
-                    ->where('name', RoleName::Owner->value)
-                    ->where('guard_name', 'web')
-                    ->limit(1);
-            })
-            ->distinct();
-
-        return $relation;
     }
 }
