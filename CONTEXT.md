@@ -27,7 +27,7 @@ A Stripe-backed billing relationship between a **Team** and the application, man
 _Avoid_: plan, account.
 
 **Tier**:
-The level of access a **Team** has, derived from its **Subscription** state. Listed in the `SubscriptionTier` enum (`Free`, `Pro`) and strictly ordered — `Pro` is a superset of `Free`. `Free` is represented by the absence of an active subscription, not a `$0` Stripe row. Each tier has a per-team **Member cap** — the number of non-Owner **Memberships** allowed (`Free` = 0, `Pro` = 3, configured at `tiers.{tier}.member_cap` in `config/billing.php`). The cap is surfaced as the integer-valued `Feature::TeamMemberCap` Pennant feature.
+The level of access a **Team** has, derived from its **Subscription** state. Listed in the `SubscriptionTier` enum (`Free`, `Pro`) and strictly ordered — `Pro` is a superset of `Free`. `Free` is represented by the absence of an active subscription, not a `$0` Stripe row. Each tier has a per-team **Member cap** — the number of non-owner **Memberships** allowed (`Free` = 0, `Pro` = 3, configured at `tiers.{tier}.member_cap` in `config/billing.php`). The cap is surfaced as the integer-valued `Feature::TeamMemberCap` Pennant feature.
 
 **Feature**:
 A tier-gated capability resolved at runtime via Laravel Pennant, scoped to the **Team**. Distinct from a **Permission**: a Permission answers "is this role allowed to do this?", a Feature answers "did this team pay for this?". Per ADR-0008 the two axes are evaluated independently and surface to the frontend as parallel shapes: the `AuthAbilitiesData` DTO (policy results) and the `Team::features` accessor (Pennant feature values). Defined feature names are listed in the `Feature` enum.
@@ -76,7 +76,7 @@ subscription.view        # team — see current Subscription, invoices, upcoming
 - All authorization checks must use **Permissions**, never **Roles**. Policies call `$user->can('permission.name', ...)`.
 - **Ownership** is checked via `teams.owner_id`, not via roles or permissions. `$team->owner_id === $user->id` is an identity check — it is distinct from the role-bundle branching that ADR-0002 forbids. See ADR-0014.
 - Team context is set per request from `auth()->user()->current_team_id` via middleware that calls `setPermissionsTeamId($team->id)`. Routes that don't apply this middleware (e.g. global account/admin routes) operate with `team_id = null` and only global permissions match.
-- Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0013, voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and `customer.subscription.deleted` detaches over-cap non-Owner **Memberships** at period end, ordered by `model_has_roles.created_at` desc. Involuntary cancellation (payment failure) skips the prune; the team becomes over-cap-but-intact until the Owner resubscribes or removes members.
+- Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0013, voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and `customer.subscription.deleted` detaches over-cap non-owner **Memberships** at period end, ordered by `model_has_roles.created_at` desc. Involuntary cancellation (payment failure) skips the prune; the team becomes over-cap-but-intact until the team owner resubscribes or removes members.
 
 ## Flagged ambiguities
 
