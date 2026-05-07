@@ -3,8 +3,10 @@ import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import BillingController from '@/wayfinder/App/Http/Controllers/Settings/Team/BillingController';
+import CancelController from '@/wayfinder/App/Http/Controllers/Settings/Team/CancelController';
 import CheckoutController from '@/wayfinder/App/Http/Controllers/Settings/Team/CheckoutController';
 import PortalController from '@/wayfinder/App/Http/Controllers/Settings/Team/PortalController';
+import ResumeController from '@/wayfinder/App/Http/Controllers/Settings/Team/ResumeController';
 import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { computed, onMounted, ref } from 'vue';
@@ -131,6 +133,16 @@ onMounted(() => {
                 <span class="text-sm text-muted-foreground">{{ trans('billing.payment_method') }}</span>
                 <span class="text-sm">&bull;&bull;&bull;&bull; {{ pmLastFour }}</span>
             </div>
+
+            <template v-if="canManageBilling">
+                <Form v-if="subscriptionStatus === 'active'" :action="CancelController.store().url" method="post">
+                    <Button type="submit" variant="destructive">{{ trans('billing.cancel_subscription') }}</Button>
+                </Form>
+
+                <Form v-else-if="subscriptionStatus === 'grace'" :action="ResumeController.store().url" method="post">
+                    <Button type="submit">{{ trans('billing.resume_subscription') }}</Button>
+                </Form>
+            </template>
 
             <Button v-if="canManageBilling" as="a" :href="PortalController.show().url">
                 {{ trans('billing.manage_billing') }}

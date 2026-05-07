@@ -15,5 +15,7 @@ return [
     'billing_interval' => 'Billing interval',
     'next_charge'      => 'Next charge',
     'payment_method'   => 'Payment method',
-    'manage_billing'   => 'Manage Billing',
+    'manage_billing'      => 'Manage Billing',
+    'cancel_subscription' => 'Cancel Subscription',
+    'resume_subscription' => 'Resume Subscription',
 ];

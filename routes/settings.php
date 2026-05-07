@@ -7,8 +7,10 @@ use App\Http\Controllers\Settings\LocaleController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Settings\Team\BillingController;
+use App\Http\Controllers\Settings\Team\CancelController;
 use App\Http\Controllers\Settings\Team\CheckoutController;
 use App\Http\Controllers\Settings\Team\PortalController;
+use App\Http\Controllers\Settings\Team\ResumeController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -22,6 +24,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/teams/billing', [BillingController::class, 'show'])->name('teams.billing.show');
     Route::get('settings/teams/billing/portal', [PortalController::class, 'show'])->name('teams.billing.portal.show');
     Route::post('settings/teams/billing/checkout', [CheckoutController::class, 'store'])->name('teams.checkout.store');
+    Route::post('settings/teams/billing/cancel', [CancelController::class, 'store'])->name('teams.billing.cancel.store');
+    Route::post('settings/teams/billing/resume', [ResumeController::class, 'store'])->name('teams.billing.resume.store');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
