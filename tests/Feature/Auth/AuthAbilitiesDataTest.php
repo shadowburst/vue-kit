@@ -7,7 +7,9 @@ use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
+use App\Services\Team\TeamContext;
 use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\PermissionRegistrar;
 
 use function Pest\Laravel\seed;
@@ -24,9 +26,11 @@ foreach (Role::cases() as $role) {
         [
             'view_any' => in_array(Permission::UserViewAny, $permissions, true),
             'view'     => in_array(Permission::UserView, $permissions, true),
-            'create'   => in_array(Permission::UserCreate, $permissions, true),
-            'update'   => in_array(Permission::UserUpdate, $permissions, true),
-            'delete'   => in_array(Permission::UserDelete, $permissions, true),
+            // `create` reflects the combined permission + seat-cap gate:
+            // resolved against a Pro under-cap team in the test body.
+            'create' => in_array(Permission::UserCreate, $permissions, true),
+            'update' => in_array(Permission::UserUpdate, $permissions, true),
+            'delete' => in_array(Permission::UserDelete, $permissions, true),
         ],
         [
             'view' => in_array(Permission::TeamView, $permissions, true),
@@ -49,9 +53,21 @@ it('returns correct permission-based booleans for each role', function (
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
     $user  = User::factory()->createOne();
 
+    // Pro subscription with cap=3 ensures the seat-cap gate doesn't poison the
+    // `create` expectation: only role-permission drives it for under-cap teams.
+    DB::table('subscriptions')->insert([
+        'team_id'       => $team->id,
+        'type'          => 'default',
+        'stripe_id'     => 'sub_abilities_test_'.$team->id,
+        'stripe_status' => 'active',
+        'stripe_price'  => config('billing.tiers.pro.monthly'),
+        'created_at'    => now()->toDateTimeString(),
+        'updated_at'    => now()->toDateTimeString(),
+    ]);
+
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $user->assignRole($role->value);
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    app(TeamContext::class)->setTeam($team);
 
     $abilities = AuthAbilitiesData::fromUser($user, $team);
 

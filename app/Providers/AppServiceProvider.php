@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Enums\Feature\Feature as FeatureEnum;
 use App\Listeners\PurgeFeaturesOnSubscriptionChange;
 use App\Models\Team;
 use App\Policies\SubscriptionPolicy;
@@ -18,6 +19,7 @@ use Illuminate\Validation\Rules\Password;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\WebhookHandled;
 use Laravel\Cashier\Subscription;
+use Laravel\Pennant\Feature;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +39,11 @@ class AppServiceProvider extends ServiceProvider
         Cashier::useCustomerModel(Team::class);
 
         Gate::policy(Subscription::class, SubscriptionPolicy::class);
+
+        Feature::define(
+            FeatureEnum::TeamMemberCap->value,
+            fn (Team $team): int => (int) config("billing.tiers.{$team->tier()->value}.member_cap", 0),
+        );
 
         $this->configureDefaults();
 

@@ -69,7 +69,7 @@ test('authenticated team creator (Admin + owner_id) gets correct currentTeam, te
                 ->where('auth.user.permissions', $expectedPermissions)
                 ->where('auth.abilities.user.view_any', true)
                 ->where('auth.abilities.user.view', true)
-                ->where('auth.abilities.user.create', true)
+                ->where('auth.abilities.user.create', false) // Free tier: cap=0, invite blocked
                 ->where('auth.abilities.user.update', true)
                 ->where('auth.abilities.user.delete', true)
                 ->where('auth.abilities.team.view', true) // owner_id identity check
@@ -77,7 +77,7 @@ test('authenticated team creator (Admin + owner_id) gets correct currentTeam, te
                 ->where('auth.abilities.team.delete', false) // sole owned team — personal-team rule
                 ->where('auth.abilities.subscription.view', true)
                 ->where('auth.abilities.subscription.update', true) // owner_id identity check
-                ->where('auth.features', []),
+                ->where('auth.features', ['team-member-cap' => 0]), // Free tier → cap=0
         );
 });
 

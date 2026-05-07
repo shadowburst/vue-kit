@@ -6,5 +6,5 @@ namespace App\Enums\Feature;
 
 enum Feature: string
 {
-    case FEATURE_1 = 'feature_1';
+    case TeamMemberCap = 'team-member-cap';
 }
