@@ -22,7 +22,6 @@ final class TeamPolicy
 
     public function delete(User $user, Team $team): bool
     {
-        return $team->owner_id === $user->id
-            && $user->ownedTeams()->whereKeyNot($team)->exists();
+        return $team->owner_id === $user->id && $user->ownedTeams()->whereKeyNot($team)->exists();
     }
 }

@@ -37,17 +37,17 @@ it('teams returns each team only once even when the user holds multiple roles in
 });
 
 it('ownedTeams returns only teams where owner_id matches the user', function (): void {
-    $user   = User::factory()->createOne();
-    $owned  = Team::factory()->createOne(['name' => 'Owned Team', 'owner_id' => $user->id]);
+    $user  = User::factory()->createOne();
+    $owned = Team::factory()->createOne(['name' => 'Owned Team', 'owner_id' => $user->id]);
     Team::factory()->createOne(['name' => 'Member Team']); // different owner
 
     expect($user->ownedTeams()->pluck('id')->all())->toEqual([$owned->id]);
 });
 
 it('ownedTeams does not return teams where the user is only a member', function (): void {
-    $owner  = User::factory()->createOne();
-    $other  = User::factory()->createOne();
-    $team   = Team::factory()->createOne(['name' => 'Acme Corp', 'owner_id' => $owner->id]);
+    $owner = User::factory()->createOne();
+    $other = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['name' => 'Acme Corp', 'owner_id' => $owner->id]);
 
     assign_role_in_team($other, $team, Role::Member);
 

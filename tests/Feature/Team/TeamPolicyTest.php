@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
