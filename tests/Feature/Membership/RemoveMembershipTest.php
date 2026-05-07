@@ -43,8 +43,8 @@ it('updates current_team_id to another team when it pointed at the removed team'
 });
 
 it('clears current_team_id to null when the user has no other team', function (): void {
-    $owner  = User::factory()->createOne();
-    $teamA  = (new CreateTeam)->execute('Team A', $owner);
+    $owner = User::factory()->createOne();
+    $teamA = (new CreateTeam)->execute('Team A', $owner);
 
     $member = User::factory()->createOne(['current_team_id' => $teamA->id]);
     (new AssignMembership)->execute($member, $teamA, Role::Member);

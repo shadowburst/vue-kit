@@ -6,7 +6,6 @@ use App\Actions\Membership\AssignMembership;
 use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
 use App\Models\User;
-use Spatie\Permission\PermissionRegistrar;
 
 it('reassigns current_team_id for all members when a team is deleted', function (): void {
     $ownerA = User::factory()->createOne();
@@ -26,6 +25,5 @@ it('reassigns current_team_id for all members when a team is deleted', function 
 
     $teamA->delete();
 
-    expect($member1->fresh()?->current_team_id)->toBe($teamB->id)
-        ->and($member2->fresh()?->current_team_id)->toBeNull();
+    expect($member1->fresh()?->current_team_id)->toBe($teamB->id)->and($member2->fresh()?->current_team_id)->toBeNull();
 });
