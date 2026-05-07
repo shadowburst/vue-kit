@@ -18,4 +18,7 @@ return [
     'manage_billing'      => 'Manage Billing',
     'cancel_subscription' => 'Cancel Subscription',
     'resume_subscription' => 'Resume Subscription',
+
+    'grace_period_banner_title' => 'Subscription cancellation in progress',
+    'grace_period_banner_body'  => ':count members will lose access in :days days.',
 ];
