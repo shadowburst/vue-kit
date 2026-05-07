@@ -11,7 +11,7 @@ use Spatie\Permission\PermissionRegistrar;
 
 it('assigns a Member role to a user scoped to the team', function (): void {
     $user = User::factory()->createOne();
-    $team = Team::query()->create(['name' => 'Acme Corp']);
+    $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
     (new AssignMembership)->execute($user, $team, Role::Member);
 
@@ -26,26 +26,26 @@ it('assigns a Member role to a user scoped to the team', function (): void {
     expect($hasMemberRole)->toBeTrue();
 });
 
-it('assigns an Owner role to a user scoped to the team', function (): void {
+it('assigns an Admin role to a user scoped to the team', function (): void {
     $user = User::factory()->createOne();
-    $team = Team::query()->create(['name' => 'Acme Corp']);
+    $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
-    (new AssignMembership)->execute($user, $team, Role::Owner);
+    (new AssignMembership)->execute($user, $team, Role::Admin);
 
-    $hasOwnerRole = DB::table('model_has_roles')
+    $hasAdminRole = DB::table('model_has_roles')
         ->where('model_has_roles.model_id', $user->id)
         ->where('model_has_roles.model_type', $user->getMorphClass())
         ->where('model_has_roles.team_id', $team->id)
         ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-        ->where('roles.name', Role::Owner->value)
+        ->where('roles.name', Role::Admin->value)
         ->exists();
 
-    expect($hasOwnerRole)->toBeTrue();
+    expect($hasAdminRole)->toBeTrue();
 });
 
 it('is idempotent when the same role is assigned twice', function (): void {
     $user = User::factory()->createOne();
-    $team = Team::query()->create(['name' => 'Acme Corp']);
+    $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
     (new AssignMembership)->execute($user, $team, Role::Member);
     (new AssignMembership)->execute($user, $team, Role::Member);

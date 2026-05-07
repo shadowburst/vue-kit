@@ -12,7 +12,7 @@ use Spatie\Permission\PermissionRegistrar;
 
 it('changes a Member role to Admin within the team', function (): void {
     $user = User::factory()->createOne();
-    $team = Team::query()->create(['name' => 'Acme Corp']);
+    $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
     (new AssignMembership)->execute($user, $team, Role::Member);
     (new ChangeMembershipRole)->execute($user, $team, Role::Admin);
@@ -24,23 +24,9 @@ it('changes a Member role to Admin within the team', function (): void {
     expect($user->hasRole(Role::Member->value))->toBeFalse();
 });
 
-it('changes an Owner role to Member within the team', function (): void {
-    $user = User::factory()->createOne();
-    $team = Team::query()->create(['name' => 'Acme Corp']);
-
-    (new AssignMembership)->execute($user, $team, Role::Owner);
-    (new ChangeMembershipRole)->execute($user, $team, Role::Member);
-
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $user->refresh();
-
-    expect($user->hasRole(Role::Member->value))->toBeTrue();
-    expect($user->hasRole(Role::Owner->value))->toBeFalse();
-});
-
 it('is a no-op when the user already holds the target role', function (): void {
     $user = User::factory()->createOne();
-    $team = Team::query()->create(['name' => 'Acme Corp']);
+    $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
     (new AssignMembership)->execute($user, $team, Role::Member);
     (new ChangeMembershipRole)->execute($user, $team, Role::Member);
@@ -59,11 +45,11 @@ it('is a no-op when the user already holds the target role', function (): void {
 
 it('does not affect the same user\'s role in other teams', function (): void {
     $user  = User::factory()->createOne();
-    $teamA = Team::query()->create(['name' => 'Team A']);
-    $teamB = Team::query()->create(['name' => 'Team B']);
+    $teamA = Team::factory()->createOne(['name' => 'Team A']);
+    $teamB = Team::factory()->createOne(['name' => 'Team B']);
 
     (new AssignMembership)->execute($user, $teamA, Role::Member);
-    (new AssignMembership)->execute($user, $teamB, Role::Owner);
+    (new AssignMembership)->execute($user, $teamB, Role::Member);
 
     (new ChangeMembershipRole)->execute($user, $teamA, Role::Admin);
 
@@ -76,5 +62,5 @@ it('does not affect the same user\'s role in other teams', function (): void {
     app(PermissionRegistrar::class)->setPermissionsTeamId($teamB->id);
     $user->refresh();
 
-    expect($user->hasRole(Role::Owner->value))->toBeTrue();
+    expect($user->hasRole(Role::Member->value))->toBeTrue();
 });

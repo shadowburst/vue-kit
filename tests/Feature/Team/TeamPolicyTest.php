@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
@@ -10,75 +9,88 @@ use App\Policies\TeamPolicy;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;
 
-// Build dataset from enum so future matrix changes propagate automatically.
-$teamPermissionMap = [
-    'view'   => Permission::TeamView,
-    'update' => Permission::TeamUpdate,
-    'delete' => Permission::TeamDelete,
-];
-
-$matrixDataset = [];
-
-foreach (Role::cases() as $role) {
-    $rolePermissions = $role->permissions();
-
-    foreach ($teamPermissionMap as $method => $permission) {
-        $matrixDataset["{$role->value}:{$method}"] = [
-            $role,
-            $method,
-            in_array($permission, $rolePermissions, true),
-        ];
-    }
-}
-
 it('is auto-discovered by Laravel for the Team model', function (): void {
     expect(Gate::getPolicyFor(Team::class))->toBeInstanceOf(TeamPolicy::class);
 });
 
-it('enforces the TeamPolicy permission matrix', function (Role $role, string $method, bool $expected): void {
-    $team  = Team::query()->create(['name' => 'Team One']);
-    $team2 = Team::query()->create(['name' => 'Team Two']);
+// team.view is permission-based — both Admin and Member hold Permission::TeamView
+it('allows a member to view a team', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
     $user  = User::factory()->createOne();
 
-    // Assign the role to both teams so the ownedTeams() invariant is satisfied
-    // for Owner::delete without masking the permission check for other methods.
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $user->assignRole($role->value);
-
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team2->id);
-    $user->assignRole($role->value);
-
+    $user->assignRole(Role::Member->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    expect(Gate::forUser($user)->allows($method, $team))->toBe($expected);
-})->with($matrixDataset);
+    expect(Gate::forUser($user)->allows('view', $team))->toBeTrue();
+});
+
+it('allows an admin to view a team', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
+    $user  = User::factory()->createOne();
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    $user->assignRole(Role::Admin->value);
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+
+    expect(Gate::forUser($user)->allows('view', $team))->toBeTrue();
+});
+
+// team.update and team.delete are identity-based (owner_id === user.id)
+it('allows the owner to update their team', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
+
+    expect(Gate::forUser($owner)->allows('update', $team))->toBeTrue();
+});
+
+it('prevents a non-owner admin from updating the team', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
+    $admin = User::factory()->createOne();
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    $admin->assignRole(Role::Admin->value);
+
+    expect(Gate::forUser($admin)->allows('update', $team))->toBeFalse();
+});
+
+it('prevents a member from updating the team', function (): void {
+    $owner  = User::factory()->createOne();
+    $team   = Team::factory()->createOne(['owner_id' => $owner->id]);
+    $member = User::factory()->createOne();
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    $member->assignRole(Role::Member->value);
+
+    expect(Gate::forUser($member)->allows('update', $team))->toBeFalse();
+});
+
+it('allows the owner of multiple teams to delete either of their owned teams', function (): void {
+    $owner = User::factory()->createOne();
+    $team1 = Team::factory()->createOne(['owner_id' => $owner->id]);
+    $team2 = Team::factory()->createOne(['owner_id' => $owner->id]);
+
+    expect(Gate::forUser($owner)->allows('delete', $team1))->toBeTrue();
+    expect(Gate::forUser($owner)->allows('delete', $team2))->toBeTrue();
+});
 
 it('prevents a sole owner from deleting their only owned team', function (): void {
-    $team  = Team::query()->create(['name' => 'Only Team']);
     $owner = User::factory()->createOne();
-
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $owner->assignRole(Role::Owner->value);
-
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
 
     expect(Gate::forUser($owner)->allows('delete', $team))->toBeFalse();
 });
 
-it('allows an owner of two teams to delete either of their owned teams', function (): void {
-    $team1 = Team::query()->create(['name' => 'Team Alpha']);
-    $team2 = Team::query()->create(['name' => 'Team Beta']);
+it('prevents a non-owner admin from deleting the team', function (): void {
     $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
+    $admin = User::factory()->createOne();
 
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team1->id);
-    $owner->assignRole(Role::Owner->value);
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    $admin->assignRole(Role::Admin->value);
 
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team2->id);
-    $owner->assignRole(Role::Owner->value);
-
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team1->id);
-    expect(Gate::forUser($owner)->allows('delete', $team1))->toBeTrue();
-
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team2->id);
-    expect(Gate::forUser($owner)->allows('delete', $team2))->toBeTrue();
+    expect(Gate::forUser($admin)->allows('delete', $team))->toBeFalse();
 });

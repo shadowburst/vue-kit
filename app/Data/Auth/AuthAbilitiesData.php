@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Data\Auth;
 
 use App\Enums\Permission\Permission;
+use App\Models\Team;
 use App\Models\User;
+use Laravel\Cashier\Subscription;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -21,7 +23,7 @@ final class AuthAbilitiesData extends Data
         public array $subscription,
     ) {}
 
-    public static function fromUser(?User $user = null): self
+    public static function fromUser(?User $user = null, ?Team $team = null): self
     {
         return new self(
             user        : [
@@ -32,13 +34,13 @@ final class AuthAbilitiesData extends Data
                 'delete'   => $user?->can(Permission::UserDelete->value) ?? false,
             ],
             team        : [
-                'view'   => $user?->can(Permission::TeamView->value) ?? false,
-                'update' => $user?->can(Permission::TeamUpdate->value) ?? false,
-                'delete' => $user?->can(Permission::TeamDelete->value) ?? false,
+                'view'   => $team !== null && ($user?->can(Permission::TeamView->value, $team) ?? false),
+                'update' => $team !== null && ($user?->can('update', $team) ?? false),
+                'delete' => $team !== null && ($user?->can('delete', $team) ?? false),
             ],
             subscription: [
                 'view'   => $user?->can(Permission::SubscriptionView->value) ?? false,
-                'update' => $user?->can(Permission::SubscriptionUpdate->value) ?? false,
+                'update' => $team !== null && ($user?->can('update', [Subscription::class, $team]) ?? false),
             ],
         );
     }

@@ -50,7 +50,6 @@ it('returns the english label for each role', function () {
 
     expect(Role::SuperAdmin->label())->toBe('Super admin');
     expect(Role::Tester->label())->toBe('Tester');
-    expect(Role::Owner->label())->toBe('Owner');
     expect(Role::Admin->label())->toBe('Admin');
     expect(Role::Member->label())->toBe('Member');
 });
@@ -60,7 +59,6 @@ it('returns the french label for each role', function () {
 
     expect(Role::SuperAdmin->label())->toBe('Super administrateur');
     expect(Role::Tester->label())->toBe('Testeur');
-    expect(Role::Owner->label())->toBe('Propriétaire');
     expect(Role::Admin->label())->toBe('Administrateur');
     expect(Role::Member->label())->toBe('Membre');
 });
@@ -71,23 +69,7 @@ it('seeds the subscription.view permission', function () {
     expect(SpatiePermission::query()->where('name', Permission::SubscriptionView->value)->exists())->toBeTrue();
 });
 
-it('seeds the subscription.update permission', function () {
-    seed(RolePermissionSeeder::class);
-
-    expect(SpatiePermission::query()->where('name', Permission::SubscriptionUpdate->value)->exists())->toBeTrue();
-});
-
-it('gives Owner both subscription permissions', function () {
-    seed(RolePermissionSeeder::class);
-
-    $owner = SpatieRole::findByName(Role::Owner->value, 'web');
-
-    expect($owner->permissions->pluck('name')->all())
-        ->toContain(Permission::SubscriptionView->value)
-        ->toContain(Permission::SubscriptionUpdate->value);
-});
-
-it('gives Admin only subscription.view', function () {
+it('gives Admin subscription.view', function () {
     seed(RolePermissionSeeder::class);
 
     $admin = SpatieRole::findByName(Role::Admin->value, 'web');
@@ -95,7 +77,6 @@ it('gives Admin only subscription.view', function () {
     $names = $admin->permissions->pluck('name')->all();
 
     expect($names)->toContain(Permission::SubscriptionView->value);
-    expect($names)->not->toContain(Permission::SubscriptionUpdate->value);
 });
 
 it('gives Member no subscription permissions', function () {
@@ -106,5 +87,12 @@ it('gives Member no subscription permissions', function () {
     $names = $member->permissions->pluck('name')->all();
 
     expect($names)->not->toContain(Permission::SubscriptionView->value);
-    expect($names)->not->toContain(Permission::SubscriptionUpdate->value);
+});
+
+it('does not seed team.update, team.delete, or subscription.update', function () {
+    seed(RolePermissionSeeder::class);
+
+    expect(SpatiePermission::query()->where('name', 'team.update')->exists())->toBeFalse();
+    expect(SpatiePermission::query()->where('name', 'team.delete')->exists())->toBeFalse();
+    expect(SpatiePermission::query()->where('name', 'subscription.update')->exists())->toBeFalse();
 });

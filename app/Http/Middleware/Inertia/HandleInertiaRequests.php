@@ -61,7 +61,7 @@ class HandleInertiaRequests extends Middleware
                         'teams'       => $user->teams()->get(['teams.id', 'teams.name', 'teams.slug']),
                         'permissions' => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
                     ] : null,
-                'abilities' => fn () => AuthAbilitiesData::fromUser($user),
+                'abilities' => fn () => AuthAbilitiesData::fromUser($user, $currentTeam),
                 'features'  => fn () => $currentTeam !== null ? $currentTeam->features : [],
             ],
             'currentTeam' => $currentTeam !== null

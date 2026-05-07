@@ -13,7 +13,6 @@ enum Role: string
 {
     case SuperAdmin = 'super-admin';
     case Tester     = 'tester';
-    case Owner      = 'owner';
     case Admin      = 'admin';
     case Member     = 'member';
 
@@ -27,24 +26,13 @@ enum Role: string
             self::Tester => [
                 Permission::Test,
             ],
-            self::Owner => [
-                Permission::UserViewAny,
-                Permission::UserView,
-                Permission::UserCreate,
-                Permission::UserUpdate,
-                Permission::UserDelete,
-                Permission::TeamView,
-                Permission::TeamUpdate,
-                Permission::TeamDelete,
-                Permission::SubscriptionView,
-                Permission::SubscriptionUpdate,
-            ],
             self::Admin => [
                 Permission::UserViewAny,
                 Permission::UserView,
                 Permission::UserCreate,
                 Permission::UserUpdate,
                 Permission::UserDelete,
+                Permission::TeamView,
                 Permission::SubscriptionView,
             ],
             self::Member => [

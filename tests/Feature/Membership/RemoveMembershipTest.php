@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 it('removes all team-scoped roles for the user', function (): void {
     $user = User::factory()->createOne();
-    $team = Team::query()->create(['name' => 'Acme Corp']);
+    $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
     (new AssignMembership)->execute($user, $team, Role::Member);
     (new RemoveMembership)->execute($user, $team);

@@ -26,23 +26,31 @@ it('generates a slug from the team name', function (): void {
     expect($team->slug)->toBe('acme-corp');
 });
 
-it('assigns the Owner role to the creator scoped to the new team', function (): void {
+it('records the creator as the owner_id', function (): void {
     $creator = User::factory()->createOne();
 
     $team = (new CreateTeam)->execute('Acme Corp', $creator);
 
-    $hasOwnerRole = DB::table('model_has_roles')
+    expect($team->owner_id)->toBe($creator->id);
+});
+
+it('assigns the Admin role to the creator scoped to the new team', function (): void {
+    $creator = User::factory()->createOne();
+
+    $team = (new CreateTeam)->execute('Acme Corp', $creator);
+
+    $hasAdminRole = DB::table('model_has_roles')
         ->where('model_has_roles.model_id', $creator->id)
         ->where('model_has_roles.model_type', $creator->getMorphClass())
         ->where('model_has_roles.team_id', $team->id)
         ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-        ->where('roles.name', Role::Owner->value)
+        ->where('roles.name', Role::Admin->value)
         ->exists();
 
-    expect($hasOwnerRole)->toBeTrue();
+    expect($hasAdminRole)->toBeTrue();
 });
 
-it('assigns only the Owner role and no other roles to the creator', function (): void {
+it('assigns only the Admin role and no other roles to the creator', function (): void {
     $creator = User::factory()->createOne();
 
     (new CreateTeam)->execute('Acme Corp', $creator);
@@ -56,7 +64,7 @@ it('assigns only the Owner role and no other roles to the creator', function ():
 });
 
 it('does not change current_team_id when creator already had a current team', function (): void {
-    $existingTeam = Team::query()->create(['name' => 'Existing Team']);
+    $existingTeam = Team::factory()->createOne(['name' => 'Existing Team']);
     $creator      = User::factory()->createOne(['current_team_id' => $existingTeam->id]);
 
     (new CreateTeam)->execute('New Team', $creator);
