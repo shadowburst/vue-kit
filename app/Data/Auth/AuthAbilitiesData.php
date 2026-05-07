@@ -7,7 +7,7 @@ namespace App\Data\Auth;
 use App\Enums\Permission\Permission;
 use App\Models\Team;
 use App\Models\User;
-use App\Policies\SubscriptionPolicy;
+use Laravel\Cashier\Subscription;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -40,8 +40,8 @@ final class AuthAbilitiesData extends Data
             ],
             subscription: [
                 'view'   => $user?->can(Permission::SubscriptionView->value) ?? false,
-                'update' => $team !== null && $user !== null
-                    ? app(SubscriptionPolicy::class)->update($user, $team)
+                'update' => $team !== null
+                    ? ($user?->can('update', [Subscription::class, $team]) ?? false)
                     : false,
             ],
         );
