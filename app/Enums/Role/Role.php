@@ -32,6 +32,7 @@ enum Role: string
                 Permission::UserCreate,
                 Permission::UserUpdate,
                 Permission::UserDelete,
+                Permission::TeamView,
                 Permission::SubscriptionView,
             ],
             self::Member => [

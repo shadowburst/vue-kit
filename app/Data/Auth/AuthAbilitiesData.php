@@ -34,15 +34,13 @@ final class AuthAbilitiesData extends Data
                 'delete'   => $user?->can(Permission::UserDelete->value) ?? false,
             ],
             team        : [
-                'view'   => $user?->can(Permission::TeamView->value) ?? false,
-                'update' => $team !== null ? $user?->can('update', $team) ?? false : false,
-                'delete' => $team !== null ? $user?->can('delete', $team) ?? false : false,
+                'view'   => $team !== null && ($user?->can(Permission::TeamView->value, $team) ?? false),
+                'update' => $team !== null && ($user?->can('update', $team) ?? false),
+                'delete' => $team !== null && ($user?->can('delete', $team) ?? false),
             ],
             subscription: [
                 'view'   => $user?->can(Permission::SubscriptionView->value) ?? false,
-                'update' => $team !== null
-                    ? $user?->can('update', [Subscription::class, $team]) ?? false
-                    : false,
+                'update' => $team !== null && ($user?->can('update', [Subscription::class, $team]) ?? false),
             ],
         );
     }

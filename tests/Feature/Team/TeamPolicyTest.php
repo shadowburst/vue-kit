@@ -13,7 +13,7 @@ it('is auto-discovered by Laravel for the Team model', function (): void {
     expect(Gate::getPolicyFor(Team::class))->toBeInstanceOf(TeamPolicy::class);
 });
 
-// team.view is still permission-based (Permission::TeamView held by Member, not Admin)
+// team.view is permission-based — both Admin and Member hold Permission::TeamView
 it('allows a member to view a team', function (): void {
     $owner = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
@@ -26,7 +26,7 @@ it('allows a member to view a team', function (): void {
     expect(Gate::forUser($user)->allows('view', $team))->toBeTrue();
 });
 
-it('prevents an admin from viewing a team (no Permission::TeamView)', function (): void {
+it('allows an admin to view a team', function (): void {
     $owner = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
     $user  = User::factory()->createOne();
@@ -35,7 +35,7 @@ it('prevents an admin from viewing a team (no Permission::TeamView)', function (
     $user->assignRole(Role::Admin->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    expect(Gate::forUser($user)->allows('view', $team))->toBeFalse();
+    expect(Gate::forUser($user)->allows('view', $team))->toBeTrue();
 });
 
 // team.update and team.delete are identity-based (owner_id === user.id)

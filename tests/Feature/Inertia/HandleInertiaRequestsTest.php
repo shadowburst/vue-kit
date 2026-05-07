@@ -72,7 +72,7 @@ test('authenticated team creator (Admin + owner_id) gets correct currentTeam, te
                 ->where('auth.abilities.user.create', true)
                 ->where('auth.abilities.user.update', true)
                 ->where('auth.abilities.user.delete', true)
-                ->where('auth.abilities.team.view', false) // Admin has no TeamView permission
+                ->where('auth.abilities.team.view', true) // owner_id identity check
                 ->where('auth.abilities.team.update', true) // owner_id identity check
                 ->where('auth.abilities.team.delete', false) // sole owned team — personal-team rule
                 ->where('auth.abilities.subscription.view', true)

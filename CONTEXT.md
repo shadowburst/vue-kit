@@ -39,7 +39,7 @@ _Avoid_: flag, ability.
 |---|---|---|
 | `super-admin` | global | `admin` |
 | `tester` | global | `test` |
-| `admin` | team | `user.*`, `subscription.view` |
+| `admin` | team | `user.*`, `team.view`, `subscription.view` |
 | `member` | team | `user.viewAny`, `user.view`, `team.view` |
 
 `user.*` covers **Membership** management within the team (invite, view, change role, remove) — not editing of global User profile fields.
@@ -62,7 +62,7 @@ team.view                # team — view team settings
 subscription.view        # team — see current Subscription, invoices, upcoming charge
 ```
 
-`team.update`, `team.delete`, and `subscription.update` are not permissions — they are owner-only capabilities enforced by `teams.owner_id` identity checks in the relevant policies.
+`team.update`, `team.delete`, and `subscription.update` are not permissions — they are owner-only capabilities enforced by `teams.owner_id` identity checks in the relevant policies. `team.view` is satisfied by *either* the `team.view` permission (held by Member) *or* an `owner_id` identity match — the owner can always read the settings they can edit.
 
 ## Relationships
 
