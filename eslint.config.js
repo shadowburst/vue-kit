@@ -54,6 +54,11 @@ export default defineConfigWithVueTs(
         files: ['resources/js/**/*.{ts,vue}'],
         rules: {
             'no-restricted-imports': ['error', {
+                paths: [{
+                    name: '@inertiajs/vue3',
+                    importNames: ['Form'],
+                    message: 'Import Form from @/components/ui/custom/form instead — the wrapper provides the form context.',
+                }],
                 patterns: [{
                     group: ['@/components/ui/field', '@/components/ui/field/*'],
                     message: 'Import field components from @/components/ui/custom/form instead — the shadcn field primitives are wrapped there.',
