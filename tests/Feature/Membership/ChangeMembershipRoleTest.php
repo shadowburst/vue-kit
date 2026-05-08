@@ -15,12 +15,12 @@ it('changes a Member role to Admin within the team', function (): void {
     $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
     (new AssignMembership)->execute($user, $team, Role::Member);
-    (new ChangeMembershipRole)->execute($user, $team, Role::Admin);
+    (new ChangeMembershipRole)->execute($user, $team, Role::Manager);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $user->refresh();
 
-    expect($user->hasRole(Role::Admin->value))->toBeTrue();
+    expect($user->hasRole(Role::Manager->value))->toBeTrue();
     expect($user->hasRole(Role::Member->value))->toBeFalse();
 });
 
@@ -51,12 +51,12 @@ it('does not affect the same user\'s role in other teams', function (): void {
     (new AssignMembership)->execute($user, $teamA, Role::Member);
     (new AssignMembership)->execute($user, $teamB, Role::Member);
 
-    (new ChangeMembershipRole)->execute($user, $teamA, Role::Admin);
+    (new ChangeMembershipRole)->execute($user, $teamA, Role::Manager);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($teamA->id);
     $user->refresh();
 
-    expect($user->hasRole(Role::Admin->value))->toBeTrue();
+    expect($user->hasRole(Role::Manager->value))->toBeTrue();
     expect($user->hasRole(Role::Member->value))->toBeFalse();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($teamB->id);

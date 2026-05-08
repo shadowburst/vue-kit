@@ -32,7 +32,7 @@ it('allows an admin to view a team', function (): void {
     $user  = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $user->assignRole(Role::Admin->value);
+    $user->assignRole(Role::Manager->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
     expect(Gate::forUser($user)->allows('view', $team))->toBeTrue();
@@ -52,7 +52,7 @@ it('prevents a non-owner admin from updating the team', function (): void {
     $admin = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
 
     expect(Gate::forUser($admin)->allows('update', $team))->toBeFalse();
 });
@@ -90,7 +90,7 @@ it('prevents a non-owner admin from deleting the team', function (): void {
     $admin = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
 
     expect(Gate::forUser($admin)->allows('delete', $team))->toBeFalse();
 });

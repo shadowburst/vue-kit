@@ -13,7 +13,7 @@ enum Role: string
 {
     case SuperAdmin = 'super-admin';
     case Tester     = 'tester';
-    case Admin      = 'admin';
+    case Manager    = 'manager';
     case Member     = 'member';
 
     /** @return array<Permission> */
@@ -26,7 +26,7 @@ enum Role: string
             self::Tester => [
                 Permission::Test,
             ],
-            self::Admin => [
+            self::Manager => [
                 Permission::UserViewAny,
                 Permission::UserView,
                 Permission::UserCreate,

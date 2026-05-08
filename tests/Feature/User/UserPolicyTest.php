@@ -135,7 +135,7 @@ function checkCreatePolicy(User $user, Team $team, bool $expected): void
 it('UserPolicy::create: Free/at-cap/Owner → false (has permission, cap=0)', function (): void {
     $owner = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
-    assignRoleInTeam($owner, $team, Role::Admin);
+    assignRoleInTeam($owner, $team, Role::Manager);
 
     checkCreatePolicy($owner, $team, false);
 });
@@ -143,7 +143,7 @@ it('UserPolicy::create: Free/at-cap/Owner → false (has permission, cap=0)', fu
 it('UserPolicy::create: Free/at-cap/Admin → false (has permission, cap=0)', function (): void {
     $team  = Team::factory()->createOne();
     $admin = User::factory()->createOne();
-    assignRoleInTeam($admin, $team, Role::Admin);
+    assignRoleInTeam($admin, $team, Role::Manager);
 
     checkCreatePolicy($admin, $team, false);
 });
@@ -159,7 +159,7 @@ it('UserPolicy::create: Free/at-cap/Member → false (lacks permission, cap=0)',
 it('UserPolicy::create: Free/over-cap/Owner → false (1 non-owner member present)', function (): void {
     $owner = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
-    assignRoleInTeam($owner, $team, Role::Admin);
+    assignRoleInTeam($owner, $team, Role::Manager);
     pushNonOwnerMember($team);
 
     checkCreatePolicy($owner, $team, false);
@@ -171,7 +171,7 @@ it('UserPolicy::create: Pro/under-cap/Owner → true (2 of 3 seats used)', funct
     $owner = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
     insertProSubscription($team);
-    assignRoleInTeam($owner, $team, Role::Admin);
+    assignRoleInTeam($owner, $team, Role::Manager);
     pushNonOwnerMember($team);
     pushNonOwnerMember($team);
 
@@ -182,7 +182,7 @@ it('UserPolicy::create: Pro/under-cap/Admin → true (1 of 3 seats used)', funct
     $team  = Team::factory()->createOne();
     $admin = User::factory()->createOne();
     insertProSubscription($team);
-    assignRoleInTeam($admin, $team, Role::Admin);
+    assignRoleInTeam($admin, $team, Role::Manager);
     pushNonOwnerMember($team);
 
     checkCreatePolicy($admin, $team, true);
@@ -201,7 +201,7 @@ it('UserPolicy::create: Pro/at-cap/Owner → false (3 of 3 seats used)', functio
     $owner = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
     insertProSubscription($team);
-    assignRoleInTeam($owner, $team, Role::Admin);
+    assignRoleInTeam($owner, $team, Role::Manager);
     pushNonOwnerMember($team);
     pushNonOwnerMember($team);
     pushNonOwnerMember($team);
@@ -213,7 +213,7 @@ it('UserPolicy::create: Pro/over-cap/Owner → false (involuntary-cancellation p
     $owner = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
     insertProSubscription($team);
-    assignRoleInTeam($owner, $team, Role::Admin);
+    assignRoleInTeam($owner, $team, Role::Manager);
     pushNonOwnerMember($team);
     pushNonOwnerMember($team);
     pushNonOwnerMember($team);

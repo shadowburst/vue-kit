@@ -39,14 +39,14 @@ _Avoid_: flag, ability.
 |---|---|---|
 | `super-admin` | global | `admin` |
 | `tester` | global | `test` |
-| `admin` | team | `user.*`, `team.view`, `subscription.view` |
+| `manager` | team | `user.*`, `team.view`, `subscription.view` |
 | `member` | team | `user.viewAny`, `user.view`, `team.view` |
 
 `user.*` covers **Membership** management within the team (invite, view, change role, remove) — not editing of global User profile fields.
 
-`team.create` is ungated — any authenticated user may create a team. The creator's `id` is recorded as `teams.owner_id` and they are assigned the **Admin** role for that team.
+`team.create` is ungated — any authenticated user may create a team. The creator's `id` is recorded as `teams.owner_id` and they are assigned the **Manager** role for that team — the team-scoped role that delegates member management. Owners are always also Managers; non-owner Managers exist when an owner promotes a Member.
 
-`subscription.view` lets Admins see the current plan and invoices. Managing the subscription (start/swap/cancel/payment method) is owner-only and is an identity check, not a permission.
+`subscription.view` lets Managers see the current plan and invoices. Managing the subscription (start/swap/cancel/payment method) is owner-only and is an identity check, not a permission.
 
 ## Permissions
 
@@ -62,7 +62,7 @@ team.view                # team — view team settings
 subscription.view        # team — see current Subscription, invoices, upcoming charge
 ```
 
-`team.update`, `team.delete`, and `subscription.update` are not permissions — they are owner-only capabilities enforced by `teams.owner_id` identity checks in the relevant policies. `team.view` is satisfied by *either* the `team.view` permission (held by Member) *or* an `owner_id` identity match — the owner can always read the settings they can edit.
+`team.update`, `team.delete`, and `subscription.update` are not permissions — they are owner-only capabilities enforced by `teams.owner_id` identity checks in the relevant policies.
 
 ## Relationships
 
@@ -80,5 +80,5 @@ subscription.view        # team — see current Subscription, invoices, upcoming
 
 ## Flagged ambiguities
 
-- "Admin" was used to mean both the global Super admin role and a team-scoped role — resolved: the global one is **Super admin** (`super-admin`), the team-scoped one is **Admin** (`admin`).
+- "Admin" was used to mean both the global Super admin role and a team-scoped role — resolved: the global one is **Super admin** (`super-admin`), the team-scoped one is **Manager** (`manager`). The team-scoped role was renamed from `admin` to `manager` to avoid verbal collision with `super-admin` and because every signed-up user gets it on their personal team, diluting "admin" of meaning.
 - "user.create scoped to a team" sounded like creating a User row — resolved: it means creating a **Membership**.

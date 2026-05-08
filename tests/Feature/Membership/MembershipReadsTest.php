@@ -19,7 +19,7 @@ it('teams returns every team the user holds any role in', function (): void {
     $teamB = Team::factory()->createOne(['name' => 'Team B']);
     Team::factory()->createOne(['name' => 'Other Team']);
 
-    assign_role_in_team($user, $teamA, Role::Admin);
+    assign_role_in_team($user, $teamA, Role::Manager);
     assign_role_in_team($user, $teamB, Role::Member);
 
     expect($user->teams()->pluck('teams.id')->all())
@@ -30,7 +30,7 @@ it('teams returns each team only once even when the user holds multiple roles in
     $user = User::factory()->createOne();
     $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
-    assign_role_in_team($user, $team, Role::Admin);
+    assign_role_in_team($user, $team, Role::Manager);
     assign_role_in_team($user, $team, Role::Member);
 
     expect($user->teams()->pluck('teams.id')->all())->toEqual([$team->id]);
@@ -86,7 +86,7 @@ it('members returns every user holding any role in the team', function (): void 
     $member = User::factory()->createOne();
     User::factory()->createOne();
 
-    assign_role_in_team($owner, $team, Role::Admin);
+    assign_role_in_team($owner, $team, Role::Manager);
     assign_role_in_team($member, $team, Role::Member);
 
     expect($team->members()->pluck('users.id')->all())
@@ -97,7 +97,7 @@ it('members returns each user only once even when they hold multiple roles in th
     $team = Team::factory()->createOne(['name' => 'Acme Corp']);
     $user = User::factory()->createOne();
 
-    assign_role_in_team($user, $team, Role::Admin);
+    assign_role_in_team($user, $team, Role::Manager);
     assign_role_in_team($user, $team, Role::Member);
 
     expect($team->members()->pluck('users.id')->all())->toEqual([$user->id]);

@@ -96,7 +96,7 @@ test('auth.subscription carries grace_period when on grace period with non-owner
     $member = User::factory()->createOne(['current_team_id' => $team->id]);
 
     setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
     $member->assignRole(Role::Member->value);
 
     $team->subscriptions()->create([

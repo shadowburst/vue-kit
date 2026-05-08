@@ -98,7 +98,7 @@ test('cancel returns 403 for an Admin', function (): void {
 
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
 
     $response = actingAs($admin)->post(route('teams.billing.cancel.store'));
 

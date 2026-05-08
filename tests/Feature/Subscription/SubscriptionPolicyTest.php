@@ -29,7 +29,7 @@ it('prevents a non-owner admin from updating the subscription', function (): voi
     $admin = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
 
     $policy = new SubscriptionPolicy;
 
@@ -55,7 +55,7 @@ it('allows any member with subscription.view permission to view the subscription
     $admin = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
     $policy = new SubscriptionPolicy;

@@ -21,7 +21,7 @@ final class CreateTeam
         return DB::transaction(function () use ($name, $creator): Team {
             $team = Team::query()->create(['name' => $name, 'owner_id' => $creator->id]);
 
-            (new AssignMembership)->execute($creator, $team, Role::Admin);
+            (new AssignMembership)->execute($creator, $team, Role::Manager);
 
             return $team;
         });

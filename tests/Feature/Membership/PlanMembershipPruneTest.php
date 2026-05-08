@@ -86,7 +86,7 @@ it('excludes the team owner regardless of other roles present', function (): voi
     $admin  = User::factory()->createOne();
     $member = User::factory()->createOne();
 
-    prune_assign($team, Role::Admin, $admin);
+    prune_assign($team, Role::Manager, $admin);
     prune_assign($team, Role::Member, $member);
 
     $result = (new PlanMembershipPrune)->execute($team, 0);
@@ -103,7 +103,7 @@ it('ordering by created_at desc is stable across members added in sequence', fun
     $second = User::factory()->createOne();
     $third  = User::factory()->createOne();
 
-    prune_assign($team, Role::Admin, $first);
+    prune_assign($team, Role::Manager, $first);
     prune_assign($team, Role::Member, $second);
     prune_assign($team, Role::Member, $third);
 

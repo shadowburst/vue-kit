@@ -110,7 +110,7 @@ test('admin of active team has user.viewAny permission', function (): void {
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
 
     actingAs($admin)
         ->get('/_test/team')

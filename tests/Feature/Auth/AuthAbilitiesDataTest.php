@@ -83,7 +83,7 @@ it('returns true for team.update and subscription.update when user is the team o
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $owner->assignRole(Role::Admin->value);
+    $owner->assignRole(Role::Manager->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
     $abilities = AuthAbilitiesData::fromUser($owner, $team);
@@ -99,7 +99,7 @@ it('returns false for team.delete when the owner has only one owned team', funct
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $owner->assignRole(Role::Admin->value);
+    $owner->assignRole(Role::Manager->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
     $abilities = AuthAbilitiesData::fromUser($owner, $team);
@@ -115,7 +115,7 @@ it('returns true for team.delete when the owner has multiple owned teams', funct
     Team::factory()->createOne(['owner_id' => $owner->id]);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team1->id);
-    $owner->assignRole(Role::Admin->value);
+    $owner->assignRole(Role::Manager->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team1->id);
 
     $abilities = AuthAbilitiesData::fromUser($owner, $team1);
@@ -131,7 +131,7 @@ it('returns false for identity-based keys when user is not the owner', function 
     $admin = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
     $abilities = AuthAbilitiesData::fromUser($admin, $team);
