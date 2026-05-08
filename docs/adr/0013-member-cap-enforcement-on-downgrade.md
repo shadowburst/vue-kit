@@ -1,3 +1,7 @@
+---
+status: superseded by ADR-0016
+---
+
 # Member-cap enforcement on subscription downgrade
 
 Tier-based seat caps (`Free = 0`, `Pro = 3` non-Owner Memberships per **Team**, configured under `tiers.{tier}.member_cap` in `config/billing.php`) are exposed as the integer-valued `Feature::TeamMemberCap` Pennant feature. `UserPolicy::create` combines `$user->can('user.create')` with `members.count(non-owner) < cap` so a single decision point governs invites. Cancellation is voluntary-through-our-controller (Stripe Customer Portal cancel disabled); subscriptions cancel at period end; on `customer.subscription.deleted` the same load-bearing webhook listener that purges Pennant cache (ADR-0008) detaches the most-recently-added non-Owner Memberships down to the new cap, ordered by `model_has_roles.created_at desc` (column added by migration). Involuntary cancellation (payment failure) skips the prune; the **Team** becomes over-cap-but-intact, only new invites blocked.

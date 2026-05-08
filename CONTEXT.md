@@ -33,6 +33,10 @@ The level of access a **Team** has, derived from its **Subscription** state. Lis
 A tier-gated capability resolved at runtime via Laravel Pennant, scoped to the **Team**. Distinct from a **Permission**: a Permission answers "is this role allowed to do this?", a Feature answers "did this team pay for this?". Per ADR-0008 the two axes are evaluated independently and surface to the frontend as parallel shapes: the `AuthAbilitiesData` DTO (policy results) and the `Team::features` accessor (Pennant feature values). Defined feature names are listed in the `Feature` enum.
 _Avoid_: flag, ability.
 
+**Over-cap**:
+The state where a **Team**'s non-Owner **Membership** count exceeds its **Tier**'s **Member cap**. While over-cap, the team has no team-management feature access except cap-reducing actions (`user.delete`). Because voluntary subscription transitions that would land the team over-cap are blocked at the controller (per ADR-0016, superseding ADR-0013), the only path into this state is involuntary cancellation (payment failure) or resubscribe-after-failure to a tier whose cap is below the current member count. Recovery is by removing members until under cap, or by upgrading to a tier whose cap accommodates the current count.
+_Avoid_: locked, frozen, suspended, read-only-team.
+
 ## Roles
 
 | Role | Scope | Permissions |
@@ -76,7 +80,7 @@ subscription.view        # team — see current Subscription, invoices, upcoming
 - All authorization checks must use **Permissions**, never **Roles**. Policies call `$user->can('permission.name', ...)`.
 - **Ownership** is checked via `teams.owner_id`, not via roles or permissions. `$team->owner_id === $user->id` is an identity check — it is distinct from the role-bundle branching that ADR-0002 forbids. See ADR-0014.
 - Team context is set per request from `auth()->user()->current_team_id` via middleware that calls `setPermissionsTeamId($team->id)`. Routes that don't apply this middleware (e.g. global account/admin routes) operate with `team_id = null` and only global permissions match.
-- Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0013, voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and `customer.subscription.deleted` detaches over-cap non-owner **Memberships** at period end, ordered by `model_has_roles.created_at` desc. Involuntary cancellation (payment failure) skips the prune; the team becomes over-cap-but-intact until the team owner resubscribes or removes members.
+- Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0016 (superseding ADR-0013), voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and is **refused** when the team is over the destination tier's cap; the same rule will apply to future tier-swap-down. Involuntary cancellation (payment failure → Stripe `canceled`) is the only path into the **Over-cap** state and triggers no destructive action: memberships are preserved, the team becomes read-only (writes blocked except `user.delete`), and the Owner recovers by fixing payment and either resubscribing to a tier whose cap accommodates the current count or removing members until under cap.
 
 ## Flagged ambiguities
 
