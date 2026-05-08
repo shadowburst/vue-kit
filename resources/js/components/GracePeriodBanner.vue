@@ -37,7 +37,12 @@ const daysLeft = computed((): number => {
     <Alert v-if="gracePeriod" variant="destructive" class="rounded-none border-x-0 border-t-0">
         <AlertTitle>{{ trans('billing.grace_period_banner_title') }}</AlertTitle>
         <AlertDescription>
-            {{ trans('billing.grace_period_banner_body', { count: gracePeriod.at_risk_count, days: daysLeft }) }}
+            {{
+                trans('billing.grace_period_banner_body', {
+                    count: String(gracePeriod.at_risk_count),
+                    days: String(daysLeft),
+                })
+            }}
         </AlertDescription>
         <AlertAction v-if="canResume">
             <Form :action="ResumeController.store().url" method="post">
