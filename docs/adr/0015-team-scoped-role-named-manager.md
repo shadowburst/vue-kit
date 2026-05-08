@@ -3,9 +3,11 @@
 - **Status:** Accepted
 - **Date:** May 2026
 
+> **Note (May 2026):** Following this rename, the global role was further simplified from `super-admin` back to `admin`. The `super-` prefix only existed to disambiguate from the team-scoped `admin`; once the team-scoped role became `manager`, the prefix carried no signal. The role-name/permission-name overlap with `Permission::Admin` is accepted: they live in separate Spatie tables and are disambiguated by the API surface (`hasRole` vs `can`).
+
 ## Context
 
-The role enum distinguishes a global `super-admin` role (gates the admin panel via `Permission::Admin`) from a team-scoped role that delegates member-management permissions (`user.*`, `team.view`, `subscription.view`). An earlier draft used the word "admin" for both; the team-scoped one was renamed to `admin` and the global one to `super-admin` to disambiguate.
+The role enum distinguishes a global role (gates the admin panel via `Permission::Admin`) from a team-scoped role that delegates member-management permissions (`user.*`, `team.view`, `subscription.view`). An earlier draft used the word "admin" for both; a transitional rename pushed the global role to `super-admin` to disambiguate.
 
 That disambiguation does not hold in practice:
 
@@ -14,7 +16,7 @@ That disambiguation does not hold in practice:
 
 ## Decision
 
-Rename the team-scoped role from `admin` to `manager`. Keep the global `super-admin` role and the `Permission::Admin` permission unchanged. The enum case becomes `Role::Manager`, the persisted name becomes `'manager'`, and the translation key becomes `roles.manager`.
+Rename the team-scoped role from `admin` to `manager`. The enum case becomes `Role::Manager`, the persisted name becomes `'manager'`, and the translation key becomes `roles.manager`. The global role retains `Role::Admin` (`'admin'`) and the `Permission::Admin` permission is unchanged.
 
 The role's permission bundle (`user.*`, `team.view`, `subscription.view`) does not change. Owner auto-assignment on team creation does not change — the team creator continues to receive the team-scoped role in addition to being recorded as `owner_id`.
 
@@ -34,19 +36,19 @@ Deferred. Making `manager` a genuinely optional, owner-delegated role would bett
 
 ## Reasoning
 
-"Manager" names what the role does — manage memberships within a team — without overloading vocabulary already taken by `super-admin` (the global role) or by `Permission::Admin` (the permission that gates the admin panel). It distinguishes cleanly along all four authorization primitives now in play:
+"Manager" names what the role does — manage memberships within a team. It distinguishes cleanly along the four authorization primitives now in play:
 
-- **Super admin** — global role, app-wide capability
+- **Admin** — global role, app-wide capability (gates the admin panel via `Permission::Admin`)
 - **Owner** — identity (per ADR-0014), per-team
 - **Manager** — team-scoped role, delegated by owner for people-management
 - **Member** — team-scoped role, default
 
-`manager` does not appear elsewhere in the vocabulary, so it has no collision surface.
+`manager` does not appear elsewhere in the vocabulary, so it has no collision surface. The shared string `admin` between `Role::Admin` and `Permission::Admin` is accepted: they are orthogonal concepts evaluated through different methods and stored in different tables.
 
 ## Consequences
 
-- `Role::Admin` becomes `Role::Manager`; persisted role name becomes `'manager'`.
-- `Permission::Admin` and the global `super-admin` role are unchanged.
+- The team-scoped enum case becomes `Role::Manager`; persisted role name becomes `'manager'`.
+- The global role keeps the enum case `Role::Admin` and persisted name `'admin'`. `Permission::Admin` is unchanged.
 - `lang/{en,fr}/roles.php` gains a `manager` key; the `admin` key is removed.
 - Team creator continues to receive the team-scoped role on team creation (now `manager`). The semantic dilution on personal teams is reduced — "Manager" is more job-descriptive than "Admin" — but not eliminated. See deferred Design B.
 - Pre-production rollout per project convention: migration files are not added; `RolePermissionSeeder` runs over the renamed enum and `migrate:fresh --seed` produces the correct state.

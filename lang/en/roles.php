@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 return [
-    'super-admin' => 'Super admin',
-    'tester'      => 'Tester',
-    'manager'     => 'Manager',
-    'member'      => 'Member',
+    'admin'   => 'Admin',
+    'tester'  => 'Tester',
+    'manager' => 'Manager',
+    'member'  => 'Member',
 ];

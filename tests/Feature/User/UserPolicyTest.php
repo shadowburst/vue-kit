@@ -72,18 +72,18 @@ it('allows a member to delete themselves (leave team) regardless of user.delete 
     expect(Gate::forUser($member)->allows('delete', $member))->toBeTrue();
 });
 
-it('does not grant UserPolicy::update to a super-admin via a before() bypass', function (): void {
-    $team       = Team::factory()->createOne(['name' => 'Test Team']);
-    $superAdmin = User::factory()->createOne();
-    $target     = User::factory()->createOne();
+it('does not grant UserPolicy::update to an admin via a before() bypass', function (): void {
+    $team   = Team::factory()->createOne(['name' => 'Test Team']);
+    $admin  = User::factory()->createOne();
+    $target = User::factory()->createOne();
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $superAdmin->assignRole(Role::SuperAdmin->value);
+    $admin->assignRole(Role::Admin->value);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    // SuperAdmin only holds 'admin'; no user.update — no before() bypass exists.
-    expect(Gate::forUser($superAdmin)->allows('update', $target))->toBeFalse();
+    // Admin only holds 'admin' (the permission); no user.update — no before() bypass exists.
+    expect(Gate::forUser($admin)->allows('update', $target))->toBeFalse();
 });
 
 // ─── UserPolicy::create — seat-cap matrix ──────────────────────────────────

@@ -37,7 +37,7 @@ _Avoid_: flag, ability.
 
 | Role | Scope | Permissions |
 |---|---|---|
-| `super-admin` | global | `admin` |
+| `admin` | global | `admin` |
 | `tester` | global | `test` |
 | `manager` | team | `user.*`, `team.view`, `subscription.view` |
 | `member` | team | `user.viewAny`, `user.view`, `team.view` |
@@ -69,7 +69,7 @@ subscription.view        # team — see current Subscription, invoices, upcoming
 - A **User** has many **Memberships**; through memberships, many **Teams**.
 - A **Team** has many **Memberships**; through memberships, many **Users**.
 - Each **Membership** carries exactly one team-scoped **Role**.
-- A **User** may also have any number of *global* **Roles** (Super admin, Tester) — these grant `team_id = null` permissions only.
+- A **User** may also have any number of *global* **Roles** (Admin, Tester) — these grant `team_id = null` permissions only.
 
 ## Authorization rules
 
@@ -80,5 +80,5 @@ subscription.view        # team — see current Subscription, invoices, upcoming
 
 ## Flagged ambiguities
 
-- "Admin" was used to mean both the global Super admin role and a team-scoped role — resolved: the global one is **Super admin** (`super-admin`), the team-scoped one is **Manager** (`manager`). The team-scoped role was renamed from `admin` to `manager` to avoid verbal collision with `super-admin` and because every signed-up user gets it on their personal team, diluting "admin" of meaning.
+- "Admin" was used to mean both a global role and a team-scoped role — resolved: the global one is **Admin** (`admin`), the team-scoped one is **Manager** (`manager`). The team-scoped role was renamed to `manager` because every signed-up user receives it on their **Personal Team**, diluting "admin" of meaning. The role string `admin` and the permission string `admin` (`Permission::Admin`, which gates the admin panel) coexist intentionally: they live in separate Spatie tables and are disambiguated by the API surface (`hasRole` vs `can`), not by name.
 - "user.create scoped to a team" sounded like creating a User row — resolved: it means creating a **Membership**.
