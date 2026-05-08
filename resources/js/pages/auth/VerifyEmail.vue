@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TextLink from '@/components/TextLink.vue';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import type { AuthVerifyEmailProps } from '@/spatie/types';
@@ -34,8 +34,8 @@ defineProps<AuthVerifyEmailProps>();
             Resend verification email
         </Button>
 
-        <TextLink :href="AuthenticatedSessionController.destroy()" as="button" class="mx-auto block text-sm">
+        <InertiaLink variant="text" :href="AuthenticatedSessionController.destroy()" as="button" class="mx-auto block text-sm">
             Log out
-        </TextLink>
+        </InertiaLink>
     </Form>
 </template>

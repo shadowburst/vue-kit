@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { InertiaLink } from '@/components/ui/custom/link';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { SmartMenuItem } from '@/components/ui/custom/smart-menu';
 import { CapitalizeText } from '@/components/ui/custom/typography';
 import { toValue } from 'vue';

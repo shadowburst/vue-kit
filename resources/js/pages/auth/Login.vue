@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
-import TextLink from '@/components/TextLink.vue';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -57,14 +57,15 @@ defineProps<AuthLoginProps>();
             <div class="grid gap-2">
                 <div class="flex items-center justify-between">
                     <Label for="password">Password</Label>
-                    <TextLink
+                    <InertiaLink
                         v-if="canResetPassword"
+                        variant="text"
                         :href="PasswordResetLinkController.create()"
                         class="text-sm"
                         :tabindex="5"
                     >
                         Forgot password?
-                    </TextLink>
+                    </InertiaLink>
                 </div>
                 <PasswordInput
                     id="password"
@@ -93,7 +94,7 @@ defineProps<AuthLoginProps>();
 
         <div class="text-center text-sm text-muted-foreground" v-if="canRegister">
             Don't have an account?
-            <TextLink :href="RegisteredUserController.create()" :tabindex="5">Sign up</TextLink>
+            <InertiaLink variant="text" :href="RegisteredUserController.create()" :tabindex="5">Sign up</InertiaLink>
         </div>
     </Form>
 </template>

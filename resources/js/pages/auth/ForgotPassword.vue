@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -54,7 +54,7 @@ defineProps<AuthForgotPasswordProps>();
 
         <div class="space-x-1 text-center text-sm text-muted-foreground">
             <span>Or, return to</span>
-            <TextLink :href="AuthenticatedSessionController.create()">log in</TextLink>
+            <InertiaLink variant="text" :href="AuthenticatedSessionController.create()">log in</InertiaLink>
         </div>
     </div>
 </template>

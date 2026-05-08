@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Button } from '@/components/ui/button';
-import { InertiaLink } from '@/components/ui/custom/link';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { CapitalizeText } from '@/components/ui/custom/typography';
 import type { HTMLAttributes } from 'vue';
 import { computed, toValue } from 'vue';
