@@ -260,7 +260,7 @@ Resource classes live at `app/Http/Resources/{Noun}/{Noun}Resource.php`, followi
 
 Resources return Carbon instances and backed enums directly without manual transformation:
 
-- **Carbon / `DateTimeInterface`:** Wayfinder's `TypeScriptConverter` maps `DateTimeInterface` to `string` in generated types. Laravel serialises Carbon to an ISO 8601 string in JSON automatically.
+- **Carbon:** Wayfinder's `TypeScriptConverter` maps `Carbon` (and its subclasses) to `string` in generated types. Eloquent returns `Carbon` instances for all date-cast attributes, so resource date fields automatically receive `string` in the generated TypeScript. Laravel serialises Carbon to an ISO 8601 string in JSON automatically.
 - **Backed enums:** PHP 8.1+ JSON-serialises backed enums to their raw value (`string` or `int`) automatically. Wayfinder maps the enum type to the corresponding TypeScript literal union.
 
 No `$model->append(...)` calls are used. Computed or derived fields (fields that are not raw model columns) belong on the resource's `toArray()` method, not on the model as `$appends`. Permission and policy results (e.g. `can.update`, `can.delete`) stay in `AuthAbilitiesData` — they are not inlined into resources.
