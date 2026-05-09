@@ -48,18 +48,18 @@ it('assigns correct permissions per role matching the enum matrix', function () 
 it('returns the english label for each role', function () {
     app()->setLocale('en');
 
-    expect(Role::SuperAdmin->label())->toBe('Super admin');
-    expect(Role::Tester->label())->toBe('Tester');
     expect(Role::Admin->label())->toBe('Admin');
+    expect(Role::Tester->label())->toBe('Tester');
+    expect(Role::Manager->label())->toBe('Manager');
     expect(Role::Member->label())->toBe('Member');
 });
 
 it('returns the french label for each role', function () {
     app()->setLocale('fr');
 
-    expect(Role::SuperAdmin->label())->toBe('Super administrateur');
-    expect(Role::Tester->label())->toBe('Testeur');
     expect(Role::Admin->label())->toBe('Administrateur');
+    expect(Role::Tester->label())->toBe('Testeur');
+    expect(Role::Manager->label())->toBe('Gestionnaire');
     expect(Role::Member->label())->toBe('Membre');
 });
 
@@ -72,7 +72,7 @@ it('seeds the subscription.view permission', function () {
 it('gives Admin subscription.view', function () {
     seed(RolePermissionSeeder::class);
 
-    $admin = SpatieRole::findByName(Role::Admin->value, 'web');
+    $admin = SpatieRole::findByName(Role::Manager->value, 'web');
 
     $names = $admin->permissions->pluck('name')->all();
 

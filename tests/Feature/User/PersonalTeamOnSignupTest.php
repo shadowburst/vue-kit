@@ -31,7 +31,7 @@ test('signup creates one user, one team, records owner_id, and assigns Admin rol
         ->where('model_has_roles.model_type', $user->getMorphClass())
         ->where('model_has_roles.team_id', $user->current_team_id)
         ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-        ->where('roles.name', Role::Admin->value)
+        ->where('roles.name', Role::Manager->value)
         ->exists();
 
     expect(Team::query()->count())

@@ -29,7 +29,7 @@ final class AuthAbilitiesData extends Data
             user        : [
                 'view_any' => $user?->can(Permission::UserViewAny->value) ?? false,
                 'view'     => $user?->can(Permission::UserView->value) ?? false,
-                'create'   => $user?->can(Permission::UserCreate->value) ?? false,
+                'create'   => $user?->can('create', User::class) ?? false,
                 'update'   => $user?->can(Permission::UserUpdate->value) ?? false,
                 'delete'   => $user?->can(Permission::UserDelete->value) ?? false,
             ],

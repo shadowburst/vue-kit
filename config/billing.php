@@ -17,9 +17,14 @@ return [
 
     'tiers' => [
 
+        'free' => [
+            'member_cap' => 0,
+        ],
+
         'pro' => [
-            'monthly' => (string) env('STRIPE_PRICE_PRO_MONTHLY', ''),
-            'yearly'  => (string) env('STRIPE_PRICE_PRO_YEARLY', ''),
+            'monthly'    => (string) env('STRIPE_PRICE_PRO_MONTHLY', ''),
+            'yearly'     => (string) env('STRIPE_PRICE_PRO_YEARLY', ''),
+            'member_cap' => 3,
         ],
 
     ],

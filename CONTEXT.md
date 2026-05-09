@@ -33,20 +33,24 @@ The level of access a **Team** has, derived from its **Subscription** state. Lis
 A tier-gated capability resolved at runtime via Laravel Pennant, scoped to the **Team**. Distinct from a **Permission**: a Permission answers "is this role allowed to do this?", a Feature answers "did this team pay for this?". Per ADR-0008 the two axes are evaluated independently and surface to the frontend as parallel shapes: the `AuthAbilitiesData` DTO (policy results) and the `Team::features` accessor (Pennant feature values). Defined feature names are listed in the `Feature` enum.
 _Avoid_: flag, ability.
 
+**Over-cap**:
+The state where a **Team**'s non-Owner **Membership** count exceeds its **Tier**'s **Member cap**. While over-cap, the team has no team-management feature access except cap-reducing actions (`user.delete`). Because voluntary subscription transitions that would land the team over-cap are blocked at the controller (per ADR-0016, superseding ADR-0013), the only path into this state is involuntary cancellation (payment failure) or resubscribe-after-failure to a tier whose cap is below the current member count. Recovery is by removing members until under cap, or by upgrading to a tier whose cap accommodates the current count.
+_Avoid_: locked, frozen, suspended, read-only-team.
+
 ## Roles
 
 | Role | Scope | Permissions |
 |---|---|---|
-| `super-admin` | global | `admin` |
+| `admin` | global | `admin` |
 | `tester` | global | `test` |
-| `admin` | team | `user.*`, `team.view`, `subscription.view` |
+| `manager` | team | `user.*`, `team.view`, `subscription.view` |
 | `member` | team | `user.viewAny`, `user.view`, `team.view` |
 
 `user.*` covers **Membership** management within the team (invite, view, change role, remove) — not editing of global User profile fields.
 
-`team.create` is ungated — any authenticated user may create a team. The creator's `id` is recorded as `teams.owner_id` and they are assigned the **Admin** role for that team.
+`team.create` is ungated — any authenticated user may create a team. The creator's `id` is recorded as `teams.owner_id` and they are assigned the **Manager** role for that team — the team-scoped role that delegates member management. Owners are always also Managers; non-owner Managers exist when an owner promotes a Member.
 
-`subscription.view` lets Admins see the current plan and invoices. Managing the subscription (start/swap/cancel/payment method) is owner-only and is an identity check, not a permission.
+`subscription.view` lets Managers see the current plan and invoices. Managing the subscription (start/swap/cancel/payment method) is owner-only and is an identity check, not a permission.
 
 ## Permissions
 
@@ -62,23 +66,23 @@ team.view                # team — view team settings
 subscription.view        # team — see current Subscription, invoices, upcoming charge
 ```
 
-`team.update`, `team.delete`, and `subscription.update` are not permissions — they are owner-only capabilities enforced by `teams.owner_id` identity checks in the relevant policies. `team.view` is satisfied by *either* the `team.view` permission (held by Member) *or* an `owner_id` identity match — the owner can always read the settings they can edit.
+`team.update`, `team.delete`, and `subscription.update` are not permissions — they are owner-only capabilities enforced by `teams.owner_id` identity checks in the relevant policies.
 
 ## Relationships
 
 - A **User** has many **Memberships**; through memberships, many **Teams**.
 - A **Team** has many **Memberships**; through memberships, many **Users**.
 - Each **Membership** carries exactly one team-scoped **Role**.
-- A **User** may also have any number of *global* **Roles** (Super admin, Tester) — these grant `team_id = null` permissions only.
+- A **User** may also have any number of *global* **Roles** (Admin, Tester) — these grant `team_id = null` permissions only.
 
 ## Authorization rules
 
 - All authorization checks must use **Permissions**, never **Roles**. Policies call `$user->can('permission.name', ...)`.
 - **Ownership** is checked via `teams.owner_id`, not via roles or permissions. `$team->owner_id === $user->id` is an identity check — it is distinct from the role-bundle branching that ADR-0002 forbids. See ADR-0014.
 - Team context is set per request from `auth()->user()->current_team_id` via middleware that calls `setPermissionsTeamId($team->id)`. Routes that don't apply this middleware (e.g. global account/admin routes) operate with `team_id = null` and only global permissions match.
-- Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0013, voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and `customer.subscription.deleted` detaches over-cap non-owner **Memberships** at period end, ordered by `model_has_roles.created_at` desc. Involuntary cancellation (payment failure) skips the prune; the team becomes over-cap-but-intact until the team owner resubscribes or removes members.
+- Inviting a **Member** is gated by *both* the `user.create` permission and the team's seat cap (`Feature::TeamMemberCap`). Per ADR-0016 (superseding ADR-0013), voluntary cancellation runs through our own cancel controller (Stripe Portal cancel disabled) and is **refused** when the team is over the destination tier's cap; the same rule will apply to future tier-swap-down. Involuntary cancellation (payment failure → Stripe `canceled`) is the only path into the **Over-cap** state and triggers no destructive action: memberships are preserved, the team becomes read-only (writes blocked except `user.delete`), and the Owner recovers by fixing payment and either resubscribing to a tier whose cap accommodates the current count or removing members until under cap.
 
 ## Flagged ambiguities
 
-- "Admin" was used to mean both the global Super admin role and a team-scoped role — resolved: the global one is **Super admin** (`super-admin`), the team-scoped one is **Admin** (`admin`).
+- "Admin" was used to mean both a global role and a team-scoped role — resolved: the global one is **Admin** (`admin`), the team-scoped one is **Manager** (`manager`). The team-scoped role was renamed to `manager` because every signed-up user receives it on their **Personal Team**, diluting "admin" of meaning. The role string `admin` and the permission string `admin` (`Permission::Admin`, which gates the admin panel) coexist intentionally: they live in separate Spatie tables and are disambiguated by the API surface (`hasRole` vs `can`), not by name.
 - "user.create scoped to a team" sounded like creating a User row — resolved: it means creating a **Membership**.

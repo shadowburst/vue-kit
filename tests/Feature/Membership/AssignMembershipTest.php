@@ -30,14 +30,14 @@ it('assigns an Admin role to a user scoped to the team', function (): void {
     $user = User::factory()->createOne();
     $team = Team::factory()->createOne(['name' => 'Acme Corp']);
 
-    (new AssignMembership)->execute($user, $team, Role::Admin);
+    (new AssignMembership)->execute($user, $team, Role::Manager);
 
     $hasAdminRole = DB::table('model_has_roles')
         ->where('model_has_roles.model_id', $user->id)
         ->where('model_has_roles.model_type', $user->getMorphClass())
         ->where('model_has_roles.team_id', $team->id)
         ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-        ->where('roles.name', Role::Admin->value)
+        ->where('roles.name', Role::Manager->value)
         ->exists();
 
     expect($hasAdminRole)->toBeTrue();

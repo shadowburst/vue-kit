@@ -49,7 +49,7 @@ test('authenticated team creator (Admin + owner_id) gets correct currentTeam, te
 
     actingAs($user);
 
-    $expectedPermissions = collect(Role::Admin->permissions())
+    $expectedPermissions = collect(Role::Manager->permissions())
         ->map(fn (Permission $p) => $p->value)
         ->sort()
         ->values()
@@ -69,15 +69,15 @@ test('authenticated team creator (Admin + owner_id) gets correct currentTeam, te
                 ->where('auth.user.permissions', $expectedPermissions)
                 ->where('auth.abilities.user.view_any', true)
                 ->where('auth.abilities.user.view', true)
-                ->where('auth.abilities.user.create', true)
+                ->where('auth.abilities.user.create', false) // Free tier: cap=0, invite blocked
                 ->where('auth.abilities.user.update', true)
                 ->where('auth.abilities.user.delete', true)
-                ->where('auth.abilities.team.view', true) // owner_id identity check
+                ->where('auth.abilities.team.view', true) // Admin holds Permission::TeamView
                 ->where('auth.abilities.team.update', true) // owner_id identity check
                 ->where('auth.abilities.team.delete', false) // sole owned team — personal-team rule
                 ->where('auth.abilities.subscription.view', true)
                 ->where('auth.abilities.subscription.update', true) // owner_id identity check
-                ->where('auth.features', []),
+                ->where('auth.features', ['team-member-cap' => 0]), // Free tier → cap=0
         );
 });
 
@@ -87,14 +87,14 @@ test('authenticated Admin gets correct currentTeam, teams, and permissions', fun
 
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
     setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     app(TeamContext::class)->setTeam($team);
 
     actingAs($admin);
 
-    $expectedPermissions = collect(Role::Admin->permissions())
+    $expectedPermissions = collect(Role::Manager->permissions())
         ->map(fn (Permission $p) => $p->value)
         ->sort()
         ->values()

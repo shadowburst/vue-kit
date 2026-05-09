@@ -15,5 +15,10 @@ return [
     'billing_interval' => 'Intervalle de facturation',
     'next_charge'      => 'Prochain paiement',
     'payment_method'   => 'Moyen de paiement',
-    'manage_billing'   => 'Gérer la facturation',
+    'manage_billing'      => 'Gérer la facturation',
+    'cancel_subscription' => 'Annuler l\'abonnement',
+    'resume_subscription' => 'Reprendre l\'abonnement',
+
+    'grace_period_banner_title' => 'Annulation d\'abonnement en cours',
+    'grace_period_banner_body'  => ':count membres perdront leur accès dans :days jours.',
 ];

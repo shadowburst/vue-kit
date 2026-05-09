@@ -11,22 +11,22 @@ use Spatie\Permission\Models\Role as SpatieRole;
 
 enum Role: string
 {
-    case SuperAdmin = 'super-admin';
-    case Tester     = 'tester';
-    case Admin      = 'admin';
-    case Member     = 'member';
+    case Admin   = 'admin';
+    case Tester  = 'tester';
+    case Manager = 'manager';
+    case Member  = 'member';
 
     /** @return array<Permission> */
     public function permissions(): array
     {
         return match ($this) {
-            self::SuperAdmin => [
+            self::Admin => [
                 Permission::Admin,
             ],
             self::Tester => [
                 Permission::Test,
             ],
-            self::Admin => [
+            self::Manager => [
                 Permission::UserViewAny,
                 Permission::UserView,
                 Permission::UserCreate,

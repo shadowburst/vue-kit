@@ -44,7 +44,7 @@ it('assigns the Admin role to the creator scoped to the new team', function (): 
         ->where('model_has_roles.model_type', $creator->getMorphClass())
         ->where('model_has_roles.team_id', $team->id)
         ->join('roles', 'roles.id', '=', 'model_has_roles.role_id')
-        ->where('roles.name', Role::Admin->value)
+        ->where('roles.name', Role::Manager->value)
         ->exists();
 
     expect($hasAdminRole)->toBeTrue();

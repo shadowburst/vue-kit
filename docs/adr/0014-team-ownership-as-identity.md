@@ -34,7 +34,7 @@ Rejected: two sources of truth for the same fact. Keeping the role requires both
 - `Team::owner()` is a `belongsTo(User::class, 'owner_id')`.
 - `HasMembers::owners()` is removed; singular ownership lives on the model, not the trait.
 - The personal-team rule ("the last team you own cannot be deleted") is expressed as `$user->ownedTeams()->whereKeyNot($team)->exists()` — a pure identity query.
-- `TeamPolicy::view` accepts *either* `Permission::TeamView` (held by Member) *or* the `owner_id` identity match. The owner is recorded with `Role::Admin`, which does not include `Permission::TeamView`, so the identity branch is what lets the owner read the team settings they can edit. Without it, owner-can-update-but-not-view would be incoherent.
+- `Role::Admin` includes `Permission::TeamView` so the team creator (assigned Admin) can read the settings they can edit. Member also holds `team.view`. `TeamPolicy::view` remains a plain permission check — no identity override needed.
 
 ### Amendment to ADR-0002
 

@@ -40,7 +40,7 @@ test('billing page renders for an Admin (subscription.view only)', function (): 
 
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
 
     $response = actingAs($admin)->get(route('teams.billing.show'));
 
@@ -123,7 +123,7 @@ test('billing page renders Pro state read-only for an Admin (no subscription.upd
 
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $admin->assignRole(Role::Admin->value);
+    $admin->assignRole(Role::Manager->value);
 
     $response = actingAs($admin)->get(route('teams.billing.show'));
 
