@@ -19,7 +19,7 @@ final class CheckoutController extends Controller
     {
         $team = $teamContext->currentOrFail();
 
-        Gate::authorize('update', [Subscription::class, $team]);
+        Gate::authorize('create', [Subscription::class, $team]);
 
         $priceId = $request->interval === SubscriptionInterval::Monthly
             ? SubscriptionTier::Pro->stripeMonthlyId()

@@ -201,9 +201,11 @@ function dataClassAttributeViolation(ReflectionClass $ref): ?string
     $propertyNames = [];
 
     foreach ($ref->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
-        if (! $property->isStatic()) {
-            $propertyNames[] = $property->getName();
+        if ($property->isStatic()) {
+            continue;
         }
+
+        $propertyNames[] = $property->getName();
     }
 
     sort($propertyNames);

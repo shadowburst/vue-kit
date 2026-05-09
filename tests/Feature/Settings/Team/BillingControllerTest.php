@@ -105,7 +105,7 @@ test('billing page renders Pro state for an Owner of a Pro team', function (): v
     );
 });
 
-test('billing page renders Pro state read-only for an Admin (no subscription.update)', function (): void {
+test('billing page renders Pro state read-only for an Admin (no subscription.cancel or resume)', function (): void {
     $owner = User::factory()->createOne();
     $team  = (new CreateTeam)->execute('Test Team', $owner);
 
@@ -134,6 +134,7 @@ test('billing page renders Pro state read-only for an Admin (no subscription.upd
             ->component('settings/team/Billing')
             ->where('tier', 'pro')
             ->where('interval', 'monthly')
-            ->where('auth.abilities.subscription.update', false),
+            ->where('auth.abilities.subscription.cancel', false)
+            ->where('auth.abilities.subscription.resume', false),
     );
 });

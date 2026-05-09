@@ -6,6 +6,7 @@ namespace App\Data\User;
 
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Resource;
 
@@ -36,7 +37,7 @@ final class UserResource extends Resource
             current_team_id  : $user->current_team_id,
             permissions      : Lazy::create(
                 fn (): array => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
-            )->defaultIncluded(),
+            )->defaultIncluded($user->id === Auth::id()),
             is_owner         : Lazy::whenLoaded(
                 'currentTeam',
                 $user,
@@ -49,7 +50,7 @@ final class UserResource extends Resource
                     'id'       => $team->id,
                     'name'     => $team->name,
                     'slug'     => $team->slug,
-                    'tier'     => $team->tier()->value,
+                    'tier'     => $team->tier->value,
                     'features' => $team->features,
                 ])->all(),
             ),

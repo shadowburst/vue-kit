@@ -73,17 +73,28 @@ it('isMemberOf returns false when the user belongs to a different team', functio
     expect($user->isMemberOf($teamB))->toBeFalse();
 });
 
-it('members returns every user holding any role in the team', function (): void {
-    $owner  = User::factory()->createOne();
-    $team   = Team::factory()->createOne(['name' => 'Acme Corp', 'owner_id' => $owner->id]);
-    $member = User::factory()->createOne();
+it('members returns every non-owner user holding any role in the team', function (): void {
+    $owner   = User::factory()->createOne();
+    $team    = Team::factory()->createOne(['name' => 'Acme Corp', 'owner_id' => $owner->id]);
+    $manager = User::factory()->createOne();
+    $member  = User::factory()->createOne();
     User::factory()->createOne();
 
     assignRoleInTeam($owner, $team, Role::Manager);
+    assignRoleInTeam($manager, $team, Role::Manager);
     assignRoleInTeam($member, $team, Role::Member);
 
     expect($team->members()->pluck('users.id')->all())
-        ->toEqualCanonicalizing([$owner->id, $member->id]);
+        ->toEqualCanonicalizing([$manager->id, $member->id]);
+});
+
+it('members excludes the team owner even when they hold a role', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['name' => 'Acme Corp', 'owner_id' => $owner->id]);
+
+    assignRoleInTeam($owner, $team, Role::Manager);
+
+    expect($team->members()->pluck('users.id')->all())->toBeEmpty();
 });
 
 it('members returns each user only once even when they hold multiple roles in the team', function (): void {

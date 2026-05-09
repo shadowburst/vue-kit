@@ -7,6 +7,7 @@ use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
 use App\Models\User;
 use App\Services\Team\TeamContext;
+use Carbon\CarbonImmutable;
 use Inertia\Testing\AssertableInertia;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -33,7 +34,7 @@ test('share() emits SharedData top-level keys for authenticated user', function 
                 ->has('auth.user')
                 ->has('auth.abilities')
                 ->has('auth.features')
-                ->where('auth.subscription', null)
+                ->where('auth.subscription.active', false)
                 ->has('currentTeam')
                 ->has('sidebarOpen')
                 ->has('locale'),
@@ -57,8 +58,12 @@ test('guest request shares null currentTeam and null auth.user', function (): vo
                 ->where('auth.abilities.team.update', false)
                 ->where('auth.abilities.team.delete', false)
                 ->where('auth.abilities.subscription.view', false)
+                ->where('auth.abilities.subscription.create', false)
                 ->where('auth.abilities.subscription.update', false)
-                ->where('auth.features', []),
+                ->where('auth.abilities.subscription.cancel', false)
+                ->where('auth.abilities.subscription.resume', false)
+                ->where('auth.features.teamMemberCap', 0)
+                ->where('auth.subscription', null),
         );
 });
 
@@ -84,8 +89,9 @@ test('currentTeam prop is shaped by TeamResource for authenticated user', functi
                 ->where('currentTeam.id', $team->id)
                 ->where('currentTeam.name', 'Acme Corp')
                 ->where('currentTeam.slug', 'acme-corp')
-                ->where('currentTeam.tier', 'free')
-                ->has('currentTeam.features')
+                ->where('currentTeam.members_count', 0)
+                ->missing('currentTeam.tier')
+                ->missing('currentTeam.features')
                 ->missing('currentTeam.stripe_id')
                 ->missing('currentTeam.owner_id'),
         );
@@ -131,7 +137,7 @@ test('auth.user prop is shaped by UserResource and includes loaded teams', funct
                 ->where('auth.user.email', $user->email)
                 ->where('auth.user.current_team_id', $team->id)
                 ->has('auth.user.teams', 1) // Lazy::whenLoaded — teams loaded
-                ->has('auth.user.permissions') // Lazy::create — always included
+                ->has('auth.user.permissions') // included for the auth user
                 ->missing('auth.user.password')
                 ->missing('auth.user.remember_token')
                 ->missing('auth.user.two_factor_secret'),
@@ -194,8 +200,13 @@ test('authenticated team creator (Admin + owner_id) gets correct currentTeam, te
                 ->where('auth.abilities.team.update', true) // owner_id identity check
                 ->where('auth.abilities.team.delete', false) // sole owned team — personal-team rule
                 ->where('auth.abilities.subscription.view', true)
+                ->where('auth.abilities.subscription.create', true) // owner_id identity check
                 ->where('auth.abilities.subscription.update', true) // owner_id identity check
-                ->where('auth.features', ['team-member-cap' => 0]), // Free tier → cap=0
+                ->where('auth.abilities.subscription.cancel', true) // owner_id + 0 non-owners ≤ Free cap(0)
+                ->where('auth.abilities.subscription.resume', true) // owner_id identity check
+                ->where('auth.features.teamMemberCap', 0) // Free tier → cap=0
+                ->where('auth.subscription.active', false) // no subscription
+                ->where('currentTeam.members_count', 0), // no non-owner members
         );
 });
 
@@ -254,5 +265,87 @@ test('authenticated Member gets correct currentTeam, teams, and permissions', fu
             fn (AssertableInertia $page) => $page
                 ->where('currentTeam.id', $team->id)
                 ->where('auth.user.permissions', $expectedPermissions),
+        );
+});
+
+// ─── auth.subscription.active — shared prop variants ─────────────────────────
+
+test('auth.subscription.active is true when subscription is active', function (): void {
+    $user = User::factory()->createOne();
+    $team = (new CreateTeam)->execute('Acme Corp', $user);
+    $user->update(['current_team_id' => $team->id]);
+
+    $team->subscriptions()->create([
+        'type'          => 'default',
+        'stripe_id'     => 'sub_active_test',
+        'stripe_status' => 'active',
+        'stripe_price'  => 'price_pro_monthly_test',
+    ]);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    app(TeamContext::class)->setTeam($team);
+
+    actingAs($user);
+
+    get(route('dashboard'))
+        ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('auth.subscription.active', true),
+        );
+});
+
+test('auth.subscription.active is true when subscription is on grace period (not yet canceled)', function (): void {
+    $user = User::factory()->createOne();
+    $team = (new CreateTeam)->execute('Acme Corp', $user);
+    $user->update(['current_team_id' => $team->id]);
+
+    $team->subscriptions()->create([
+        'type'          => 'default',
+        'stripe_id'     => 'sub_grace_test',
+        'stripe_status' => 'active',
+        'stripe_price'  => 'price_pro_monthly_test',
+        'ends_at'       => CarbonImmutable::now()->addDays(14),
+    ]);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    app(TeamContext::class)->setTeam($team);
+
+    actingAs($user);
+
+    get(route('dashboard'))
+        ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('auth.subscription.active', true),
+        );
+});
+
+test('auth.subscription.active is false when subscription is canceled', function (): void {
+    $user = User::factory()->createOne();
+    $team = (new CreateTeam)->execute('Acme Corp', $user);
+    $user->update(['current_team_id' => $team->id]);
+
+    $team->subscriptions()->create([
+        'type'          => 'default',
+        'stripe_id'     => 'sub_canceled_test',
+        'stripe_status' => 'canceled',
+        'stripe_price'  => 'price_pro_monthly_test',
+        'ends_at'       => CarbonImmutable::now()->subDay(),
+    ]);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    app(TeamContext::class)->setTeam($team);
+
+    actingAs($user);
+
+    get(route('dashboard'))
+        ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('auth.subscription.active', false),
         );
 });

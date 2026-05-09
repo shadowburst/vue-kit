@@ -97,7 +97,7 @@ test('checkout redirects to Stripe for a Yearly interval', function (): void {
     expect(data_get($capturedParams, 'line_items.0.price'))->toBe('price_pro_yearly_test');
 });
 
-test('checkout returns 403 for Admin without subscription.update', function (): void {
+test('checkout returns 403 for Admin without subscription.resume', function (): void {
     $owner = User::factory()->createOne();
     $team  = (new CreateTeam)->execute('Test Team', $owner);
 

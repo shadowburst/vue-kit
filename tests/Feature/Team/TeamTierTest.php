@@ -15,7 +15,7 @@ beforeEach(function (): void {
 test('tier returns Free when team has no subscription', function (): void {
     $team = Team::factory()->createOne();
 
-    expect($team->tier())->toBe(SubscriptionTier::Free);
+    expect($team->tier)->toBe(SubscriptionTier::Free);
 });
 
 test('tier returns Pro for an active monthly Pro subscription', function (): void {
@@ -27,7 +27,7 @@ test('tier returns Pro for an active monthly Pro subscription', function (): voi
         'stripe_price'  => 'price_pro_monthly',
     ]);
 
-    expect($team->tier())->toBe(SubscriptionTier::Pro);
+    expect($team->tier)->toBe(SubscriptionTier::Pro);
 });
 
 test('tier returns Pro for an active yearly Pro subscription', function (): void {
@@ -39,7 +39,7 @@ test('tier returns Pro for an active yearly Pro subscription', function (): void
         'stripe_price'  => 'price_pro_yearly',
     ]);
 
-    expect($team->tier())->toBe(SubscriptionTier::Pro);
+    expect($team->tier)->toBe(SubscriptionTier::Pro);
 });
 
 test('tier returns Free after cancellation past grace period', function (): void {
@@ -52,7 +52,7 @@ test('tier returns Free after cancellation past grace period', function (): void
         'ends_at'       => now()->subDay(),
     ]);
 
-    expect($team->tier())->toBe(SubscriptionTier::Free);
+    expect($team->tier)->toBe(SubscriptionTier::Free);
 });
 
 test('tier returns Free (defensive) when the active subscription price is not in the config map', function (): void {
@@ -64,5 +64,5 @@ test('tier returns Free (defensive) when the active subscription price is not in
         'stripe_price'  => 'price_unknown_tier',
     ]);
 
-    expect($team->tier())->toBe(SubscriptionTier::Free);
+    expect($team->tier)->toBe(SubscriptionTier::Free);
 });

@@ -25,6 +25,7 @@ final class CreateNewUser implements CreatesNewUsers
 
         /** @var User */
         return DB::transaction(function () use ($data): User {
+            /** @var User $user */
             $user = User::query()->create([
                 'name'     => $data->name,
                 'email'    => $data->email,

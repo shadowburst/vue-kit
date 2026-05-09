@@ -22,7 +22,7 @@ final class BillingController extends Controller
 
         Gate::authorize('view', [Subscription::class, $team]);
 
-        $tier               = $team->tier();
+        $tier               = $team->tier;
         $interval           = null;
         $subscriptionStatus = null;
         $pmLastFour         = null;

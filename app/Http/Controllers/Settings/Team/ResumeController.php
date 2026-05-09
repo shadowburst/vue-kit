@@ -16,7 +16,7 @@ final class ResumeController extends Controller
     {
         $team = $teamContext->currentOrFail();
 
-        Gate::authorize('update', [Subscription::class, $team]);
+        Gate::authorize('resume', [Subscription::class, $team]);
 
         $subscription = $team->subscription('default');
 

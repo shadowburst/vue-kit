@@ -17,10 +17,12 @@ return [
     'payment_method' => 'Moyen de paiement',
     'manage_billing' => 'Gérer la facturation',
     'cancel_subscription' => 'Annuler l\'abonnement',
+    'cancel_over_cap'     => '{1} Retirez :count membre pour annuler|[2,*] Retirez :count membres pour annuler',
     'resume_subscription' => 'Reprendre l\'abonnement',
 
-    'grace_period_banner_title' => 'Annulation d\'abonnement en cours',
-    'grace_period_banner_body' => ':count membres perdront leur accès dans :days jours.',
+    'over_cap_banner_title'         => 'Votre équipe dépasse la limite de membres',
+    'over_cap_banner_body_active'   => '{1} Retirez :count membre pour rétablir l\'accès.|[2,*] Retirez :count membres pour rétablir l\'accès.',
+    'over_cap_banner_body_canceled' => 'Corrigez votre paiement pour rétablir l\'accès.',
 
     'attributes' => [
         'interval' => 'intervalle de facturation',

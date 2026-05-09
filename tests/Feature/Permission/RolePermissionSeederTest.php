@@ -89,10 +89,14 @@ it('gives Member no subscription permissions', function () {
     expect($names)->not->toContain(Permission::SubscriptionView->value);
 });
 
-it('does not seed team.update, team.delete, or subscription.update', function () {
-    seed(RolePermissionSeeder::class);
+it(
+    'does not seed policy-only gates as Spatie permissions (team.update, team.delete, subscription.cancel, subscription.resume)',
+    function () {
+        seed(RolePermissionSeeder::class);
 
-    expect(SpatiePermission::query()->where('name', 'team.update')->exists())->toBeFalse();
-    expect(SpatiePermission::query()->where('name', 'team.delete')->exists())->toBeFalse();
-    expect(SpatiePermission::query()->where('name', 'subscription.update')->exists())->toBeFalse();
-});
+        expect(SpatiePermission::query()->where('name', 'team.update')->exists())->toBeFalse();
+        expect(SpatiePermission::query()->where('name', 'team.delete')->exists())->toBeFalse();
+        expect(SpatiePermission::query()->where('name', 'subscription.cancel')->exists())->toBeFalse();
+        expect(SpatiePermission::query()->where('name', 'subscription.resume')->exists())->toBeFalse();
+    },
+);

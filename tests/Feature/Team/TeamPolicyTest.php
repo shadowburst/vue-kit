@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Actions\Membership\AssignMembership;
+use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
 use App\Models\Team;
 use App\Models\User;
@@ -93,4 +95,16 @@ it('prevents a non-owner admin from deleting the team', function (): void {
     $admin->assignRole(Role::Manager->value);
 
     expect(Gate::forUser($admin)->allows('delete', $team))->toBeFalse();
+});
+
+// ─── TeamPolicy::update — over-cap gate ──────────────────────────────────────
+
+it('blocks the owner from updating when the team is over-cap', function (): void {
+    $owner  = User::factory()->createOne();
+    $team   = (new CreateTeam)->execute('Acme', $owner);
+    $member = User::factory()->createOne();
+    (new AssignMembership)->execute($member, $team, Role::Member);
+
+    // Free cap = 0; 1 non-owner member → over-cap.
+    expect(Gate::forUser($owner)->allows('update', $team))->toBeFalse();
 });

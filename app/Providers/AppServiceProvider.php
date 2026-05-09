@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
 
         Feature::define(
             FeatureEnum::TeamMemberCap->value,
-            fn (Team $team): int => (int) config("billing.tiers.{$team->tier()->value}.member_cap", 0),
+            fn (Team $team): int => (int) config("billing.tiers.{$team->tier->value}.member_cap", 0),
         );
 
         $this->configureDefaults();

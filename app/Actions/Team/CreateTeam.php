@@ -19,6 +19,7 @@ final class CreateTeam
     public function execute(string $name, User $creator): Team
     {
         return DB::transaction(function () use ($name, $creator): Team {
+            /** @var Team $team */
             $team = Team::query()->create(['name' => $name, 'owner_id' => $creator->id]);
 
             (new AssignMembership)->execute($creator, $team, Role::Manager);

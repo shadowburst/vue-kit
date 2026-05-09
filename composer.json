@@ -69,6 +69,11 @@
         "analysis:check": [
             "vendor/bin/mago analyze"
         ],
+        "fix": [
+            "vendor/bin/mago analyze --fix",
+            "@composer lint",
+            "@composer format"
+        ],
         "check": [
             "@composer format:check",
             "@composer lint:check",
