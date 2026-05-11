@@ -13,6 +13,33 @@ use Spatie\Permission\PermissionRegistrar;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
+test('share() emits SharedData top-level keys for authenticated user', function (): void {
+    $user = User::factory()->createOne();
+    $team = (new CreateTeam)->execute('Acme Corp', $user);
+    $user->update(['current_team_id' => $team->id]);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    app(TeamContext::class)->setTeam($team);
+
+    actingAs($user);
+
+    get(route('dashboard'))
+        ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->has('name')
+                ->has('auth')
+                ->has('auth.user')
+                ->has('auth.abilities')
+                ->has('auth.features')
+                ->where('auth.subscription', null)
+                ->has('currentTeam')
+                ->has('sidebarOpen')
+                ->has('locale'),
+        );
+});
+
 test('guest request shares null currentTeam and null auth.user', function (): void {
     get(route('login'))
         ->assertOk()

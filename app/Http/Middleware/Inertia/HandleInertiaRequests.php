@@ -5,14 +5,19 @@ declare(strict_types=1);
 namespace App\Http\Middleware\Inertia;
 
 use App\Data\Auth\AuthAbilitiesData;
+use App\Data\Shared\SharedAuthData;
+use App\Data\Shared\SharedData;
 use App\Data\Team\TeamResource;
 use App\Data\User\UserResource;
 use App\Enums\Permission\Permission;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\Team\TeamContext;
+use Closure;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
+use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -39,14 +44,19 @@ class HandleInertiaRequests extends Middleware
         return parent::version($request);
     }
 
+    public function handle(Request $request, Closure $next): Response
+    {
+        Inertia::share('errors', Inertia::always($this->resolveValidationErrors($request)));
+
+        return parent::handle($request, $next);
+    }
+
     /**
      * Define the props that are shared by default.
      *
      * @see https://inertiajs.com/shared-data
-     *
-     * @return array<string, mixed>
      */
-    public function share(Request $request): array
+    public function share(Request $request): SharedData
     {
         /** @var ?User $user */
         $user = $request->user();
@@ -58,22 +68,18 @@ class HandleInertiaRequests extends Middleware
         /** @var string $appName */
         $appName = config('app.name');
 
-        $userResource = $user !== null ? UserResource::from($user) : null;
-        $currentTeamResource = $currentTeam !== null ? TeamResource::from($currentTeam) : null;
-
-        return [
-            ...parent::share($request),
-            'name' => $appName,
-            'auth' => [
-                'user' => $userResource,
-                'abilities' => fn () => AuthAbilitiesData::fromUser($user, $currentTeam),
-                'features' => fn () => $currentTeam !== null ? $currentTeam->features : [],
-                'subscription' => fn () => $this->subscriptionGracePeriodData($user, $currentTeam),
-            ],
-            'currentTeam' => $currentTeamResource,
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'locale' => app()->getLocale(),
-        ];
+        return new SharedData(
+            name: $appName,
+            auth: new SharedAuthData(
+                user: $user !== null ? UserResource::from($user) : null,
+                abilities: AuthAbilitiesData::fromUser($user, $currentTeam),
+                features: $currentTeam !== null ? $currentTeam->features : [],
+                subscription: $this->subscriptionGracePeriodData($user, $currentTeam),
+            ),
+            currentTeam: $currentTeam !== null ? TeamResource::from($currentTeam) : null,
+            sidebarOpen: ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            locale: app()->getLocale(),
+        );
     }
 
     /**

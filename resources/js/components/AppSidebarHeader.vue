@@ -18,9 +18,10 @@ withDefaults(
 
 const page = usePage();
 
-const user = computed(() => (page.props.auth?.user ?? null) as App.Data.User.UserResource | null);
+const user = computed(() => page.props.auth.user);
 const userTeams = computed(() => user.value?.teams ?? []);
-const currentTeam = computed(() => userTeams.value.find((team) => team.id === user.value?.current_team_id) ?? null);
+type UserTeam = NonNullable<App.Data.User.UserResource['teams']>[number];
+const currentTeam = computed(() => userTeams.value.find((team: UserTeam) => team.id === user.value?.current_team_id) ?? null);
 const showTeamSwitcher = computed(() => currentTeam.value !== null && userTeams.value.length > 1);
 
 const form = useForm({

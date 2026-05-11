@@ -33,19 +33,9 @@ defineOptions({
     },
 });
 
-type PageProps = {
-    auth: {
-        abilities: {
-            subscription: {
-                update: boolean;
-            };
-        } | null;
-    };
-};
+const page = usePage();
 
-const page = usePage<PageProps>();
-
-const canManageBilling = computed(() => page.props.auth?.abilities?.subscription?.update === true);
+const canManageBilling = computed(() => page.props.auth.abilities.subscription.update === true);
 
 const selectedInterval = ref<'monthly' | 'yearly'>('monthly');
 
