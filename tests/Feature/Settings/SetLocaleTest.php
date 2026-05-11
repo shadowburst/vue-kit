@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Data\User\UserSettingsData;
+use App\Data\Settings\UserSettingsData;
 use App\Enums\Settings\Locale;
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;

@@ -11,7 +11,7 @@ import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-defineProps<App.Data.User.UserProfileProps>();
+defineProps<App.Data.Settings.ProfileEditProps>();
 
 defineOptions({
     layout: {

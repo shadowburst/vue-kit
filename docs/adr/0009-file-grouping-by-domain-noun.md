@@ -65,22 +65,25 @@ in `app/Models/`. Examples accepted as valid grouping keys today:
   (per ADR 0001), no `App\Models\Membership` class
 - `Role`, `Permission` — Spatie models in the vendor namespace, not
   `app/Models`
-- `Locale`, `Appearance` — i18n / UX domain concepts with no model
+- `Subscription`, `Tier` — billing / access-level domain concepts in
+  `CONTEXT.md` (per ADR 0007 / 0008) with no dedicated Eloquent model
+  (Tier is an enum; Subscription state is derived from Cashier rows
+  via the Billable Team)
 
 ### Alternatives Considered
 
 **Strict-model grouping** — a subfolder name must match a class in
 `app/Models/`.
-*Rejected:* would push `RoleName`, `PermissionName`, `AppLocale`, the
-`Settings/*` controllers, and most middleware into a generic Shared
-bucket. It would also create perverse pressure to invent thin model
-classes (`Membership extends Model`) just to give files a home.
+*Rejected:* would push `RoleName`, `PermissionName`, the `Settings/*`
+controllers, and most middleware into a generic Shared bucket. It would
+also create perverse pressure to invent thin model classes
+(`Membership extends Model`) just to give files a home.
 
 **Auto-derive allowed names from `app/Models/`** for an arch-test
 allow-list.
 *Rejected:* same flaw — domain nouns ≠ Eloquent models in this kit.
-Membership, Role, Permission, Locale, and Appearance are all first-class
-domain terms in `CONTEXT.md` without a corresponding model class. Any
+Membership, Role, Permission, Subscription, and Tier are all first-class
+domain terms in `CONTEXT.md` without a dedicated model class. Any
 derivation from `app/Models/` would reject exactly the cases the
 convention is designed to embrace.
 
@@ -88,9 +91,18 @@ convention is designed to embrace.
 
 The grouping should mirror the *domain language*, not the accident of
 which concepts happen to have Eloquent rows. Developers searching for
-"the locale stuff" think in domain terms, not model classes.
+"the membership stuff" think in domain terms, not model classes.
 `CONTEXT.md` is the authoritative list of valid domain nouns and
 already enumerates them.
+
+Note that not every concept with a recognisable name qualifies as a
+domain noun: a concept whose only carrier in the codebase is a single
+settings page (Appearance, the user's locale preference) is treated as
+a **settings-feature** concern, not a domain noun. Such concepts live
+under the `Settings/` feature bucket (Decision 3) rather than getting
+their own type-folder subgroup. The bar for a domain noun is appearing
+as a first-class term in `CONTEXT.md`'s language section, not merely
+being a labelled UI surface.
 
 ### Consequences
 
@@ -127,8 +139,9 @@ A subfolder name must fall into exactly one of three kinds:
 lose the "this is a Fortify framework hook, not a normal action"
 signal. ADR 0004's arch carve-out for `App\Actions\Fortify` would have
 to be rewritten as a per-class enumeration. Settings sub-pages
-(`AppearanceController`, `LocaleController`, etc.) would scatter across
-five different domain-noun folders even though developers think of them
+(`AppearanceController`, `LocaleController`, etc.) would either scatter
+across page-named folders that are not domain nouns, or pollute
+`CONTEXT.md` with invented terms — even though developers think of them
 as one settings surface.
 
 **Domain noun + integration only — no feature buckets.**

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Data\User\ProfileDeleteRequest;
-use App\Data\User\ProfileUpdateRequest;
-use App\Data\User\UserProfileProps;
+use App\Data\Settings\ProfileDeleteRequest;
+use App\Data\Settings\ProfileEditProps;
+use App\Data\Settings\ProfileUpdateRequest;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -27,7 +27,7 @@ final class ProfileController extends Controller
         /** @var string|null $status */
         $status = $request->session()->get('status');
 
-        return Inertia::render('settings/Profile', new UserProfileProps(
+        return Inertia::render('settings/Profile', new ProfileEditProps(
             mustVerifyEmail: $user instanceof MustVerifyEmail,
             status         : $status,
         ));

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Data\Password\PasswordUpdateRequest;
-use App\Data\Security\SecurityEditProps;
+use App\Data\Settings\PasswordUpdateRequest;
+use App\Data\Settings\SecurityEditProps;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;

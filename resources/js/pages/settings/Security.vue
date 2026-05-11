@@ -13,7 +13,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import { ShieldCheck } from '@lucide/vue';
 import { onUnmounted, ref } from 'vue';
 
-defineProps<App.Data.Security.SecurityEditProps>();
+defineProps<App.Data.Settings.SecurityEditProps>();
 
 defineOptions({
     layout: {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Data\User;
+namespace App\Data\Settings;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
