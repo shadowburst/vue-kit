@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Middleware\Inertia;
 
 use App\Data\Auth\AuthAbilitiesData;
+use App\Data\Team\TeamResource;
 use App\Data\User\UserResource;
 use App\Enums\Permission\Permission;
-use App\Http\Resources\Team\TeamResource;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\Team\TeamContext;
@@ -59,7 +59,7 @@ class HandleInertiaRequests extends Middleware
         $appName = config('app.name');
 
         $userResource = $user !== null ? UserResource::from($user) : null;
-        $currentTeamResource = $currentTeam !== null ? TeamResource::make($currentTeam) : null;
+        $currentTeamResource = $currentTeam !== null ? TeamResource::from($currentTeam) : null;
 
         return [
             ...parent::share($request),

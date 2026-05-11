@@ -64,6 +64,26 @@ test('currentTeam prop is shaped by TeamResource for authenticated user', functi
         );
 });
 
+test('currentTeam lazy relations are absent when not loaded', function (): void {
+    $user = User::factory()->createOne();
+    $team = (new CreateTeam)->execute('Acme Corp', $user);
+    $user->update(['current_team_id' => $team->id]);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    app(TeamContext::class)->setTeam($team);
+
+    actingAs($user);
+
+    get(route('dashboard'))
+        ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->missing('currentTeam.owner')
+                ->missing('currentTeam.memberships'),
+        );
+});
+
 test('auth.user prop is shaped by UserResource and includes loaded teams', function (): void {
     $user = User::factory()->createOne();
     $team = (new CreateTeam)->execute('Acme Corp', $user);
