@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import i18n from 'laravel-vue-i18n/vite';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import fs from 'node:fs';
 import path from 'path';
 import { defineConfig } from 'vite';
 import { watchAndRun } from 'vite-plugin-watch-and-run';
@@ -28,13 +29,36 @@ export default defineConfig({
                     includeAbsolute: false,
                 },
             },
+            script: {
+                globalTypeFiles: [
+                    path.resolve('resources/js/spatie/types.d.ts'),
+                    path.resolve('resources/js/wayfinder/types.d.ts'),
+                    path.resolve('resources/js/types/inertia.d.ts'),
+                ],
+                fs: {
+                    fileExists: (file: string) => {
+                        try {
+                            return fs.statSync(file).isFile();
+                        } catch {
+                            return false;
+                        }
+                    },
+                    readFile: (file: string) => {
+                        try {
+                            return fs.readFileSync(file, 'utf-8');
+                        } catch {
+                            return undefined;
+                        }
+                    },
+                },
+            },
         }),
         i18n(),
         watchAndRun([
             {
                 name: 'spatie-data',
                 watch: [path.resolve('app/Data/**/*.php')],
-                run: 'php artisan typescript:transform',
+                run: "php artisan typescript:transform && sed -i 's/^\\( \\+\\)namespace /\\1export namespace /g' resources/js/spatie/types.d.ts && sed -i 's/ = object;/ = {};/g' resources/js/spatie/types.d.ts",
             },
             {
                 name: 'wayfinder',

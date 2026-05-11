@@ -29,7 +29,7 @@ final class SetCurrentTeam
         /** @var User|null $user */
         $user = Auth::user();
 
-        if ($user === null || $request->routeIs('teams.create')) {
+        if ($user === null || $request->routeIs('teams.create', 'teams.index', 'teams.store')) {
             return $next($request);
         }
 
