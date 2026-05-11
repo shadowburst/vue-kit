@@ -8,7 +8,7 @@ import { ChevronsUpDown } from '@lucide/vue';
 import { computed } from 'vue';
 
 const page = usePage();
-const user = computed(() => page.props.auth.user as unknown as App.Http.Resources.User.UserResource | null);
+const user = computed(() => page.props.auth.user as unknown as App.Data.User.UserResource | null);
 const { isMobile, state } = useSidebar();
 </script>
 

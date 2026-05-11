@@ -83,11 +83,30 @@ test('auth.user prop is shaped by UserResource and includes loaded teams', funct
                 ->where('auth.user.name', $user->name)
                 ->where('auth.user.email', $user->email)
                 ->where('auth.user.current_team_id', $team->id)
-                ->has('auth.user.teams', 1)
-                ->has('auth.user.permissions')
+                ->has('auth.user.teams', 1)           // Lazy::whenLoaded — teams loaded
+                ->has('auth.user.permissions')         // Lazy::create — always included
                 ->missing('auth.user.password')
                 ->missing('auth.user.remember_token')
                 ->missing('auth.user.two_factor_secret'),
+        );
+});
+
+test('auth.user includes is_owner lazy field when currentTeam is loaded', function (): void {
+    $user = User::factory()->createOne();
+    $team = (new CreateTeam)->execute('Acme Corp', $user);
+    $user->update(['current_team_id' => $team->id]);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    app(TeamContext::class)->setTeam($team);
+
+    actingAs($user);
+
+    get(route('dashboard'))
+        ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('auth.user.is_owner', true),  // Lazy::whenLoaded('currentTeam') — included when loaded
         );
 });
 
@@ -135,7 +154,7 @@ test('authenticated team creator (Admin + owner_id) gets correct currentTeam, te
 
 test('authenticated Admin gets correct currentTeam, teams, and permissions', function (): void {
     $owner = User::factory()->createOne();
-    $team  = (new CreateTeam)->execute('Acme Corp', $owner);
+    $team = (new CreateTeam)->execute('Acme Corp', $owner);
 
     $admin = User::factory()->createOne(['current_team_id' => $team->id]);
     setPermissionsTeamId($team->id);
@@ -164,7 +183,7 @@ test('authenticated Admin gets correct currentTeam, teams, and permissions', fun
 
 test('authenticated Member gets correct currentTeam, teams, and permissions', function (): void {
     $owner = User::factory()->createOne();
-    $team  = (new CreateTeam)->execute('Acme Corp', $owner);
+    $team = (new CreateTeam)->execute('Acme Corp', $owner);
 
     $member = User::factory()->createOne(['current_team_id' => $team->id]);
     setPermissionsTeamId($team->id);

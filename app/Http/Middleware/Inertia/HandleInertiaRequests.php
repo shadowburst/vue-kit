@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Middleware\Inertia;
 
 use App\Data\Auth\AuthAbilitiesData;
+use App\Data\User\UserResource;
 use App\Enums\Permission\Permission;
 use App\Http\Resources\Team\TeamResource;
-use App\Http\Resources\User\UserResource;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\Team\TeamContext;
@@ -49,32 +49,30 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         /** @var ?User $user */
-        $user        = $request->user();
+        $user = $request->user();
         $currentTeam = $this->teamContext->current();
 
-        $user?->loadMissing('teams.subscriptions');
+        $user?->loadMissing('teams.subscriptions', 'currentTeam');
         $currentTeam?->loadMissing('subscriptions');
 
         /** @var string $appName */
         $appName = config('app.name');
 
-        /** @var UserResource|null $userResource */
-        $userResource = $user !== null ? UserResource::make($user) : null;
-        /** @var TeamResource|null $currentTeamResource */
+        $userResource = $user !== null ? UserResource::from($user) : null;
         $currentTeamResource = $currentTeam !== null ? TeamResource::make($currentTeam) : null;
 
         return [
             ...parent::share($request),
-            'name'        => $appName,
-            'auth'        => [
-                'user'         => $userResource,
-                'abilities'    => fn () => AuthAbilitiesData::fromUser($user, $currentTeam),
-                'features'     => fn () => $currentTeam !== null ? $currentTeam->features : [],
+            'name' => $appName,
+            'auth' => [
+                'user' => $userResource,
+                'abilities' => fn () => AuthAbilitiesData::fromUser($user, $currentTeam),
+                'features' => fn () => $currentTeam !== null ? $currentTeam->features : [],
                 'subscription' => fn () => $this->subscriptionGracePeriodData($user, $currentTeam),
             ],
             'currentTeam' => $currentTeamResource,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'locale'      => app()->getLocale(),
+            'locale' => app()->getLocale(),
         ];
     }
 
@@ -98,7 +96,7 @@ class HandleInertiaRequests extends Middleware
         }
 
         /** @var int $freeCap */
-        $freeCap       = config('billing.tiers.free.member_cap');
+        $freeCap = config('billing.tiers.free.member_cap');
         $nonOwnerCount = $currentTeam->members()->whereKeyNot($currentTeam->owner_id)->count();
 
         if ($nonOwnerCount <= $freeCap) {
@@ -112,7 +110,7 @@ class HandleInertiaRequests extends Middleware
 
         return [
             'grace_period' => [
-                'ends_at'       => $endsAt,
+                'ends_at' => $endsAt,
                 'at_risk_count' => $nonOwnerCount - $freeCap,
             ],
         ];

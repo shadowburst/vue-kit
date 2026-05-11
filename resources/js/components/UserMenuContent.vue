@@ -12,7 +12,7 @@ import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from '@lucide/vue';
 
 defineProps<{
-    user: App.Http.Resources.User.UserResource;
+    user: App.Data.User.UserResource;
 }>();
 
 const handleLogout = () => {

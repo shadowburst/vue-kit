@@ -18,8 +18,8 @@ withDefaults(
 
 const page = usePage();
 
-const user = computed(() => (page.props.auth?.user ?? null) as App.Http.Resources.User.UserResource | null);
-const userTeams = computed<App.Http.Resources.Team.TeamResource[]>(() => user.value?.teams ?? []);
+const user = computed(() => (page.props.auth?.user ?? null) as App.Data.User.UserResource | null);
+const userTeams = computed(() => user.value?.teams ?? []);
 const currentTeam = computed(() => userTeams.value.find((team) => team.id === user.value?.current_team_id) ?? null);
 const showTeamSwitcher = computed(() => currentTeam.value !== null && userTeams.value.length > 1);
 

@@ -3,14 +3,96 @@
 declare(strict_types=1);
 
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Resource;
 
-arch('Data classes extend Spatie\LaravelData\Data')
-    ->expect('App\Data')
-    ->toExtend(Data::class);
+/**
+ * ADR-0017 D2 four-stub taxonomy:
+ *   *Data / *Request  → extends Data   (input+output DTOs and request objects)
+ *   *Resource / *Props → extends Resource (output-only serialisation + page props)
+ */
+test('Data classes have allowed suffixes (Data, Request, Resource, Props)', function (): void {
+    $allowed = ['Data', 'Request', 'Resource', 'Props'];
 
-arch('Data classes end with the Data suffix')
-    ->expect('App\Data')
-    ->toHaveSuffix('Data');
+    $dataDir = realpath(__DIR__.'/../../app/Data');
+    $violations = [];
+
+    if ($dataDir === false) {
+        return;
+    }
+
+    /** @var SplFileInfo $file */
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+        $dataDir,
+        FilesystemIterator::SKIP_DOTS,
+    )) as $file) {
+        if ($file->getExtension() !== 'php') {
+            continue;
+        }
+
+        $relativePath = ltrim(
+            str_replace([$dataDir, '.php'], ['', ''], realpath($file->getPathname()) ?: ''),
+            DIRECTORY_SEPARATOR,
+        );
+        $className = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+
+        if (! class_exists($className)) {
+            continue;
+        }
+
+        $shortName = (new ReflectionClass($className))->getShortName();
+        $hasSuffix = collect($allowed)->contains(fn (string $s) => str_ends_with($shortName, $s));
+
+        if (! $hasSuffix) {
+            $violations[] = "{$className}: must end with one of ".implode(', ', $allowed);
+        }
+    }
+
+    expect($violations)->toBeEmpty(implode("\n", $violations));
+});
+
+test('Data classes extend the correct Spatie LaravelData base class', function (): void {
+    $dataDir = realpath(__DIR__.'/../../app/Data');
+    $violations = [];
+
+    if ($dataDir === false) {
+        return;
+    }
+
+    /** @var SplFileInfo $file */
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+        $dataDir,
+        FilesystemIterator::SKIP_DOTS,
+    )) as $file) {
+        if ($file->getExtension() !== 'php') {
+            continue;
+        }
+
+        $relativePath = ltrim(
+            str_replace([$dataDir, '.php'], ['', ''], realpath($file->getPathname()) ?: ''),
+            DIRECTORY_SEPARATOR,
+        );
+        $className = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+
+        if (! class_exists($className)) {
+            continue;
+        }
+
+        $ref = new ReflectionClass($className);
+        $shortName = $ref->getShortName();
+
+        $expectsResource = str_ends_with($shortName, 'Resource') || str_ends_with($shortName, 'Props');
+
+        if ($expectsResource && ! $ref->isSubclassOf(Resource::class)) {
+            $violations[] = "{$className}: *Resource/*Props must extend ".Resource::class;
+        }
+
+        if (! $expectsResource && ! $ref->isSubclassOf(Data::class)) {
+            $violations[] = "{$className}: *Data/*Request must extend ".Data::class;
+        }
+    }
+
+    expect($violations)->toBeEmpty(implode("\n", $violations));
+});
 
 // Non-abstract Data classes must be final — arch() has no "non-abstract" filter,
 // so a test() loop inspects each concrete class directly.
@@ -39,7 +121,7 @@ test('non-abstract Data classes are final', function (): void {
         }
 
         $relativePath = ltrim(str_replace([$dataDir, '.php'], ['', ''], $realPath), DIRECTORY_SEPARATOR);
-        $className    = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+        $className = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
 
         if (! class_exists($className)) {
             continue;

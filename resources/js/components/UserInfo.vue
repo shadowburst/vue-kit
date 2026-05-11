@@ -4,7 +4,7 @@ import { useInitials } from '@/composables/useInitials';
 
 withDefaults(
     defineProps<{
-        user: App.Http.Resources.User.UserResource;
+        user: App.Data.User.UserResource;
         showEmail?: boolean;
     }>(),
     { showEmail: false },
