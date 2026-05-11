@@ -8,7 +8,4 @@ use Spatie\LaravelData\Resource;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-final class LocaleEditProps extends Resource
-{
-    public function __construct() {}
-}
+final class LocaleEditProps extends Resource {}
