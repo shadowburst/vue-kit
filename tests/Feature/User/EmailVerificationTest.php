@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
+use Inertia\Testing\AssertableInertia as Assert;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\actingAs;
@@ -17,12 +18,19 @@ beforeEach(function () {
     withoutMiddleware(SetCurrentTeam::class);
 });
 
-test('email verification screen can be rendered', function () {
+test('email verification screen can be rendered with typed props', function () {
     $user = User::factory()->unverified()->createOne();
 
     $response = actingAs($user)->get(route('verification.notice'));
 
     $response->assertOk();
+
+    /** @mago-expect analysis:non-documented-method */
+    $response->assertInertia(
+        fn (Assert $page) => $page
+            ->component('auth/VerifyEmail')
+            ->where('status', null),
+    );
 });
 
 test('email can be verified', function () {

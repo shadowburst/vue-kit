@@ -16,6 +16,8 @@ defineOptions({
         description: 'Enter your details below to create your account',
     },
 });
+
+defineProps<App.Data.Auth.AuthRegisterProps>();
 </script>
 
 <template>

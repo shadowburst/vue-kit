@@ -16,10 +16,7 @@ defineOptions({
     },
 });
 
-const props = defineProps<{
-    token: string;
-    email: string;
-}>();
+const props = defineProps<App.Data.Auth.AuthResetPasswordProps>();
 
 const inputEmail = ref(props.email);
 </script>

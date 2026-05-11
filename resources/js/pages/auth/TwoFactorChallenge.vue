@@ -40,6 +40,8 @@ const toggleRecoveryMode = (clearErrors: () => void): void => {
 };
 
 const code = ref<string>('');
+
+defineProps<App.Data.Auth.AuthTwoFactorChallengeProps>();
 </script>
 
 <template>

@@ -13,9 +13,7 @@ defineOptions({
     },
 });
 
-defineProps<{
-    status?: string;
-}>();
+defineProps<App.Data.Auth.AuthVerifyEmailProps>();
 </script>
 
 <template>

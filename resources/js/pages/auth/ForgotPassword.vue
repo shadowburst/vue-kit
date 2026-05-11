@@ -16,9 +16,7 @@ defineOptions({
     },
 });
 
-defineProps<{
-    status?: string;
-}>();
+defineProps<App.Data.Auth.AuthForgotPasswordProps>();
 </script>
 
 <template>
