@@ -3,6 +3,8 @@ import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
 import DashboardController from '@/wayfinder/App/Http/Controllers/Dashboard/DashboardController';
 import { Head } from '@inertiajs/vue3';
 
+defineProps<App.Data.Dashboard.DashboardIndexProps>();
+
 defineOptions({
     layout: {
         breadcrumbs: [

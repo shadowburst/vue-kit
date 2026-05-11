@@ -17,8 +17,10 @@ test('guests are redirected to the login page', function () {
 test('authenticated users can visit the dashboard', function () {
     withoutMiddleware(SetCurrentTeam::class);
     $user = User::factory()->createOne();
-    actingAs($user);
 
-    $response = get(route('dashboard'));
-    $response->assertOk();
+    actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(fn ($page) => $page
+            ->component('Dashboard')
+        );
 });
