@@ -11,6 +11,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 final class AuthResetPasswordProps extends Resource
 {
     public function __construct(
+        #[\SensitiveParameter]
         public string $token,
         public string $email,
     ) {}

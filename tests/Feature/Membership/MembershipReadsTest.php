@@ -51,7 +51,7 @@ it('ownedTeams does not return teams where the user is only a member', function 
 
     assign_role_in_team($other, $team, Role::Member);
 
-    expect($other->ownedTeams()->pluck('id')->all())->toEqual([]);
+    expect($other->ownedTeams()->pluck('id')->all())->toBeEmpty();
 });
 
 it('isMemberOf returns true when the user holds any role in the team', function (): void {

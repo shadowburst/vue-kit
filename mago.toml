@@ -27,6 +27,8 @@ halstead = { effort-threshold = 7000 }
 no-literal-password = { enabled = false }
 prefer-first-class-callable = { enabled = false }
 prefer-static-closure = { enabled = false }
+# Spatie Data classes intentionally take all their fields as constructor properties.
+excessive-parameter-list = { enabled = false }
 
 [analyzer]
 plugins = []

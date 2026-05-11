@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Actions\Team\CreateTeam;
 use App\Models\Team;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -20,8 +21,9 @@ test('authenticated users can visit the teams index page', function (): void {
 
     actingAs($user)
         ->get(route('teams.index'))
-        ->assertInertia(fn ($page) => $page
-            ->component('teams/Index')
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('teams/Index'),
         );
 });
 
@@ -32,11 +34,12 @@ test('teams index returns paginated teams data', function (): void {
 
     actingAs($user)
         ->get(route('teams.index'))
-        ->assertInertia(fn ($page) => $page
-            ->component('teams/Index')
-            ->has('teams.data', 2)
-            ->where('teams.data.0.name', 'Alpha')
-            ->where('teams.data.1.name', 'Beta')
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('teams/Index')
+                ->has('teams.data', 2)
+                ->where('teams.data.0.name', 'Alpha')
+                ->where('teams.data.1.name', 'Beta'),
         );
 });
 
@@ -46,9 +49,10 @@ test('teams index response contains pagination meta', function (): void {
 
     actingAs($user)
         ->get(route('teams.index'))
-        ->assertInertia(fn ($page) => $page
-            ->has('teams.meta')
-            ->where('teams.meta.current_page', 1)
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->has('teams.meta')
+                ->where('teams.meta.current_page', 1),
         );
 });
 
@@ -62,8 +66,9 @@ test('authenticated users can visit the teams create page', function (): void {
 
     actingAs($user)
         ->get(route('teams.create'))
-        ->assertInertia(fn ($page) => $page
-            ->component('teams/Create')
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('teams/Create'),
         );
 });
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -20,7 +21,8 @@ test('authenticated users can visit the dashboard', function () {
 
     actingAs($user)
         ->get(route('dashboard'))
-        ->assertInertia(fn ($page) => $page
-            ->component('Dashboard')
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Dashboard'),
         );
 });

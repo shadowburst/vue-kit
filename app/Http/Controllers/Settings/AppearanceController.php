@@ -13,6 +13,6 @@ final class AppearanceController extends Controller
 {
     public function edit(): Response
     {
-        return Inertia::render('settings/Appearance', new AppearanceEditProps());
+        return Inertia::render('settings/Appearance', new AppearanceEditProps);
     }
 }

@@ -17,7 +17,7 @@ use function Pest\Laravel\get;
 beforeEach(function (): void {
     Route::get('/_test/team', function (TeamContext $teamContext) {
         $user = Auth::user();
-        assert($user === null || $user instanceof User);
+        assert($user === null || $user instanceof User, 'Auth::user() must be null or a User instance');
         $currentTeam = $teamContext->current();
 
         return response()->json([

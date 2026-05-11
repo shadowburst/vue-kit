@@ -32,12 +32,12 @@ final class TeamResource extends Resource
     public static function fromTeam(Team $team): self
     {
         return new self(
-            id: $team->id,
-            name: $team->name,
-            slug: $team->slug,
-            tier: Lazy::create(fn (): SubscriptionTier => $team->tier())->defaultIncluded(),
-            features: Lazy::create(fn (): array => $team->features)->defaultIncluded(),
-            owner: Lazy::whenLoaded(
+            id         : $team->id,
+            name       : $team->name,
+            slug       : $team->slug,
+            tier       : Lazy::create(fn (): SubscriptionTier => $team->tier())->defaultIncluded(),
+            features   : Lazy::create(fn (): array => $team->features)->defaultIncluded(),
+            owner      : Lazy::whenLoaded(
                 'owner',
                 $team,
                 fn (): UserResource => UserResource::from($team->owner),
@@ -45,7 +45,8 @@ final class TeamResource extends Resource
             memberships: Lazy::whenLoaded(
                 'members',
                 $team,
-                fn (): array => $team->members
+                fn (): array => $team
+                    ->members
                     ->map(fn (User $user): UserResource => UserResource::from($user))
                     ->all(),
             ),

@@ -71,9 +71,9 @@ test('password can be reset with valid token', function () {
 
     Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
         $response = post(route('password.update'), [
-            'token' => $notification->token,
-            'email' => $user->email,
-            'password' => 'password',
+            'token'                 => $notification->token,
+            'email'                 => $user->email,
+            'password'              => 'password',
             'password_confirmation' => 'password',
         ]);
 
@@ -89,9 +89,9 @@ test('password cannot be reset with invalid token', function () {
     $user = User::factory()->createOne();
 
     $response = post(route('password.update'), [
-        'token' => 'invalid-token',
-        'email' => $user->email,
-        'password' => 'newpassword123',
+        'token'                 => 'invalid-token',
+        'email'                 => $user->email,
+        'password'              => 'newpassword123',
         'password_confirmation' => 'newpassword123',
     ]);
 

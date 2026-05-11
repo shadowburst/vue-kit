@@ -29,7 +29,7 @@ final class ProfileController extends Controller
 
         return Inertia::render('settings/Profile', new UserProfileProps(
             mustVerifyEmail: $user instanceof MustVerifyEmail,
-            status: $status,
+            status         : $status,
         ));
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
+use Inertia\Testing\AssertableInertia;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\actingAs;
@@ -21,11 +22,11 @@ test('login screen can be rendered with typed props', function () {
 
     $response->assertOk();
     $response->assertInertia(
-        fn ($page) => $page
+        fn (AssertableInertia $page) => $page
             ->component('auth/Login')
             ->has('canResetPassword')
             ->has('canRegister')
-            ->where('status', null)
+            ->where('status', null),
     );
 });
 

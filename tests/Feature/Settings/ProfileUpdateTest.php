@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertGuest;
@@ -16,12 +17,13 @@ test('profile page is displayed', function () {
 
     actingAs($user)
         ->get(route('profile.edit'))
-        ->assertInertia(fn ($page) => $page
-            ->component('settings/Profile')
-            ->has('mustVerifyEmail')
-            ->where('mustVerifyEmail', false)
-            ->has('status')
-            ->where('status', null)
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('settings/Profile')
+                ->has('mustVerifyEmail')
+                ->where('mustVerifyEmail', false)
+                ->has('status')
+                ->where('status', null),
         );
 });
 
@@ -30,7 +32,7 @@ test('profile information can be updated', function () {
 
     $response = actingAs($user)
         ->patch(route('profile.update'), [
-            'name' => 'Test User',
+            'name'  => 'Test User',
             'email' => 'test@example.com',
         ]);
 
@@ -50,7 +52,7 @@ test('email verification status is unchanged when the email address is unchanged
 
     $response = actingAs($user)
         ->patch(route('profile.update'), [
-            'name' => 'Test User',
+            'name'  => 'Test User',
             'email' => $user->email,
         ]);
 

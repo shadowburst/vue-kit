@@ -26,11 +26,12 @@ final class SecurityController extends Controller implements HasMiddleware
      */
     public static function middleware(): array
     {
-        return
+        return (
             Features::canManageTwoFactorAuthentication()
             && Features::optionEnabled(Features::twoFactorAuthentication(), 'confirmPassword')
                 ? [new Middleware('password.confirm', only: ['edit'])]
-                : [];
+                : []
+        );
     }
 
     /**
@@ -45,10 +46,10 @@ final class SecurityController extends Controller implements HasMiddleware
         }
 
         return Inertia::render('settings/Security', new SecurityEditProps(
-            canManageTwoFactor: $canManageTwoFactor,
-            twoFactorEnabled: $canManageTwoFactor && $user->hasEnabledTwoFactorAuthentication(),
+            canManageTwoFactor  : $canManageTwoFactor,
+            twoFactorEnabled    : $canManageTwoFactor && $user->hasEnabledTwoFactorAuthentication(),
             requiresConfirmation: $canManageTwoFactor
-                && Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
+            && Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
         ));
     }
 
@@ -80,7 +81,8 @@ final class SecurityController extends Controller implements HasMiddleware
             $request->session()->put('two_factor_empty_at', $currentTime);
         }
 
-        $hasJustBegunConfirming = ! is_null($user->two_factor_secret)
+        $hasJustBegunConfirming =
+            ! is_null($user->two_factor_secret)
             && is_null($user->two_factor_confirmed_at)
             && $request->session()->has('two_factor_empty_at')
             && is_null($request->session()->get('two_factor_confirming_at'));
@@ -89,9 +91,10 @@ final class SecurityController extends Controller implements HasMiddleware
             $request->session()->put('two_factor_confirming_at', $currentTime);
         }
 
-        $neverFinishedConfirming = ! $request->session()->hasOldInput('code')
+        $neverFinishedConfirming =
+            ! $request->hasOldInput('code')
             && is_null($user->two_factor_confirmed_at)
-            && $request->session()->get('two_factor_confirming_at', 0) != $currentTime;
+            && $request->session()->get('two_factor_confirming_at', 0) !== $currentTime;
 
         if ($neverFinishedConfirming) {
             app(DisableTwoFactorAuthentication::class)($user);

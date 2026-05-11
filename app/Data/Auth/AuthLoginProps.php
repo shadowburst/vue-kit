@@ -11,6 +11,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 final class AuthLoginProps extends Resource
 {
     public function __construct(
+        #[\SensitiveParameter]
         public bool $canResetPassword,
         public bool $canRegister,
         public ?string $status,

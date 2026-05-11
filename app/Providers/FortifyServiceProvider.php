@@ -42,19 +42,19 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        Fortify::authenticateUsing(function (Request $request) {
+        Fortify::authenticateUsing(function (Request $request): ?User {
             $data = AuthLoginRequest::from($request);
 
-            $user = User::where('email', $data->email)->first();
+            $user = User::query()->where('email', $data->email)->first();
 
-            if ($user && Hash::check($data->password, $user->password)) {
+            if ($user !== null && Hash::check($data->password, $user->password)) {
                 return $user;
             }
 
             return null;
         });
 
-        Fortify::confirmPasswordsUsing(function ($user, $password) {
+        Fortify::confirmPasswordsUsing(function (User $user, #[\SensitiveParameter] string $password): bool {
             AuthConfirmPasswordRequest::from(request());
 
             return Hash::check($password, $user->password);
@@ -65,28 +65,39 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::loginView(fn (Request $request) => Inertia::render('auth/Login', new AuthLoginProps(
             canResetPassword: Features::enabled(Features::resetPasswords()),
-            canRegister: Features::enabled(Features::registration()),
-            status: $request->session()->get('status'),
+            canRegister     : Features::enabled(Features::registration()),
+            status          : self::sessionString($request, 'status'),
         )));
 
         Fortify::registerView(fn () => Inertia::render('auth/Register', new AuthRegisterProps));
 
         Fortify::requestPasswordResetLinkView(fn (Request $request) => Inertia::render('auth/ForgotPassword', new AuthForgotPasswordProps(
-            status: $request->session()->get('status'),
+            status: self::sessionString($request, 'status'),
         )));
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/ResetPassword', new AuthResetPasswordProps(
-            token: (string) $request->route('token'),
+            token: is_string($token = $request->route('token')) ? $token : '',
             email: (string) $request->string('email'),
         )));
 
         Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/VerifyEmail', new AuthVerifyEmailProps(
-            status: $request->session()->get('status'),
+            status: self::sessionString($request, 'status'),
         )));
 
         Fortify::confirmPasswordView(fn () => Inertia::render('auth/ConfirmPassword', new AuthConfirmPasswordProps));
 
-        Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/TwoFactorChallenge', new AuthTwoFactorChallengeProps));
+        Fortify::twoFactorChallengeView(fn () => Inertia::render(
+            'auth/TwoFactorChallenge',
+            new AuthTwoFactorChallengeProps,
+        ));
+    }
+
+    private static function sessionString(Request $request, string $key): ?string
+    {
+        /** @var mixed $value */
+        $value = $request->session()->get($key);
+
+        return is_string($value) ? $value : null;
     }
 
     private function configureRateLimiting(): void

@@ -26,14 +26,14 @@ final class CreateNewUser implements CreatesNewUsers
         /** @var User */
         return DB::transaction(function () use ($data): User {
             $user = User::query()->create([
-                'name' => $data->name,
-                'email' => $data->email,
+                'name'     => $data->name,
+                'email'    => $data->email,
                 'password' => $data->password,
             ]);
 
             /** @var string $teamName */
             $teamName = __('team.app');
-            $team = $this->createTeam->execute($teamName, $user);
+            $team     = $this->createTeam->execute($teamName, $user);
 
             $user->current_team_id = $team->id;
             $user->save();

@@ -12,6 +12,7 @@ use App\Data\Team\TeamResource;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\LaravelData\PaginatedDataCollection;
@@ -21,8 +22,9 @@ final class TeamController extends Controller
     public function index(): Response
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
+        /** @var PaginatedDataCollection<int, TeamResource> $teams */
         $teams = TeamResource::collect(
             $user->teams()->with('subscriptions')->paginate(),
             PaginatedDataCollection::class,
@@ -39,7 +41,7 @@ final class TeamController extends Controller
     public function store(TeamCreateRequest $request): RedirectResponse
     {
         /** @var User $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         (new CreateTeam)->execute($request->name, $user);
 

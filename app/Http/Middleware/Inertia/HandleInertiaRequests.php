@@ -54,31 +54,35 @@ class HandleInertiaRequests extends Middleware
     /**
      * Define the props that are shared by default.
      *
+     * Returns a SharedData resource; Inertia detects Arrayable and serialises it.
+     *
      * @see https://inertiajs.com/shared-data
      */
+    /** @mago-expect analysis:invalid-return-statement */
+    /** @mago-expect analysis:docblock-type-mismatch */
     public function share(Request $request): SharedData
     {
         /** @var ?User $user */
-        $user = $request->user();
+        $user        = $request->user();
         $currentTeam = $this->teamContext->current();
 
-        $user?->loadMissing('teams.subscriptions', 'currentTeam');
+        $user?->loadMissing(['teams.subscriptions', 'currentTeam']);
         $currentTeam?->loadMissing('subscriptions');
 
         /** @var string $appName */
         $appName = config('app.name');
 
         return new SharedData(
-            name: $appName,
-            auth: new SharedAuthData(
-                user: $user !== null ? UserResource::from($user) : null,
-                abilities: AuthAbilitiesData::fromUser($user, $currentTeam),
-                features: $currentTeam !== null ? $currentTeam->features : [],
+            name       : $appName,
+            auth       : new SharedAuthData(
+                user        : $user !== null ? UserResource::from($user) : null,
+                abilities   : AuthAbilitiesData::fromUser($user, $currentTeam),
+                features    : $currentTeam !== null ? $currentTeam->features : [],
                 subscription: $this->subscriptionGracePeriodData($user, $currentTeam),
             ),
             currentTeam: $currentTeam !== null ? TeamResource::from($currentTeam) : null,
             sidebarOpen: ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            locale: app()->getLocale(),
+            locale     : app()->getLocale(),
         );
     }
 
@@ -102,7 +106,7 @@ class HandleInertiaRequests extends Middleware
         }
 
         /** @var int $freeCap */
-        $freeCap = config('billing.tiers.free.member_cap');
+        $freeCap       = config('billing.tiers.free.member_cap');
         $nonOwnerCount = $currentTeam->members()->whereKeyNot($currentTeam->owner_id)->count();
 
         if ($nonOwnerCount <= $freeCap) {
@@ -116,7 +120,7 @@ class HandleInertiaRequests extends Middleware
 
         return [
             'grace_period' => [
-                'ends_at' => $endsAt,
+                'ends_at'       => $endsAt,
                 'at_risk_count' => $nonOwnerCount - $freeCap,
             ],
         ];

@@ -21,7 +21,9 @@ const page = usePage();
 const user = computed(() => page.props.auth.user);
 const userTeams = computed(() => user.value?.teams ?? []);
 type UserTeam = NonNullable<App.Data.User.UserResource['teams']>[number];
-const currentTeam = computed(() => userTeams.value.find((team: UserTeam) => team.id === user.value?.current_team_id) ?? null);
+const currentTeam = computed(
+    () => userTeams.value.find((team: UserTeam) => team.id === user.value?.current_team_id) ?? null,
+);
 const showTeamSwitcher = computed(() => currentTeam.value !== null && userTeams.value.length > 1);
 
 const form = useForm({

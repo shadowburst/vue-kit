@@ -18,7 +18,7 @@ final class LocaleController extends Controller
 {
     public function edit(): Response
     {
-        return Inertia::render('settings/Language', new LocaleEditProps());
+        return Inertia::render('settings/Language', new LocaleEditProps);
     }
 
     public function update(LocaleUpdateRequest $request, #[CurrentUser] User $user): RedirectResponse

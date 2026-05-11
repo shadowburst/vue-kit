@@ -59,12 +59,12 @@ final class BillingController extends Controller
         }
 
         return Inertia::render('settings/team/Billing', new TeamBillingProps(
-            tier: $tier,
-            interval: $interval,
+            tier              : $tier,
+            interval          : $interval,
             subscriptionStatus: $subscriptionStatus,
-            pmLastFour: $pmLastFour,
-            nextChargeDate: $nextChargeDate,
-            nextChargeAmount: $nextChargeAmount,
+            pmLastFour        : $pmLastFour,
+            nextChargeDate    : $nextChargeDate,
+            nextChargeAmount  : $nextChargeAmount,
         ));
     }
 }
