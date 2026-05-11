@@ -16,10 +16,17 @@ use function Pest\Laravel\withoutMiddleware;
 
 beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 
-test('login screen can be rendered', function () {
+test('login screen can be rendered with typed props', function () {
     $response = get(route('login'));
 
     $response->assertOk();
+    $response->assertInertia(
+        fn ($page) => $page
+            ->component('auth/Login')
+            ->has('canResetPassword')
+            ->has('canRegister')
+            ->where('status', null)
+    );
 });
 
 test('users can authenticate using the login screen', function () {

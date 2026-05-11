@@ -6,8 +6,12 @@ namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Data\Auth\AuthLoginProps;
+use App\Data\Auth\AuthLoginRequest;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -39,6 +43,18 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        Fortify::authenticateUsing(function (Request $request) {
+            $data = AuthLoginRequest::from($request);
+
+            $user = User::where('email', $data->email)->first();
+
+            if ($user && Hash::check($data->password, $user->password)) {
+                return $user;
+            }
+
+            return null;
+        });
     }
 
     /**
@@ -46,11 +62,11 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
-        Fortify::loginView(fn (Request $request) => Inertia::render('auth/Login', [
-            'canResetPassword' => Features::enabled(Features::resetPasswords()),
-            'canRegister'      => Features::enabled(Features::registration()),
-            'status'           => $request->session()->get('status'),
-        ]));
+        Fortify::loginView(fn (Request $request) => Inertia::render('auth/Login', new AuthLoginProps(
+            canResetPassword: Features::enabled(Features::resetPasswords()),
+            canRegister: Features::enabled(Features::registration()),
+            status: $request->session()->get('status'),
+        )));
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/ResetPassword', [
             'email' => $request->string('email'),

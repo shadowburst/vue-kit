@@ -19,11 +19,7 @@ defineOptions({
     },
 });
 
-defineProps<{
-    status?: string;
-    canResetPassword: boolean;
-    canRegister: boolean;
-}>();
+defineProps<App.Data.Auth.AuthLoginProps>();
 </script>
 
 <template>
