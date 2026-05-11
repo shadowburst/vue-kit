@@ -4,6 +4,7 @@ import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import ConfirmablePasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/ConfirmablePasswordController';
 import { Form, Head } from '@inertiajs/vue3';
 
@@ -31,6 +32,7 @@ defineProps<App.Data.Auth.AuthConfirmPasswordProps>();
                     required
                     autocomplete="current-password"
                     autofocus
+                    :maxlength="StringMaxLength.Short"
                 />
 
                 <InputError :message="errors.password" />

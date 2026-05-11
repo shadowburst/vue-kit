@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Data\Auth;
 
+use App\Enums\Validation\StringMaxLength;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
@@ -17,7 +18,7 @@ final class AuthForgotPasswordRequest extends Data
     public static function rules(?ValidationContext $context = null): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string', 'email', StringMaxLength::Medium->maxRule()],
         ];
     }
 }

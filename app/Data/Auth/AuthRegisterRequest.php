@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Data\Auth;
 
+use App\Enums\Validation\StringMaxLength;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -24,9 +25,9 @@ final class AuthRegisterRequest extends Data
     public static function rules(?ValidationContext $context = null): array
     {
         return [
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', Rule::unique(User::class)],
-            'password' => ['required', 'string', Password::default(), 'confirmed'],
+            'name' => ['required', 'string', StringMaxLength::Short->maxRule()],
+            'email' => ['required', 'string', 'email', StringMaxLength::Medium->maxRule(), Rule::unique(User::class)],
+            'password' => ['required', 'string', StringMaxLength::Short->maxRule(), Password::default(), 'confirmed'],
         ];
     }
 }

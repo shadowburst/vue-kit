@@ -7,6 +7,7 @@ import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
+import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
 import TwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticationController';
 import { Form, Head } from '@inertiajs/vue3';
@@ -61,6 +62,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                     name="current_password"
                     class="mt-1 block w-full"
                     autocomplete="current-password"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Current password"
                 />
                 <InputError :message="errors.current_password" />
@@ -73,6 +75,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                     name="password"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="New password"
                 />
                 <InputError :message="errors.password" />
@@ -85,6 +88,7 @@ onUnmounted(() => clearTwoFactorAuthData());
                     name="password_confirmation"
                     class="mt-1 block w-full"
                     autocomplete="new-password"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Confirm password"
                 />
                 <InputError :message="errors.password_confirmation" />

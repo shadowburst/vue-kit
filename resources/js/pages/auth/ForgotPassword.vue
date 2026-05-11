@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import PasswordResetLinkController from '@/wayfinder/Laravel/Fortify/Http/Controllers/PasswordResetLinkController';
 import { Form, Head } from '@inertiajs/vue3';
@@ -36,6 +37,7 @@ defineProps<App.Data.Auth.AuthForgotPasswordProps>();
                     name="email"
                     autocomplete="off"
                     autofocus
+                    :maxlength="StringMaxLength.Medium"
                     placeholder="email@example.com"
                 />
                 <InputError :message="errors.email" />

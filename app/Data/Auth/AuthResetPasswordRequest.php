@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Data\Auth;
 
+use App\Enums\Validation\StringMaxLength;
 use Illuminate\Validation\Rules\Password;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
@@ -23,9 +24,9 @@ final class AuthResetPasswordRequest extends Data
     public static function rules(?ValidationContext $context = null): array
     {
         return [
-            'token'    => ['required', 'string'],
-            'email'    => ['required', 'string', 'email'],
-            'password' => ['required', 'string', Password::default(), 'confirmed'],
+            'token' => ['required', 'string', StringMaxLength::Medium->maxRule()],
+            'email' => ['required', 'string', 'email', StringMaxLength::Medium->maxRule()],
+            'password' => ['required', 'string', StringMaxLength::Short->maxRule(), Password::default(), 'confirmed'],
         ];
     }
 }

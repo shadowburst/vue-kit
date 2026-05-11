@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import NewPasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/NewPasswordController';
 import { Form, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
@@ -40,6 +41,7 @@ const inputEmail = ref(props.email);
                     autocomplete="email"
                     v-model="inputEmail"
                     class="mt-1 block w-full"
+                    :maxlength="StringMaxLength.Medium"
                     readonly
                 />
                 <InputError :message="errors.email" class="mt-2" />
@@ -53,6 +55,7 @@ const inputEmail = ref(props.email);
                     autocomplete="new-password"
                     class="mt-1 block w-full"
                     autofocus
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Password"
                 />
                 <InputError :message="errors.password" />
@@ -65,6 +68,7 @@ const inputEmail = ref(props.email);
                     name="password_confirmation"
                     autocomplete="new-password"
                     class="mt-1 block w-full"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Confirm password"
                 />
                 <InputError :message="errors.password_confirmation" />

@@ -21,7 +21,7 @@ arch('no class in app/ extends FormRequest (ADR-0017 D6: FormRequest is replaced
 test('Data classes have allowed suffixes (Data, Request, Resource, Props)', function (): void {
     $allowed = ['Data', 'Request', 'Resource', 'Props'];
 
-    $dataDir    = realpath(__DIR__.'/../../app/Data');
+    $dataDir = realpath(__DIR__.'/../../app/Data');
     $violations = [];
 
     if ($dataDir === false) {
@@ -37,7 +37,7 @@ test('Data classes have allowed suffixes (Data, Request, Resource, Props)', func
             continue;
         }
 
-        $realPath     = realpath($file->getPathname());
+        $realPath = realpath($file->getPathname());
         $relativePath = ltrim(
             str_replace([$dataDir, '.php'], ['', ''], $realPath === false ? '' : $realPath),
             DIRECTORY_SEPARATOR,
@@ -60,7 +60,7 @@ test('Data classes have allowed suffixes (Data, Request, Resource, Props)', func
 });
 
 test('Data classes extend the correct Spatie LaravelData base class', function (): void {
-    $dataDir    = realpath(__DIR__.'/../../app/Data');
+    $dataDir = realpath(__DIR__.'/../../app/Data');
     $violations = [];
 
     if ($dataDir === false) {
@@ -76,7 +76,7 @@ test('Data classes extend the correct Spatie LaravelData base class', function (
             continue;
         }
 
-        $realPath     = realpath($file->getPathname());
+        $realPath = realpath($file->getPathname());
         $relativePath = ltrim(
             str_replace([$dataDir, '.php'], ['', ''], $realPath === false ? '' : $realPath),
             DIRECTORY_SEPARATOR,
@@ -87,7 +87,7 @@ test('Data classes extend the correct Spatie LaravelData base class', function (
             continue;
         }
 
-        $ref       = new ReflectionClass($className);
+        $ref = new ReflectionClass($className);
         $shortName = $ref->getShortName();
 
         $expectsResource = str_ends_with($shortName, 'Resource') || str_ends_with($shortName, 'Props');
@@ -132,6 +132,48 @@ test('no Data class lives at the root of app/Data/ (ADR-0017: subgrouping by nou
     expect($violations)->toBeEmpty(implode("\n", $violations));
 });
 
+// String `max:` rules in Data classes must reference App\Enums\Validation\StringMaxLength
+// rather than a literal integer, so the cap is one of three deliberate tiers (ADR-0018).
+test('string max rules in Data classes go through StringMaxLength enum', function (): void {
+    $dataDir = realpath(__DIR__.'/../../app/Data');
+
+    if ($dataDir === false) {
+        return;
+    }
+
+    $violations = [];
+
+    /** @var SplFileInfo $file */
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+        $dataDir,
+        FilesystemIterator::SKIP_DOTS,
+    )) as $file) {
+        if ($file->getExtension() !== 'php') {
+            continue;
+        }
+
+        $realPath = realpath($file->getPathname());
+
+        if ($realPath === false) {
+            continue;
+        }
+
+        $contents = file_get_contents($realPath);
+
+        if ($contents === false) {
+            continue;
+        }
+
+        if (preg_match_all('/[\'"]max:\d+[\'"]/', $contents, $matches) > 0) {
+            foreach ($matches[0] as $match) {
+                $violations[] = "{$realPath}: literal {$match} — use StringMaxLength::*->maxRule() instead (ADR-0018)";
+            }
+        }
+    }
+
+    expect($violations)->toBeEmpty(implode("\n", $violations));
+});
+
 // Non-abstract Data classes must be final — arch() has no "non-abstract" filter,
 // so a test() loop inspects each concrete class directly.
 test('non-abstract Data classes are final', function (): void {
@@ -159,7 +201,7 @@ test('non-abstract Data classes are final', function (): void {
         }
 
         $relativePath = ltrim(str_replace([$dataDir, '.php'], ['', ''], $realPath), DIRECTORY_SEPARATOR);
-        $className    = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+        $className = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
 
         if (! class_exists($className)) {
             continue;
