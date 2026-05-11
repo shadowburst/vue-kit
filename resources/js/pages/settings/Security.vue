@@ -9,12 +9,11 @@ import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
 import TwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticationController';
-import type { Inertia } from '@/wayfinder/types';
 import { Form, Head } from '@inertiajs/vue3';
 import { ShieldCheck } from '@lucide/vue';
 import { onUnmounted, ref } from 'vue';
 
-defineProps<Inertia.Pages.Settings.Security>();
+defineProps<App.Data.Security.SecurityEditProps>();
 
 defineOptions({
     layout: {

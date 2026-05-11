@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings\Team;
 
+use App\Data\Billing\TeamCheckoutRequest;
 use App\Enums\Subscription\SubscriptionInterval;
 use App\Enums\Subscription\SubscriptionTier;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\Team\CheckoutRequest;
 use App\Services\Team\TeamContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
@@ -15,15 +15,13 @@ use Laravel\Cashier\Subscription;
 
 final class CheckoutController extends Controller
 {
-    public function store(CheckoutRequest $request, TeamContext $teamContext): RedirectResponse
+    public function store(TeamCheckoutRequest $request, TeamContext $teamContext): RedirectResponse
     {
         $team = $teamContext->currentOrFail();
 
         Gate::authorize('update', [Subscription::class, $team]);
 
-        $interval = SubscriptionInterval::from((string) $request->validated('interval'));
-
-        $priceId = $interval === SubscriptionInterval::Monthly
+        $priceId = $request->interval === SubscriptionInterval::Monthly
             ? SubscriptionTier::Pro->stripeMonthlyId()
             : SubscriptionTier::Pro->stripeYearlyId();
 

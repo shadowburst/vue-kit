@@ -11,16 +11,7 @@ import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { computed, onMounted, ref } from 'vue';
 
-type Props = {
-    tier: 'free' | 'pro';
-    interval: 'monthly' | 'yearly' | null;
-    subscriptionStatus: 'active' | 'grace' | null;
-    pmLastFour: string | null;
-    nextChargeDate: string | null;
-    nextChargeAmount: string | null;
-};
-
-defineProps<Props>();
+defineProps<App.Data.Billing.TeamBillingProps>();
 
 defineOptions({
     layout: {

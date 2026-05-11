@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
+use App\Data\Password\PasswordUpdateRequest;
+use App\Data\Security\SecurityEditProps;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
@@ -42,12 +43,12 @@ final class SecurityController extends Controller implements HasMiddleware
             $request->ensureStateIsValid();
         }
 
-        return Inertia::render('settings/Security', [
-            'canManageTwoFactor'   => $canManageTwoFactor,
-            'twoFactorEnabled'     => $canManageTwoFactor && $user->hasEnabledTwoFactorAuthentication(),
-            'requiresConfirmation' => $canManageTwoFactor
+        return Inertia::render('settings/Security', new SecurityEditProps(
+            canManageTwoFactor: $canManageTwoFactor,
+            twoFactorEnabled: $canManageTwoFactor && $user->hasEnabledTwoFactorAuthentication(),
+            requiresConfirmation: $canManageTwoFactor
                 && Features::optionEnabled(Features::twoFactorAuthentication(), 'confirm'),
-        ]);
+        ));
     }
 
     /**
@@ -56,7 +57,7 @@ final class SecurityController extends Controller implements HasMiddleware
     public function update(PasswordUpdateRequest $request, #[CurrentUser] User $user): RedirectResponse
     {
         $user->update([
-            'password' => (string) $request->validated('password'),
+            'password' => $request->password,
         ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);

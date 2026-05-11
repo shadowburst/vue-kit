@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
+use App\Data\User\ProfileDeleteRequest;
+use App\Data\User\ProfileUpdateRequest;
 use App\Data\User\UserProfileProps;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Settings\ProfileDeleteRequest;
-use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -38,9 +38,7 @@ final class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request, #[CurrentUser] User $user): RedirectResponse
     {
-        /** @var array<string, mixed> $validated */
-        $validated = $request->validated();
-        $user->fill($validated);
+        $user->fill(['name' => $request->name, 'email' => $request->email]);
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -56,7 +54,7 @@ final class ProfileController extends Controller
     /**
      * Delete the user's profile.
      */
-    public function destroy(ProfileDeleteRequest $request, #[CurrentUser] User $user): RedirectResponse
+    public function destroy(ProfileDeleteRequest $data, Request $request, #[CurrentUser] User $user): RedirectResponse
     {
         Auth::logout();
 

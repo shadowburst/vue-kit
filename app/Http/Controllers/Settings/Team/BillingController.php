@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings\Team;
 
+use App\Data\Billing\TeamBillingProps;
 use App\Enums\Subscription\SubscriptionInterval;
 use App\Enums\Subscription\SubscriptionTier;
 use App\Http\Controllers\Controller;
@@ -57,13 +58,13 @@ final class BillingController extends Controller
             }
         }
 
-        return Inertia::render('settings/team/Billing', [
-            'tier'               => $tier->value,
-            'interval'           => $interval,
-            'subscriptionStatus' => $subscriptionStatus,
-            'pmLastFour'         => $pmLastFour,
-            'nextChargeDate'     => $nextChargeDate,
-            'nextChargeAmount'   => $nextChargeAmount,
-        ]);
+        return Inertia::render('settings/team/Billing', new TeamBillingProps(
+            tier: $tier,
+            interval: $interval,
+            subscriptionStatus: $subscriptionStatus,
+            pmLastFour: $pmLastFour,
+            nextChargeDate: $nextChargeDate,
+            nextChargeAmount: $nextChargeAmount,
+        ));
     }
 }

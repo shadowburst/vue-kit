@@ -86,8 +86,11 @@ test('Data classes extend the correct Spatie LaravelData base class', function (
             $violations[] = "{$className}: *Resource/*Props must extend ".Resource::class;
         }
 
-        if (! $expectsResource && ! $ref->isSubclassOf(Data::class)) {
-            $violations[] = "{$className}: *Data/*Request must extend ".Data::class;
+        // SharedData (ADR-0017 D8) extends Resource by design — accept both base classes for *Data/*Request.
+        $isSpatieDataClass = $ref->isSubclassOf(Data::class) || $ref->isSubclassOf(Resource::class);
+
+        if (! $expectsResource && ! $isSpatieDataClass) {
+            $violations[] = "{$className}: *Data/*Request must extend ".Data::class." or ".Resource::class;
         }
     }
 

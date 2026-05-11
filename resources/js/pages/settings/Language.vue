@@ -9,6 +9,8 @@ import LocaleController from '@/wayfinder/App/Http/Controllers/Settings/LocaleCo
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 
+defineProps<App.Data.Locale.LocaleEditProps>();
+
 defineOptions({
     layout: {
         breadcrumbs: [
