@@ -8,11 +8,10 @@ import { Label } from '@/components/ui/label';
 import { useFormat } from '@/composables/useFormat';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
-import type { Inertia } from '@/wayfinder/types';
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-defineProps<Inertia.Pages.Settings.Profile>();
+defineProps<App.Data.User.UserProfileProps>();
 
 defineOptions({
     layout: {

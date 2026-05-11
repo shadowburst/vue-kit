@@ -14,9 +14,15 @@ beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 test('profile page is displayed', function () {
     $user = User::factory()->createOne();
 
-    $response = actingAs($user)->get(route('profile.edit'));
-
-    $response->assertOk();
+    actingAs($user)
+        ->get(route('profile.edit'))
+        ->assertInertia(fn ($page) => $page
+            ->component('settings/Profile')
+            ->has('mustVerifyEmail')
+            ->where('mustVerifyEmail', false)
+            ->has('status')
+            ->where('status', null)
+        );
 });
 
 test('profile information can be updated', function () {
@@ -24,7 +30,7 @@ test('profile information can be updated', function () {
 
     $response = actingAs($user)
         ->patch(route('profile.update'), [
-            'name'  => 'Test User',
+            'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
 
@@ -44,7 +50,7 @@ test('email verification status is unchanged when the email address is unchanged
 
     $response = actingAs($user)
         ->patch(route('profile.update'), [
-            'name'  => 'Test User',
+            'name' => 'Test User',
             'email' => $user->email,
         ]);
 

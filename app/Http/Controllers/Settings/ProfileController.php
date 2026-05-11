@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
+use App\Data\User\UserProfileProps;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
@@ -26,10 +27,10 @@ final class ProfileController extends Controller
         /** @var string|null $status */
         $status = $request->session()->get('status');
 
-        return Inertia::render('settings/Profile', [
-            'mustVerifyEmail' => $user instanceof MustVerifyEmail,
-            'status'          => $status,
-        ]);
+        return Inertia::render('settings/Profile', new UserProfileProps(
+            mustVerifyEmail: $user instanceof MustVerifyEmail,
+            status: $status,
+        ));
     }
 
     /**
