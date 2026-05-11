@@ -10,6 +10,7 @@ use App\Observers\TeamObserver;
 use Database\Factories\TeamFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,6 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon $updated_at
  * @property-read array<string, mixed> $features
  * @property-read User $owner
+ * @property-read Collection<int, User> $members
  */
 #[ObservedBy(TeamObserver::class)]
 class Team extends Model

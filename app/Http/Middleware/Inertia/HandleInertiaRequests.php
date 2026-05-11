@@ -6,6 +6,7 @@ namespace App\Http\Middleware\Inertia;
 
 use App\Data\Auth\AuthAbilitiesData;
 use App\Enums\Permission\Permission;
+use App\Http\Resources\Team\TeamResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\Team;
 use App\Models\User;
@@ -51,6 +52,9 @@ class HandleInertiaRequests extends Middleware
         $user        = $request->user();
         $currentTeam = $this->teamContext->current();
 
+        $user?->loadMissing('teams.subscriptions');
+        $currentTeam?->loadMissing('subscriptions');
+
         /** @var string $appName */
         $appName = config('app.name');
 
@@ -63,12 +67,7 @@ class HandleInertiaRequests extends Middleware
                 'features'     => fn () => $currentTeam !== null ? $currentTeam->features : [],
                 'subscription' => fn () => $this->subscriptionGracePeriodData($user, $currentTeam),
             ],
-            'currentTeam' => $currentTeam !== null
-                ? [
-                    'id'   => $currentTeam->id,
-                    'name' => $currentTeam->name,
-                    'slug' => $currentTeam->slug,
-                ] : null,
+            'currentTeam' => $currentTeam !== null ? TeamResource::make($currentTeam) : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale'      => app()->getLocale(),
         ];

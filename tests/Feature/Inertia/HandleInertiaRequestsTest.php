@@ -39,6 +39,31 @@ test('guest request shares null currentTeam and null auth.user', function (): vo
 // because teams.create (the only auth-only Inertia route) is exempt from SetCurrentTeam
 // to prevent redirect loops — SetCurrentTeam's own test covers that flow.
 
+test('currentTeam prop is shaped by TeamResource for authenticated user', function (): void {
+    $user = User::factory()->createOne();
+    $team = (new CreateTeam)->execute('Acme Corp', $user);
+    $user->update(['current_team_id' => $team->id]);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    app(TeamContext::class)->setTeam($team);
+
+    actingAs($user);
+
+    get(route('dashboard'))
+        ->assertOk()
+        /** @mago-expect analysis:non-documented-method */
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->where('currentTeam.id', $team->id)
+                ->where('currentTeam.name', 'Acme Corp')
+                ->where('currentTeam.slug', 'acme-corp')
+                ->where('currentTeam.tier', 'free')
+                ->has('currentTeam.features')
+                ->missing('currentTeam.stripe_id')
+                ->missing('currentTeam.owner_id'),
+        );
+});
+
 test('auth.user prop is shaped by UserResource and includes loaded teams', function (): void {
     $user = User::factory()->createOne();
     $team = (new CreateTeam)->execute('Acme Corp', $user);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources\User;
 
-use App\Models\Team;
+use App\Http\Resources\Team\TeamResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -42,11 +42,7 @@ class UserResource extends JsonResource
                 'currentTeam',
                 fn (): bool => $this->currentTeam?->owner_id === $this->id,
             ),
-            'teams'             => $this->whenLoaded('teams', fn () => $this->teams->map(fn (Team $team) => [
-                'id'   => $team->id,
-                'name' => $team->name,
-                'slug' => $team->slug,
-            ])->all()),
+            'teams'             => $this->whenLoaded('teams', fn () => TeamResource::collection($this->teams)),
         ];
     }
 }
