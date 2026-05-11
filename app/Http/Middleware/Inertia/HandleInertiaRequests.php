@@ -6,6 +6,8 @@ namespace App\Http\Middleware\Inertia;
 
 use App\Data\Auth\AuthAbilitiesData;
 use App\Enums\Permission\Permission;
+use App\Http\Resources\Team\TeamResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\Team\TeamContext;
@@ -46,33 +48,31 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        /** @var User|null $user */
+        /** @var ?User $user */
         $user        = $request->user();
         $currentTeam = $this->teamContext->current();
 
+        $user?->loadMissing('teams.subscriptions');
+        $currentTeam?->loadMissing('subscriptions');
+
         /** @var string $appName */
         $appName = config('app.name');
+
+        /** @var UserResource|null $userResource */
+        $userResource = $user !== null ? UserResource::make($user) : null;
+        /** @var TeamResource|null $currentTeamResource */
+        $currentTeamResource = $currentTeam !== null ? TeamResource::make($currentTeam) : null;
 
         return [
             ...parent::share($request),
             'name'        => $appName,
             'auth'        => [
-                'user'         => $user instanceof User
-                    ? [
-                        ...$user->toArray(),
-                        'teams'       => $user->teams()->get(['teams.id', 'teams.name', 'teams.slug']),
-                        'permissions' => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
-                    ] : null,
+                'user'         => $userResource,
                 'abilities'    => fn () => AuthAbilitiesData::fromUser($user, $currentTeam),
                 'features'     => fn () => $currentTeam !== null ? $currentTeam->features : [],
                 'subscription' => fn () => $this->subscriptionGracePeriodData($user, $currentTeam),
             ],
-            'currentTeam' => $currentTeam !== null
-                ? [
-                    'id'   => $currentTeam->id,
-                    'name' => $currentTeam->name,
-                    'slug' => $currentTeam->slug,
-                ] : null,
+            'currentTeam' => $currentTeamResource,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale'      => app()->getLocale(),
         ];

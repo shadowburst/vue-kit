@@ -182,6 +182,8 @@ follow the same rule.
   `@/types` (`UserMenuContent.vue`, `UserInfo.vue`, etc.) migrate
   to `App.Models.*`.
 
+> **Narrowed by ADR-0017:** For Eloquent model shapes specifically, sub-components reference `App.Http.Resources.*`-derived types (not `App.Models.*`) — see [ADR-0017](0017-eloquent-via-jsonresource.md). Non-Eloquent typed shapes (`AuthAbilitiesData`, `UserSettingsData`) remain in `App.Data.*`.
+
 ---
 
 ## Decision 4 — FormRequests Use Inline Rules; Fortify Gets Typed via Custom Controllers

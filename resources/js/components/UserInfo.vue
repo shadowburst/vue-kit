@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useInitials } from '@/composables/useInitials';
-import type { App } from '@/wayfinder/types';
 
 withDefaults(
     defineProps<{
-        user: App.Models.User;
+        user: App.Http.Resources.User.UserResource;
         showEmail?: boolean;
     }>(),
     { showEmail: false },

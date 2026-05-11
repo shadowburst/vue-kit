@@ -8,12 +8,11 @@ import {
 import UserInfo from '@/components/UserInfo.vue';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
-import type { App } from '@/wayfinder/types';
 import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from '@lucide/vue';
 
 defineProps<{
-    user: App.Models.User;
+    user: App.Http.Resources.User.UserResource;
 }>();
 
 const handleLogout = () => {
