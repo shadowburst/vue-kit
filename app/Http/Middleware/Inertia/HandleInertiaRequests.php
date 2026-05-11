@@ -6,6 +6,7 @@ namespace App\Http\Middleware\Inertia;
 
 use App\Data\Auth\AuthAbilitiesData;
 use App\Enums\Permission\Permission;
+use App\Http\Resources\User\UserResource;
 use App\Models\Team;
 use App\Models\User;
 use App\Services\Team\TeamContext;
@@ -46,7 +47,7 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        /** @var User|null $user */
+        /** @var ?User $user */
         $user        = $request->user();
         $currentTeam = $this->teamContext->current();
 
@@ -57,12 +58,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name'        => $appName,
             'auth'        => [
-                'user'         => $user instanceof User
-                    ? [
-                        ...$user->toArray(),
-                        'teams'       => $user->teams()->get(['teams.id', 'teams.name', 'teams.slug']),
-                        'permissions' => $user->getAllPermissions()->pluck('name')->sort()->values()->all(),
-                    ] : null,
+                'user'         => $user ? UserResource::make($user) : null,
                 'abilities'    => fn () => AuthAbilitiesData::fromUser($user, $currentTeam),
                 'features'     => fn () => $currentTeam !== null ? $currentTeam->features : [],
                 'subscription' => fn () => $this->subscriptionGracePeriodData($user, $currentTeam),
