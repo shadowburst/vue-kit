@@ -5,6 +5,14 @@ declare(strict_types=1);
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Resource;
 
+arch('no class in app/ extends JsonResource (ADR-0017 D1: JsonResource is replaced by Spatie Data)')
+    ->expect('App')
+    ->not->toExtend('Illuminate\Http\Resources\Json\JsonResource');
+
+arch('no class in app/ extends FormRequest (ADR-0017 D6: FormRequest is replaced by Spatie Data)')
+    ->expect('App')
+    ->not->toExtend('Illuminate\Foundation\Http\FormRequest');
+
 /**
  * ADR-0017 D2 four-stub taxonomy:
  *   *Data / *Request  → extends Data   (input+output DTOs and request objects)
@@ -90,7 +98,7 @@ test('Data classes extend the correct Spatie LaravelData base class', function (
         $isSpatieDataClass = $ref->isSubclassOf(Data::class) || $ref->isSubclassOf(Resource::class);
 
         if (! $expectsResource && ! $isSpatieDataClass) {
-            $violations[] = "{$className}: *Data/*Request must extend ".Data::class." or ".Resource::class;
+            $violations[] = "{$className}: *Data/*Request must extend ".Data::class.' or '.Resource::class;
         }
     }
 
