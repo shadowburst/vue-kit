@@ -105,6 +105,29 @@ test('Data classes extend the correct Spatie LaravelData base class', function (
     expect($violations)->toBeEmpty(implode("\n", $violations));
 });
 
+test('no Data class lives at the root of app/Data/ (ADR-0017: subgrouping by noun required)', function (): void {
+    $dataDir = realpath(__DIR__.'/../../app/Data');
+
+    if ($dataDir === false) {
+        return;
+    }
+
+    $violations = [];
+
+    /** @var SplFileInfo $file */
+    foreach (new DirectoryIterator($dataDir) as $file) {
+        if ($file->isDot() || $file->isDir()) {
+            continue;
+        }
+
+        if ($file->getExtension() === 'php') {
+            $violations[] = $file->getFilename().': must live in a noun subdirectory (e.g. app/Data/User/), not directly in app/Data/';
+        }
+    }
+
+    expect($violations)->toBeEmpty(implode("\n", $violations));
+});
+
 // Non-abstract Data classes must be final — arch() has no "non-abstract" filter,
 // so a test() loop inspects each concrete class directly.
 test('non-abstract Data classes are final', function (): void {
