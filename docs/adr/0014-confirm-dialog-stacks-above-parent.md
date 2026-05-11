@@ -1,6 +1,6 @@
 # ADR 0014: ConfirmDialog Stacks Above a Parent Dialog
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR-0017
 - **Date:** May 2026
 
 ## Context

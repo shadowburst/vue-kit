@@ -1,3 +1,4 @@
+import { ModalRoot } from '@/components/ui/custom/inertia-modal';
 import { initializeTheme } from '@/composables/useAppearance';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
@@ -30,7 +31,7 @@ createInertiaApp({
         }
 
         let mounted = false;
-        const app = createApp({ render: () => h(App, props) })
+        const app = createApp({ render: () => h(ModalRoot, () => h(App, props)) })
             .use(plugin)
             .use(i18nVue, {
                 lang: (props.initialPage.props as Record<string, unknown>).locale as string,

@@ -1,26 +1,32 @@
 <script lang="ts" setup>
 import { cn } from '@/lib/utils';
+import { reactiveOmit } from '@vueuse/core';
 import type { DialogContentEmits, DialogContentProps } from 'reka-ui';
 import { useForwardPropsEmits } from 'reka-ui';
 import { DrawerContent, DrawerPortal } from 'vaul-vue';
-import type { HTMLAttributes } from 'vue';
+import { computed, type HTMLAttributes } from 'vue';
 import DrawerOverlay from './DrawerOverlay.vue';
 
 defineOptions({
     inheritAttrs: false,
 });
 
-const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();
+const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class']; zIndex?: number }>();
 const emits = defineEmits<DialogContentEmits>();
 
-const forwarded = useForwardPropsEmits(props, emits);
+const delegatedProps = reactiveOmit(props, 'zIndex');
+
+const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+const zStyle = computed(() => (props.zIndex != null ? { zIndex: props.zIndex } : undefined));
 </script>
 
 <template>
     <DrawerPortal>
-        <DrawerOverlay />
+        <DrawerOverlay :style="zStyle" />
         <DrawerContent
             data-slot="drawer-content"
+            :style="zStyle"
             v-bind="{ ...$attrs, ...forwarded }"
             :class="
                 cn(

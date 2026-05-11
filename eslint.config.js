@@ -54,11 +54,18 @@ export default defineConfigWithVueTs(
         files: ['resources/js/**/*.{ts,vue}'],
         rules: {
             'no-restricted-imports': ['error', {
-                paths: [{
-                    name: '@inertiajs/vue3',
-                    importNames: ['Form'],
-                    message: 'Import Form from @/components/ui/custom/form instead — the wrapper provides the form context.',
-                }],
+                paths: [
+                    {
+                        name: '@inertiajs/vue3',
+                        importNames: ['Form'],
+                        message: 'Import Form from @/components/ui/custom/form instead — the wrapper provides the form context.',
+                    },
+                    {
+                        name: '@inertiaui/modal-vue',
+                        importNames: ['Modal', 'ModalLink', 'HeadlessModal', 'ModalRoot'],
+                        message: 'Import from @/components/ui/custom/inertia-modal instead — the wrapper renders modals through SmartDialog.',
+                    },
+                ],
                 patterns: [{
                     group: ['@/components/ui/field', '@/components/ui/field/*'],
                     message: 'Import field components from @/components/ui/custom/form instead — the shadcn field primitives are wrapped there.',

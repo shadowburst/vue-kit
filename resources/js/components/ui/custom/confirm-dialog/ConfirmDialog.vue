@@ -11,7 +11,8 @@ type ConfirmDialogContext = {
     confirm: (state: Partial<ConfirmDialogState>) => void;
 };
 
-export const [injectConfirmDialogContext, provideConfirmDialogContext] = createContext<ConfirmDialogContext>('ConfirmDialog');
+export const [injectConfirmDialogContext, provideConfirmDialogContext] =
+    createContext<ConfirmDialogContext>('ConfirmDialog');
 </script>
 
 <script setup lang="ts">
@@ -52,7 +53,7 @@ provideConfirmDialogContext({
 <template>
     <SmartDialog v-model:open="open">
         <slot />
-        <SmartDialogContent overlay-class="z-[60]">
+        <SmartDialogContent>
             <SmartDialogHeader>
                 <SmartDialogTitle>
                     {{ state.title ?? $t(`components.ui.custom.confirm_dialog.title.${state.variant}`) }}
