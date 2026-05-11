@@ -58,16 +58,21 @@ class HandleInertiaRequests extends Middleware
         /** @var string $appName */
         $appName = config('app.name');
 
+        /** @var UserResource|null $userResource */
+        $userResource = $user !== null ? UserResource::make($user) : null;
+        /** @var TeamResource|null $currentTeamResource */
+        $currentTeamResource = $currentTeam !== null ? TeamResource::make($currentTeam) : null;
+
         return [
             ...parent::share($request),
             'name'        => $appName,
             'auth'        => [
-                'user'         => $user ? UserResource::make($user) : null,
+                'user'         => $userResource,
                 'abilities'    => fn () => AuthAbilitiesData::fromUser($user, $currentTeam),
                 'features'     => fn () => $currentTeam !== null ? $currentTeam->features : [],
                 'subscription' => fn () => $this->subscriptionGracePeriodData($user, $currentTeam),
             ],
-            'currentTeam' => $currentTeam !== null ? TeamResource::make($currentTeam) : null,
+            'currentTeam' => $currentTeamResource,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'locale'      => app()->getLocale(),
         ];

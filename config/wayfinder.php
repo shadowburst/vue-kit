@@ -13,7 +13,7 @@ return [
                 'names' => ['debugbar.*', 'admin.*', 'boost.*'],
             ],
         ],
-        'models'                => env('WAYFINDER_GENERATE_MODELS', true),
+        'models'                => env('WAYFINDER_GENERATE_MODELS', false),
         'inertia'               => [
             'shared_data' => env('WAYFINDER_GENERATE_INERTIA_SHARED_DATA', true),
             'component'   => env('WAYFINDER_GENERATE_INERTIA_COMPONENT', true),

@@ -16,13 +16,14 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScriptType;
  */
 #[TypeScript]
 #[TypeScriptType([
-    'id'                => 'number',
+    'id'                => 'int',
     'name'              => 'string',
     'email'             => 'string',
-    'email_verified_at' => 'string | null',
-    'current_team_id'   => 'number | null',
+    'email_verified_at' => 'string|null',
+    'current_team_id'   => 'int|null',
     'permissions'       => 'string[]',
-    'is_owner'          => 'boolean | null',
+    'is_owner'          => 'bool|null',
+    'teams'             => '\App\Http\Resources\Team\TeamResource[]',
 ])]
 class UserResource extends JsonResource
 {

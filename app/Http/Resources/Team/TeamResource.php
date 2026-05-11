@@ -16,11 +16,11 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScriptType;
  */
 #[TypeScript]
 #[TypeScriptType([
-    'id'       => 'number',
+    'id'       => 'int',
     'name'     => 'string',
     'slug'     => 'string',
-    'tier'     => 'App.Enums.Subscription.SubscriptionTier',
-    'features' => 'Record<string, unknown>',
+    'tier'     => '\App\Enums\Subscription\SubscriptionTier',
+    'features' => 'array<string, mixed>',
 ])]
 class TeamResource extends JsonResource
 {

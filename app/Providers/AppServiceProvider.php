@@ -11,6 +11,7 @@ use App\Policies\SubscriptionPolicy;
 use App\Services\Team\TeamContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
@@ -58,6 +59,8 @@ class AppServiceProvider extends ServiceProvider
     {
         /** @mago-expect analysis:non-documented-method */
         Date::use(CarbonImmutable::class);
+
+        JsonResource::withoutWrapping();
 
         Model::preventLazyLoading(! app()->isProduction());
 

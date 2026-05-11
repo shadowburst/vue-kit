@@ -24,8 +24,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/teams/billing', [BillingController::class, 'show'])->name('teams.billing.show');
     Route::get('settings/teams/billing/portal', [PortalController::class, 'show'])->name('teams.billing.portal.show');
     Route::post('settings/teams/billing/checkout', [CheckoutController::class, 'store'])->name('teams.checkout.store');
-    Route::post('settings/teams/billing/cancel', [CancelController::class, 'store'])->name('teams.billing.cancel.store');
-    Route::post('settings/teams/billing/resume', [ResumeController::class, 'store'])->name('teams.billing.resume.store');
+    Route::post('settings/teams/billing/cancel', [CancelController::class, 'store'])->name(
+        'teams.billing.cancel.store',
+    );
+    Route::post('settings/teams/billing/resume', [ResumeController::class, 'store'])->name(
+        'teams.billing.resume.store',
+    );
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -34,8 +38,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('settings/security', [SecurityController::class, 'edit'])->name('security.edit');
 
     Route::put('settings/password', [SecurityController::class, 'update'])
-        ->middleware('throttle:6,1')
-        ->name('user-password.update');
+        ->name('user-password.update')
+        ->middleware('throttle:6,1');
 
     Route::get('settings/appearance', [AppearanceController::class, 'edit'])->name('appearance.edit');
 
