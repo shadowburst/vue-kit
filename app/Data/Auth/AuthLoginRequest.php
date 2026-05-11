@@ -6,9 +6,7 @@ namespace App\Data\Auth;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class AuthLoginRequest extends Data
 {
     public function __construct(

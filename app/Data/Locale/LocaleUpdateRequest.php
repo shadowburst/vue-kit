@@ -8,9 +8,7 @@ use App\Enums\Settings\Locale;
 use Illuminate\Validation\Rule;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class LocaleUpdateRequest extends Data
 {
     public function __construct(

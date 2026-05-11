@@ -8,9 +8,7 @@ use App\Models\Team;
 use App\Models\User;
 use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Resource;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class UserResource extends Resource
 {
     public function __construct(

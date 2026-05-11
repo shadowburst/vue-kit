@@ -7,9 +7,7 @@ namespace App\Data\Shared;
 use App\Data\Auth\AuthAbilitiesData;
 use App\Data\User\UserResource;
 use Spatie\LaravelData\Data;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class SharedAuthData extends Data
 {
     /**

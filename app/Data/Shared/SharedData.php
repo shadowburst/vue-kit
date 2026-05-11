@@ -6,9 +6,7 @@ namespace App\Data\Shared;
 
 use App\Data\Team\TeamResource;
 use Spatie\LaravelData\Resource;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class SharedData extends Resource
 {
     public function __construct(

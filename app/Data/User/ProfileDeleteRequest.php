@@ -6,9 +6,7 @@ namespace App\Data\User;
 
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class ProfileDeleteRequest extends Data
 {
     public function __construct(

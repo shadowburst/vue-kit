@@ -6,9 +6,7 @@ namespace App\Data\Billing;
 
 use App\Enums\Subscription\SubscriptionTier;
 use Spatie\LaravelData\Resource;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class TeamBillingProps extends Resource
 {
     public function __construct(

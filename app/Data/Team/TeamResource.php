@@ -10,9 +10,7 @@ use App\Models\Team;
 use App\Models\User;
 use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Resource;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class TeamResource extends Resource
 {
     /**

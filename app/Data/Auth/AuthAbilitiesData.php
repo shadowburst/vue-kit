@@ -9,9 +9,7 @@ use App\Models\Team;
 use App\Models\User;
 use Laravel\Cashier\Subscription;
 use Spatie\LaravelData\Data;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class AuthAbilitiesData extends Data
 {
     public function __construct(

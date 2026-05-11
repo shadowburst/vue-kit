@@ -7,7 +7,6 @@ namespace App\Providers;
 use Spatie\LaravelTypeScriptTransformer\LaravelData\LaravelDataTypeScriptTransformerExtension;
 use Spatie\LaravelTypeScriptTransformer\TypeScriptTransformerApplicationServiceProvider as BaseTypeScriptTransformerServiceProvider;
 use Spatie\TypeScriptTransformer\Formatters\PrettierFormatter;
-use Spatie\TypeScriptTransformer\Transformers\AttributedClassTransformer;
 use Spatie\TypeScriptTransformer\Transformers\EnumTransformer;
 use Spatie\TypeScriptTransformer\TypeScriptTransformerConfigFactory;
 use Spatie\TypeScriptTransformer\Writers\GlobalNamespaceWriter;
@@ -19,7 +18,6 @@ class TypeScriptTransformerServiceProvider extends BaseTypeScriptTransformerServ
         $config
             ->extension(new LaravelDataTypeScriptTransformerExtension)
             ->transformer(EnumTransformer::class)
-            ->transformer(AttributedClassTransformer::class)
             ->transformDirectories(app_path())
             ->writer(new GlobalNamespaceWriter)
             ->outputDirectory(resource_path('js/spatie'))

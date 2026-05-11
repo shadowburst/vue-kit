@@ -8,9 +8,7 @@ use App\Enums\Subscription\SubscriptionInterval;
 use Illuminate\Validation\Rules\Enum;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-#[TypeScript]
 final class TeamCheckoutRequest extends Data
 {
     public function __construct(
