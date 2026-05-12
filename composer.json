@@ -16,6 +16,7 @@
         "laravel/pennant": "^1.23",
         "laravel/tinker": "^3.0",
         "laravel/wayfinder": "dev-next",
+        "spatie/laravel-activitylog": "^5.0",
         "spatie/laravel-data": "^4.22",
         "spatie/laravel-permission": "^7.4",
         "spatie/laravel-queueable-action": "^2.17",

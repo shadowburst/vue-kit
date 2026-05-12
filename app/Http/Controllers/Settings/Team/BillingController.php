@@ -12,7 +12,7 @@ use App\Services\Team\TeamContext;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
-use Laravel\Cashier\Subscription;
+use App\Models\Subscription;
 
 final class BillingController extends Controller
 {

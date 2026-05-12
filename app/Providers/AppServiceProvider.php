@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Enums\Feature\Feature as FeatureEnum;
 use App\Listeners\PurgeFeaturesOnSubscriptionChange;
+use App\Models\Subscription;
 use App\Models\Team;
 use App\Policies\SubscriptionPolicy;
 use App\Services\Team\TeamContext;
@@ -20,7 +21,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\WebhookHandled;
-use Laravel\Cashier\Subscription;
 use Laravel\Pennant\Feature;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Cashier::useCustomerModel(Team::class);
+        Cashier::useSubscriptionModel(Subscription::class);
 
         Gate::policy(Subscription::class, SubscriptionPolicy::class);
 

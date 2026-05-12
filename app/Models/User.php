@@ -21,6 +21,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property int $id
@@ -45,7 +48,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasTeams, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
+    use HasFactory, HasTeams, LogsActivity, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
@@ -60,6 +63,21 @@ class User extends Authenticatable implements FilamentUser
             'two_factor_confirmed_at' => 'datetime',
             'settings'                => UserSettingsData::class,
         ];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
+    }
+
+    public function beforeActivityLogged(Activity $activity, string $eventName): void
+    {
+        if (auth()->check() && auth()->user()->can(Permission::Admin->value)) {
+            $activity->log_name = 'admin';
+        }
     }
 
     public function currentTeam(): BelongsTo

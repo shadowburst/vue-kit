@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Team\TeamContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
-use Laravel\Cashier\Subscription;
+use App\Models\Subscription;
 
 final class CheckoutController extends Controller
 {

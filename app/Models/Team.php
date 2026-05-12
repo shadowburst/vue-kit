@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Concerns\HasMembers;
 use App\Enums\Feature\Feature as FeatureEnum;
+use App\Enums\Permission\Permission;
 use App\Enums\Subscription\SubscriptionTier;
 use App\Observers\TeamObserver;
 use Database\Factories\TeamFactory;
@@ -20,6 +21,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Laravel\Cashier\Billable;
 use Laravel\Pennant\Feature;
+use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -45,9 +49,24 @@ use Spatie\Sluggable\SlugOptions;
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
-    use Billable, HasFactory, HasMembers, HasSlug, SoftDeletes;
+    use Billable, HasFactory, HasMembers, HasSlug, LogsActivity, SoftDeletes;
 
     protected $fillable = ['name', 'owner_id'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
+    }
+
+    public function beforeActivityLogged(Activity $activity, string $eventName): void
+    {
+        if (auth()->check() && auth()->user()->can(Permission::Admin->value)) {
+            $activity->log_name = 'admin';
+        }
+    }
 
     public function owner(): BelongsTo
     {
