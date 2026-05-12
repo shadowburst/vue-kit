@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Data\Billing;
 
-use App\Concerns\WithTranslatedAttributes;
 use App\Enums\Subscription\SubscriptionInterval;
 use Illuminate\Validation\Rules\Enum;
 use Spatie\LaravelData\Data;
@@ -12,8 +11,6 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 final class TeamCheckoutRequest extends Data
 {
-    use WithTranslatedAttributes;
-
     public function __construct(
         public SubscriptionInterval $interval,
     ) {}
@@ -23,6 +20,14 @@ final class TeamCheckoutRequest extends Data
     {
         return [
             'interval' => ['required', new Enum(SubscriptionInterval::class)],
+        ];
+    }
+
+    /** @return array<string, string> */
+    public static function attributes(mixed ...$args): array
+    {
+        return [
+            'interval' => (string) __('billing.attributes.interval'),
         ];
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Data\Settings;
 
-use App\Concerns\WithTranslatedAttributes;
 use App\Enums\Settings\Locale;
 use Illuminate\Validation\Rule;
 use Spatie\LaravelData\Data;
@@ -12,8 +11,6 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 final class LocaleUpdateRequest extends Data
 {
-    use WithTranslatedAttributes;
-
     public function __construct(
         public Locale $locale,
     ) {}
@@ -23,6 +20,14 @@ final class LocaleUpdateRequest extends Data
     {
         return [
             'locale' => ['required', Rule::enum(Locale::class)],
+        ];
+    }
+
+    /** @return array<string, string> */
+    public static function attributes(mixed ...$args): array
+    {
+        return [
+            'locale' => (string) __('settings.attributes.locale'),
         ];
     }
 }

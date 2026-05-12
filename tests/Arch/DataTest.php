@@ -174,6 +174,112 @@ test('string max rules in Data classes go through StringMaxLength enum', functio
     expect($violations)->toBeEmpty(implode("\n", $violations));
 });
 
+// Every concrete class under app/Data/** that extends Spatie\LaravelData\Data (and not Resource)
+// must declare attributes() with one entry per public non-static property (ADR-0019). Without
+// this guard a missing entry falls back silently to the snake_case property name in validation
+// messages, breaking translated labels for French users.
+test('Data classes declare attributes() with one entry per public property', function (): void {
+    $dataDir = realpath(__DIR__.'/../../app/Data');
+
+    if ($dataDir === false) {
+        return;
+    }
+
+    $violations = [];
+
+    /** @var SplFileInfo $file */
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(
+        $dataDir,
+        FilesystemIterator::SKIP_DOTS,
+    )) as $file) {
+        if ($file->getExtension() !== 'php') {
+            continue;
+        }
+
+        $realPath = realpath($file->getPathname());
+
+        if ($realPath === false) {
+            continue;
+        }
+
+        $relativePath = ltrim(str_replace([$dataDir, '.php'], ['', ''], $realPath), DIRECTORY_SEPARATOR);
+        $className    = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+
+        if (! class_exists($className)) {
+            continue;
+        }
+
+        $ref = new ReflectionClass($className);
+
+        if ($ref->isAbstract()) {
+            continue;
+        }
+
+        // Resources have no validation pipeline that consults attributes() — exempt per ADR-0019.
+        if (! $ref->isSubclassOf(Data::class) || $ref->isSubclassOf(Resource::class)) {
+            continue;
+        }
+
+        // Output-only Data classes (no own rules()) don't participate in validation — skip.
+        if (! $ref->hasMethod('rules') || $ref->getMethod('rules')->getDeclaringClass()->getName() !== $className) {
+            continue;
+        }
+
+        $propertyNames = [];
+
+        foreach ($ref->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            if ($property->isStatic()) {
+                continue;
+            }
+
+            $propertyNames[] = $property->getName();
+        }
+
+        sort($propertyNames);
+
+        // Parse the attributes() method source for its top-level keys rather than calling
+        // it — invoking __() here would require booting Laravel and would leak app state
+        // into the rest of the test suite.
+        $attributesMethod = $ref->hasMethod('attributes') ? $ref->getMethod('attributes') : null;
+
+        if ($attributesMethod === null || $attributesMethod->getDeclaringClass()->getName() !== $className) {
+            $violations[] = "{$className}: must declare its own attributes() method";
+
+            continue;
+        }
+
+        $fileLines = file((string) $attributesMethod->getFileName());
+        $body      = implode('', array_slice(
+            $fileLines === false ? [] : $fileLines,
+            $attributesMethod->getStartLine() - 1,
+            $attributesMethod->getEndLine() - $attributesMethod->getStartLine() + 1,
+        ));
+
+        preg_match_all('/[\'"]([a-zA-Z_][a-zA-Z0-9_]*)[\'"]\s*=>/', $body, $matches);
+        $attributeKeys = $matches[1];
+        sort($attributeKeys);
+
+        if ($propertyNames !== $attributeKeys) {
+            $missing = array_diff($propertyNames, $attributeKeys);
+            $extra   = array_diff($attributeKeys, $propertyNames);
+            $details = [];
+
+            if ($missing !== []) {
+                $details[] = 'missing: '.implode(', ', $missing);
+            }
+
+            if ($extra !== []) {
+                $details[] = 'extra: '.implode(', ', $extra);
+            }
+
+            $violations[] =
+                "{$className}: attributes() keys must match public properties (".implode('; ', $details).')';
+        }
+    }
+
+    expect($violations)->toBeEmpty(implode("\n", $violations));
+});
+
 // Non-abstract Data classes must be final — arch() has no "non-abstract" filter,
 // so a test() loop inspects each concrete class directly.
 test('non-abstract Data classes are final', function (): void {

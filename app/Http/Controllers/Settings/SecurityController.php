@@ -92,7 +92,7 @@ final class SecurityController extends Controller implements HasMiddleware
         }
 
         $neverFinishedConfirming =
-            ! $request->hasOldInput('code')
+            ! $request->session()->hasOldInput('code')
             && is_null($user->two_factor_confirmed_at)
             && $request->session()->get('two_factor_confirming_at', 0) !== $currentTime;
 

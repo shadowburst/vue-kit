@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Data\Team;
 
-use App\Concerns\WithTranslatedAttributes;
 use App\Enums\Validation\StringMaxLength;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 final class TeamCreateRequest extends Data
 {
-    use WithTranslatedAttributes;
-
     public function __construct(
         public string $name,
     ) {}
@@ -22,6 +19,14 @@ final class TeamCreateRequest extends Data
     {
         return [
             'name' => ['required', 'string', StringMaxLength::Short->maxRule()],
+        ];
+    }
+
+    /** @return array<string, string> */
+    public static function attributes(mixed ...$args): array
+    {
+        return [
+            'name' => (string) __('team.attributes.name'),
         ];
     }
 }

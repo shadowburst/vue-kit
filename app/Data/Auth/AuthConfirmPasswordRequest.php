@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace App\Data\Auth;
 
-use App\Concerns\WithTranslatedAttributes;
 use App\Enums\Validation\StringMaxLength;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 final class AuthConfirmPasswordRequest extends Data
 {
-    use WithTranslatedAttributes;
-
     public function __construct(
         #[\SensitiveParameter]
         public string $password,
@@ -23,6 +20,14 @@ final class AuthConfirmPasswordRequest extends Data
     {
         return [
             'password' => ['required', 'string', StringMaxLength::Short->maxRule(), 'current_password'],
+        ];
+    }
+
+    /** @return array<string, string> */
+    public static function attributes(mixed ...$args): array
+    {
+        return [
+            'password' => (string) __('auth.attributes.password'),
         ];
     }
 }
