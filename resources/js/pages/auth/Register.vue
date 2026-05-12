@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import type { AuthRegisterProps } from '@/spatie/types';
 import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import RegisteredUserController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RegisteredUserController';
@@ -18,7 +19,7 @@ defineOptions({
     },
 });
 
-defineProps<App.Data.Auth.AuthRegisterProps>();
+defineProps<AuthRegisterProps>();
 </script>
 
 <template>

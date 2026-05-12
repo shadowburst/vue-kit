@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import type { AuthResetPasswordProps } from '@/spatie/types';
 import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import NewPasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/NewPasswordController';
 import { Form, Head } from '@inertiajs/vue3';
@@ -17,7 +18,7 @@ defineOptions({
     },
 });
 
-const props = defineProps<App.Data.Auth.AuthResetPasswordProps>();
+const props = defineProps<AuthResetPasswordProps>();
 
 const inputEmail = ref(props.email);
 </script>

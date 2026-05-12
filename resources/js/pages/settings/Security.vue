@@ -7,6 +7,7 @@ import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
+import type { SecurityEditProps } from '@/spatie/types';
 import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
 import TwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticationController';
@@ -14,7 +15,7 @@ import { Form, Head } from '@inertiajs/vue3';
 import { ShieldCheck } from '@lucide/vue';
 import { onUnmounted, ref } from 'vue';
 
-defineProps<App.Data.Settings.SecurityEditProps>();
+defineProps<SecurityEditProps>();
 
 defineOptions({
     layout: {

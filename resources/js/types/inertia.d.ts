@@ -1,13 +1,13 @@
-export {};
+import type { SharedData } from '@/spatie/types';
 
 declare module '@inertiajs/core' {
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-    interface PageProps extends App.Data.Shared.SharedData {}
+    interface PageProps extends SharedData {}
 }
 
 // Wayfinder's route-actions generator still emits `Response = Inertia.Pages.*`
 // aliases in types.d.ts even with inertia.component disabled (ADR-0017 D9).
-// These stubs satisfy the type-checker; page props now flow via App.Data.* classes.
+// These stubs satisfy the type-checker; page props now flow via imported types from `@/spatie/types`.
 declare global {
     namespace Inertia {
         namespace Pages {

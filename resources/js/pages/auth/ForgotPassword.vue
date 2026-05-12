@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import type { AuthForgotPasswordProps } from '@/spatie/types';
 import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import PasswordResetLinkController from '@/wayfinder/Laravel/Fortify/Http/Controllers/PasswordResetLinkController';
@@ -17,7 +18,7 @@ defineOptions({
     },
 });
 
-defineProps<App.Data.Auth.AuthForgotPasswordProps>();
+defineProps<AuthForgotPasswordProps>();
 </script>
 
 <template>

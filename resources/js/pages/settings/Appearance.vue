@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import Heading from '@/components/Heading.vue';
+import type { AppearanceEditProps } from '@/spatie/types';
 import AppearanceController from '@/wayfinder/App/Http/Controllers/Settings/AppearanceController';
 import { Head } from '@inertiajs/vue3';
 
-defineProps<App.Data.Settings.AppearanceEditProps>();
+defineProps<AppearanceEditProps>();
 
 defineOptions({
     layout: {

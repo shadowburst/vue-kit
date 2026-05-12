@@ -2,6 +2,7 @@
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import type { TeamBillingProps } from '@/spatie/types';
 import BillingController from '@/wayfinder/App/Http/Controllers/Settings/Team/BillingController';
 import CancelController from '@/wayfinder/App/Http/Controllers/Settings/Team/CancelController';
 import CheckoutController from '@/wayfinder/App/Http/Controllers/Settings/Team/CheckoutController';
@@ -11,7 +12,7 @@ import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { computed, onMounted, ref } from 'vue';
 
-defineProps<App.Data.Billing.TeamBillingProps>();
+defineProps<TeamBillingProps>();
 
 defineOptions({
     layout: {

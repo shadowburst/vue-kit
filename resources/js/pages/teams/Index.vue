@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type { TeamIndexProps } from '@/spatie/types';
 import { Head } from '@inertiajs/vue3';
 
-defineProps<App.Data.Team.TeamIndexProps>();
+defineProps<TeamIndexProps>();
 </script>
 
 <template>

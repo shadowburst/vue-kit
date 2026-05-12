@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFormat } from '@/composables/useFormat';
+import type { ProfileEditProps, UserResource } from '@/spatie/types';
 import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-defineProps<App.Data.Settings.ProfileEditProps>();
+defineProps<ProfileEditProps>();
 
 defineOptions({
     layout: {
@@ -26,7 +27,7 @@ defineOptions({
 });
 
 const page = usePage();
-const user = computed(() => page.props.auth.user as App.Data.User.UserResource);
+const user = computed(() => page.props.auth.user as UserResource);
 const { formatDate } = useFormat();
 </script>
 

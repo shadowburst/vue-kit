@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useInitials } from '@/composables/useInitials';
+import type { UserResource } from '@/spatie/types';
 
 withDefaults(
     defineProps<{
-        user: App.Data.User.UserResource;
+        user: UserResource;
         showEmail?: boolean;
     }>(),
     { showEmail: false },
