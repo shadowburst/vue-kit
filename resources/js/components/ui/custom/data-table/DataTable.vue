@@ -1,0 +1,92 @@
+<script lang="ts">
+type DataTableRootContext<TData> = {
+    table: Ref<UseDataTableReturn<TData>['table']>;
+    actions: Ref<DataTableRowActions<TData>>;
+    bulkActions: Ref<DataTableBulkActions<TData>>;
+};
+
+export function injectDataTableRootContext<TData>(fallback?: DataTableRootContext<TData>): DataTableRootContext<TData> {
+    const context = inject('DataTableRoot', fallback);
+
+    if (!context) {
+        throw new Error(`Injection \`DataTableRoot\` not found. Component must be used within a \`DataTable\``);
+    }
+
+    return context;
+}
+export function provideDataTableRootContext<TData>(contextValue: DataTableRootContext<TData>) {
+    return provide('DataTableRoot', contextValue);
+}
+</script>
+
+<script setup lang="ts" generic="TData, TColumn extends string">
+import { Table, TableBody, TableHeader } from '@/components/ui/table';
+import type { UseDataTableReturn } from '@/composables/data-table';
+import { FlexRender } from '@tanstack/vue-table';
+import type { Ref } from 'vue';
+import { computed, inject, provide } from 'vue';
+import DataTableCell from './DataTableCell.vue';
+import DataTableEmpty from './DataTableEmpty.vue';
+import DataTableHead from './DataTableHead.vue';
+import DataTablePagination from './DataTablePagination.vue';
+import DataTableRow from './DataTableRow.vue';
+import type { DataTableBulkActions, DataTableRowActions, DataTableState } from './interface';
+
+defineOptions({
+    inheritAttrs: false,
+});
+
+type Props = {
+    table: DataTableState<TData>;
+    columns: readonly TColumn[];
+    actions?: DataTableRowActions<TData>;
+    bulkActions?: DataTableBulkActions<TData>;
+};
+const props = withDefaults(defineProps<Props>(), {
+    actions: () => ({}),
+    bulkActions: () => ({}),
+});
+
+provideDataTableRootContext<TData>({
+    table: computed(() => props.table),
+    actions: computed(() => props.actions),
+    bulkActions: computed(() => props.bulkActions),
+});
+</script>
+
+<template>
+    <div class="sticky inset-x-0 top-0 grid gap-y-4">
+        <Table v-bind="$attrs" class="relative overflow-x-auto">
+            <TableHeader>
+                <DataTableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
+                    <DataTableHead v-for="header in headerGroup.headers" :key="header.id" :header>
+                        <FlexRender
+                            v-if="!header.isPlaceholder"
+                            :render="header.column.columnDef.header"
+                            :props="header.getContext()"
+                        />
+                    </DataTableHead>
+                </DataTableRow>
+            </TableHeader>
+            <TableBody>
+                <template v-if="table.getRowModel().rows?.length">
+                    <DataTableRow v-for="row in table.getRowModel().rows" :key="row.id" :row>
+                        <DataTableCell v-for="cell in row.getVisibleCells()" :key="cell.id" :cell>
+                            <slot :name="cell.column.id as TColumn" v-bind="cell.getContext()">
+                                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+                            </slot>
+                        </DataTableCell>
+                    </DataTableRow>
+                </template>
+                <template v-else>
+                    <DataTableRow>
+                        <DataTableCell :colspan="table.getAllFlatColumns().length">
+                            <DataTableEmpty />
+                        </DataTableCell>
+                    </DataTableRow>
+                </template>
+            </TableBody>
+        </Table>
+        <DataTablePagination />
+    </div>
+</template>
