@@ -1,6 +1,6 @@
 @php
-    /** @var \App\Services\ImpersonationContext $ctx */
-    $ctx = app(\App\Services\ImpersonationContext::class);
+    /** @var \App\Services\Impersonation\ImpersonationContext $ctx */
+    $ctx = app(\App\Services\Impersonation\ImpersonationContext::class);
 @endphp
 
 @if ($ctx->isImpersonating())

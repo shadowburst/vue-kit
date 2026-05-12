@@ -6,11 +6,11 @@ namespace App\Filament\Resources;
 
 use App\Actions\Admin\GrantAdminRole;
 use App\Actions\Admin\RevokeAdminRole;
-use App\Enums\Role\Role;
 use App\Enums\Settings\Locale;
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers\MembershipsRelationManager;
 use App\Filament\Resources\UserResource\RelationManagers\OwnedTeamsRelationManager;
+use App\Filament\Resources\UserResource\UserResourceQueries;
 use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -34,8 +34,9 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 
 class UserResource extends Resource
@@ -104,7 +105,7 @@ class UserResource extends Resource
                     TextEntry::make('roles_display')
                         ->label('Roles')
                         ->badge()
-                        ->state(fn (User $record): array => static::getUserRoleNames($record))
+                        ->state(fn (User $record): array => UserResourceQueries::roleNames($record))
                         ->color('warning'),
                     TextEntry::make('created_at')->dateTime(),
                     TextEntry::make('updated_at')->dateTime(),
@@ -130,7 +131,7 @@ class UserResource extends Resource
                 TextColumn::make('roles_display')
                     ->label('Roles')
                     ->badge()
-                    ->state(fn (User $record): array => static::getUserRoleNames($record))
+                    ->state(fn (User $record): array => UserResourceQueries::roleNames($record))
                     ->color('warning'),
                 TextColumn::make('teams_count')
                     ->label('Memberships')
@@ -157,11 +158,16 @@ class UserResource extends Resource
                     ->icon('heroicon-o-shield-check')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn (User $record): bool => ! static::isAdmin($record) && $record->ownedTeams()->exists())
+                    ->visible(
+                        fn (User $record): bool => (
+                            ! UserResourceQueries::isAdmin($record) && $record->ownedTeams()->exists()
+                        ),
+                    )
                     ->action(function (User $record): void {
                         try {
                             /** @var User $operator */
-                            $operator = auth()->user();
+                            $operator = Auth::user();
+
                             app(GrantAdminRole::class)->execute($record, $operator);
                             Notification::make()->title('Admin role granted.')->success()->send();
                         } catch (RuntimeException $e) {
@@ -175,13 +181,14 @@ class UserResource extends Resource
                     ->requiresConfirmation()
                     ->visible(function (User $record): bool {
                         /** @var User $operator */
-                        $operator = auth()->user();
+                        $operator = Auth::user();
 
-                        return static::isAdmin($record) && $operator->canRevokeAdminRole($record);
+                        return UserResourceQueries::isAdmin($record) && $operator->canRevokeAdminRole($record);
                     })
                     ->action(function (User $record): void {
                         /** @var User $operator */
-                        $operator = auth()->user();
+                        $operator = Auth::user();
+
                         app(RevokeAdminRole::class)->execute($record, $operator);
                         Notification::make()->title('Admin role revoked.')->success()->send();
                     }),
@@ -191,23 +198,25 @@ class UserResource extends Resource
                     ->color('warning')
                     ->requiresConfirmation()
                     ->modalHeading(fn (User $record): string => "Impersonate {$record->name}")
-                    ->modalDescription('You will assume this user\'s identity. A banner will appear — use "Leave impersonation" to return.')
-                    ->visible(fn (User $record): bool => ! static::isAdmin($record) && ! $record->trashed())
+                    ->modalDescription(
+                        'You will assume this user\'s identity. A banner will appear — use "Leave impersonation" to return.',
+                    )
+                    ->visible(fn (User $record): bool => UserResourceQueries::canImpersonate($record))
                     ->action(function (User $record): void {
-                        if ($record->trashed()) {
-                            Notification::make()->title('Cannot impersonate a soft-deleted user.')->danger()->send();
+                        if (! UserResourceQueries::canImpersonate($record)) {
+                            Notification::make()->title('Cannot impersonate this user.')->danger()->send();
 
                             return;
                         }
 
                         /** @var User $operator */
-                        $operator = auth()->user();
+                        $operator = Auth::user();
 
                         activity('admin')
                             ->causedBy($operator)
                             ->performedOn($record)
                             ->withProperties([
-                                'ip' => request()->ip(),
+                                'ip'         => request()->ip(),
                                 'user_agent' => request()->userAgent(),
                             ])
                             ->log('impersonation.start');
@@ -217,7 +226,7 @@ class UserResource extends Resource
                     ->successRedirectUrl(fn (): string => route('dashboard')),
                 DeleteAction::make()
                     ->action(function (DeleteAction $action, User $record): void {
-                        $count = static::ownedTeamsCountIncludingTrashed($record);
+                        $count = UserResourceQueries::ownedTeamsCountIncludingTrashed($record);
 
                         if ($count > 0) {
                             Notification::make()
@@ -239,14 +248,16 @@ class UserResource extends Resource
                     ->action(function (User $record): void {
                         if ($record->ownedTeams()->withTrashed()->exists()) {
                             Notification::make()
-                                ->title('Cannot force-delete: user still owns teams (including soft-deleted). Transfer or force-delete those teams first.')
+                                ->title(
+                                    'Cannot force-delete: user still owns teams (including soft-deleted). Transfer or force-delete those teams first.',
+                                )
                                 ->danger()
                                 ->send();
 
                             return;
                         }
 
-                        if (static::hasMemberships($record)) {
+                        if (UserResourceQueries::hasMemberships($record)) {
                             Notification::make()
                                 ->title('Cannot force-delete: remove all team memberships first.')
                                 ->danger()
@@ -265,18 +276,24 @@ class UserResource extends Resource
                         ->icon('heroicon-o-trash')
                         ->requiresConfirmation()
                         ->action(function (Collection $records): void {
-                            $blockedUsers = $records->filter(
-                                fn (User $record): bool => static::ownedTeamsCountIncludingTrashed($record) > 0,
-                            );
+                            /** @var Collection<int, User> $records */
+                            $blockedUsers = $records->filter(function (Model $record): bool {
+                                /** @var User $record */
+                                return UserResourceQueries::ownedTeamsCountIncludingTrashed($record) > 0;
+                            });
 
                             $records
-                                ->reject(fn (User $record): bool => $blockedUsers->contains($record))
-                                ->each
-                                ->delete();
+                                ->reject(fn (Model $record): bool => $blockedUsers->contains($record))
+                                ->each(function (Model $record): void {
+                                    /** @var User $record */
+                                    $record->delete();
+                                });
 
                             if ($blockedUsers->isNotEmpty()) {
                                 Notification::make()
-                                    ->title("Skipped {$blockedUsers->count()} user(s) that still own teams. Transfer ownership first.")
+                                    ->title(
+                                        "Skipped {$blockedUsers->count()} user(s) that still own teams. Transfer ownership first.",
+                                    )
                                     ->danger()
                                     ->send();
                             }
@@ -305,44 +322,8 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
-            'view' => Pages\ViewUser::route('/{record}'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            'view'  => Pages\ViewUser::route('/{record}'),
+            'edit'  => Pages\EditUser::route('/{record}/edit'),
         ];
-    }
-
-    /** @return array<string> */
-    private static function getUserRoleNames(User $record): array
-    {
-        return DB::table('model_has_roles')
-            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->where('model_has_roles.model_id', $record->getKey())
-            ->where('model_has_roles.model_type', $record->getMorphClass())
-            ->distinct()
-            ->pluck('roles.name')
-            ->toArray();
-    }
-
-    private static function isAdmin(User $user): bool
-    {
-        return DB::table(config('permission.table_names.model_has_roles', 'model_has_roles'))
-            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->where('model_has_roles.model_id', $user->getKey())
-            ->where('model_has_roles.model_type', $user->getMorphClass())
-            ->where('roles.name', Role::Admin->value)
-            ->where('roles.guard_name', 'web')
-            ->exists();
-    }
-
-    public static function hasMemberships(User $user): bool
-    {
-        return DB::table(config('permission.table_names.model_has_roles', 'model_has_roles'))
-            ->where('model_id', $user->getKey())
-            ->where('model_type', $user->getMorphClass())
-            ->exists();
-    }
-
-    public static function ownedTeamsCountIncludingTrashed(User $user): int
-    {
-        return $user->ownedTeams()->withTrashed()->count();
     }
 }

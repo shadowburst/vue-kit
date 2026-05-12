@@ -6,6 +6,8 @@ namespace App\Filament\Resources\UserResource\Pages;
 
 use App\Enums\Settings\Locale;
 use App\Filament\Resources\UserResource;
+use App\Filament\Resources\UserResource\UserResourceQueries;
+use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -20,8 +22,8 @@ class EditUser extends EditRecord
     /** @param array<string, mixed> $data */
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $record             = $this->getRecord();
-        $data['settings']   = [
+        $record           = $this->getRecord();
+        $data['settings'] = [
             'locale' => $record->settings?->locale->value ?? Locale::Fr->value,
         ];
 
@@ -35,7 +37,12 @@ class EditUser extends EditRecord
             DeleteAction::make()
                 ->action(function (DeleteAction $action): void {
                     $record = $this->getRecord();
-                    $count = UserResource::ownedTeamsCountIncludingTrashed($record);
+
+                    if (! $record instanceof User) {
+                        return;
+                    }
+
+                    $count = UserResourceQueries::ownedTeamsCountIncludingTrashed($record);
 
                     if ($count > 0) {
                         Notification::make()
@@ -58,6 +65,10 @@ class EditUser extends EditRecord
                 ->action(function (): void {
                     $record = $this->getRecord();
 
+                    if (! $record instanceof User) {
+                        return;
+                    }
+
                     if ($record->ownedTeams()->withTrashed()->exists()) {
                         Notification::make()
                             ->title('Cannot force-delete: user still owns teams (including soft-deleted).')
@@ -67,7 +78,7 @@ class EditUser extends EditRecord
                         return;
                     }
 
-                    if (UserResource::hasMemberships($record)) {
+                    if (UserResourceQueries::hasMemberships($record)) {
                         Notification::make()
                             ->title('Cannot force-delete: remove all team memberships first.')
                             ->danger()

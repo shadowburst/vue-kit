@@ -33,11 +33,11 @@ class InvoicesRelationManager extends RelationManager
 
                 try {
                     return collect($subscription->invoices())->map(fn (Invoice $invoice): array => [
-                        '__key'   => $invoice->id,
-                        'number'  => $invoice->number ?? $invoice->id,
-                        'total'   => $invoice->total(),
-                        'status'  => $invoice->asStripeInvoice()->status ?? '—',
-                        'date'    => $invoice->date()?->toDateString() ?? '—',
+                        '__key'  => $invoice->id,
+                        'number' => $invoice->number ?? $invoice->id,
+                        'total'  => $invoice->total(),
+                        'status' => $invoice->asStripeInvoice()->status ?? '—',
+                        'date'   => $invoice->date()?->toDateString() ?? '—',
                     ]);
                 } catch (\Exception) {
                     return collect();
@@ -50,11 +50,11 @@ class InvoicesRelationManager extends RelationManager
                     ->label('Status')
                     ->badge()
                     ->color(fn (?string $state): string => match ($state) {
-                        'paid'   => 'success',
-                        'open'   => 'warning',
-                        'void'   => 'gray',
+                        'paid'          => 'success',
+                        'open'          => 'warning',
+                        'void'          => 'gray',
                         'uncollectible' => 'danger',
-                        default  => 'gray',
+                        default         => 'gray',
                     }),
                 TextColumn::make('date')->label('Date'),
             ])

@@ -12,5 +12,7 @@ test('every Eloquent model has a Filament Resource', function (): void {
             return $reflection->isSubclassOf(Model::class) && ! $reflection->isAbstract();
         });
 
-    $models->each(fn (string $modelClass) => expect($modelClass)->toHaveCorrespondingResourceIn('App\\Filament\\Resources'));
+    $models->each(
+        fn (string $modelClass) => expect($modelClass)->toHaveCorrespondingResourceIn('App\\Filament\\Resources'),
+    );
 });

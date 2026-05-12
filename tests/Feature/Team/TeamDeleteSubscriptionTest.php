@@ -27,9 +27,12 @@ it('cancels active subscription immediately when team is deleted', function (): 
 
     $team->delete();
 
-    expect($fakeSubscriptions->cancelCount)->toBe(1)
-        ->and(Team::find($team->id))->toBeNull()
-        ->and(Team::withTrashed()->find($team->id))->not->toBeNull();
+    expect($fakeSubscriptions->cancelCount)
+        ->toBe(1)
+        ->and(Team::find($team->id))
+        ->toBeNull()
+        ->and(Team::withTrashed()->find($team->id))
+        ->not->toBeNull();
 });
 
 it('performs no stripe call when deleting team without subscription', function (): void {
@@ -48,7 +51,10 @@ it('performs no stripe call when deleting team without subscription', function (
 
     $team->delete();
 
-    expect($fakeSubscriptions->cancelCount)->toBe(0)
-        ->and(Team::find($team->id))->toBeNull()
-        ->and(Team::withTrashed()->find($team->id))->not->toBeNull();
+    expect($fakeSubscriptions->cancelCount)
+        ->toBe(0)
+        ->and(Team::find($team->id))
+        ->toBeNull()
+        ->and(Team::withTrashed()->find($team->id))
+        ->not->toBeNull();
 });

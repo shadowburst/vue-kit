@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/custom/form';
 import ImpersonateController from '@/wayfinder/App/Http/Controllers/Impersonation/ImpersonateController';
-import { Form, usePage } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { computed } from 'vue';
 
 const page = usePage();
+const leaveImpersonationForm = useForm({});
 
 const impersonator = computed(() => page.props.auth.impersonator ?? null);
 const targetName = computed(() => page.props.auth.user?.name ?? '');
@@ -19,8 +21,8 @@ const targetName = computed(() => page.props.auth.user?.name ?? '');
             {{ trans('admin.impersonation.banner_body', { name: targetName }) }}
         </AlertDescription>
         <AlertAction>
-            <Form :action="ImpersonateController.store().url" method="post">
-                <Button type="submit" size="sm" variant="outline">
+            <Form :form="leaveImpersonationForm" :action="ImpersonateController.store()">
+                <Button type="submit" size="sm" variant="outline" :disabled="leaveImpersonationForm.processing">
                     {{ trans('admin.impersonation.leave') }}
                 </Button>
             </Form>

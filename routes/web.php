@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Impersonation\ImpersonateController;
-use App\Http\Middleware\RefuseDuringImpersonation;
+use App\Http\Middleware\Impersonation\RefuseDuringImpersonation;
 use App\Http\Controllers\Team\CurrentTeamController;
 use App\Http\Controllers\Team\TeamController;
 use Illuminate\Support\Facades\Route;

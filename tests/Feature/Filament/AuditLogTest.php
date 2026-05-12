@@ -9,13 +9,15 @@ use App\Models\User;
 use Spatie\Activitylog\Models\Activity as ActivityModel;
 use Spatie\Permission\PermissionRegistrar;
 
+use function Pest\Laravel\actingAs;
+
 it('model update by admin causer stores activity with log_name=admin', function (): void {
     $admin = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $admin->id]);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $admin->assignRole(Role::Admin->value);
 
-    $this->actingAs($admin);
+    actingAs($admin);
     $admin->update(['name' => 'Operator Updated']);
 
     $activity = ActivityModel::where('subject_type', User::class)
@@ -24,14 +26,17 @@ it('model update by admin causer stores activity with log_name=admin', function 
         ->latest()
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->log_name)->toBe('admin');
+    expect($activity)
+        ->not
+        ->toBeNull()
+        ->and($activity->log_name)
+        ->toBe('admin');
 });
 
 it('model update by non-admin causer does not store admin-log entry', function (): void {
     $user = User::factory()->createOne();
 
-    $this->actingAs($user);
+    actingAs($user);
     $user->update(['name' => 'Regular Updated']);
 
     $activity = ActivityModel::where('subject_type', User::class)
@@ -40,8 +45,9 @@ it('model update by non-admin causer does not store admin-log entry', function (
         ->latest()
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->log_name)->not->toBe('admin');
+    expect($activity)
+        ->not->toBeNull()->and($activity->log_name)
+        ->not->toBe('admin');
 });
 
 it('ActivityResource query only returns admin-log entries', function (): void {
@@ -66,9 +72,13 @@ it('direct activity helper creates admin-log entry with causer and subject', fun
         ->where('description', 'test.action')
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->causer_id)->toBe($admin->id)
-        ->and($activity->subject_id)->toBe($target->id);
+    expect($activity)
+        ->not
+        ->toBeNull()
+        ->and($activity->causer_id)
+        ->toBe($admin->id)
+        ->and($activity->subject_id)
+        ->toBe($target->id);
 });
 
 it('Team model update by admin causer stores activity with log_name=admin', function (): void {
@@ -77,7 +87,7 @@ it('Team model update by admin causer stores activity with log_name=admin', func
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $admin->assignRole(Role::Admin->value);
 
-    $this->actingAs($admin);
+    actingAs($admin);
     $team->update(['name' => 'Renamed Team']);
 
     $activity = ActivityModel::where('subject_type', Team::class)
@@ -86,8 +96,11 @@ it('Team model update by admin causer stores activity with log_name=admin', func
         ->latest()
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->log_name)->toBe('admin');
+    expect($activity)
+        ->not
+        ->toBeNull()
+        ->and($activity->log_name)
+        ->toBe('admin');
 });
 
 it('model update by operator still stores admin-log entry without a permission team context', function (): void {
@@ -98,7 +111,7 @@ it('model update by operator still stores admin-log entry without a permission t
     $operator->assignRole(Role::Admin->value);
     app(PermissionRegistrar::class)->setPermissionsTeamId(null);
 
-    $this->actingAs($operator);
+    actingAs($operator);
     $operator->update(['name' => 'Operator Without Team Context']);
 
     $activity = ActivityModel::where('subject_type', User::class)
@@ -107,6 +120,9 @@ it('model update by operator still stores admin-log entry without a permission t
         ->latest()
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->log_name)->toBe('admin');
+    expect($activity)
+        ->not
+        ->toBeNull()
+        ->and($activity->log_name)
+        ->toBe('admin');
 });

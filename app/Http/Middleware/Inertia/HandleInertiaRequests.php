@@ -13,7 +13,7 @@ use App\Data\Shared\SharedImpersonatorData;
 use App\Data\Team\TeamResource;
 use App\Data\User\UserResource;
 use App\Models\User;
-use App\Services\ImpersonationContext;
+use App\Services\Impersonation\ImpersonationContext;
 use App\Services\Team\TeamContext;
 use Closure;
 use Illuminate\Http\Request;

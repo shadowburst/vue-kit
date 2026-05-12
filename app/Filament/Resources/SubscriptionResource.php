@@ -9,6 +9,7 @@ use App\Enums\Subscription\SubscriptionTier;
 use App\Filament\Resources\SubscriptionResource\Pages;
 use App\Filament\Resources\SubscriptionResource\RelationManagers\InvoicesRelationManager;
 use App\Models\Subscription;
+use App\Models\Team;
 use App\Models\User;
 use BackedEnum;
 use Carbon\Carbon;
@@ -22,6 +23,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 
 class SubscriptionResource extends Resource
@@ -54,7 +56,7 @@ class SubscriptionResource extends Resource
                         ->state(fn (Subscription $record): string => self::resolveTier($record)->value)
                         ->color(fn (string $state): string => match ($state) {
                             SubscriptionTier::Pro->value => 'success',
-                            default                      => 'gray',
+                            default => 'gray',
                         }),
                     TextEntry::make('stripe_status')
                         ->label('Status')
@@ -84,14 +86,16 @@ class SubscriptionResource extends Resource
                     ->label('Team')
                     ->searchable()
                     ->sortable()
-                    ->url(fn (Subscription $record): ?string => TeamResource::getUrl('view', ['record' => $record->owner])),
+                    ->url(fn (Subscription $record): ?string => TeamResource::getUrl('view', [
+                        'record' => $record->owner,
+                    ])),
                 TextColumn::make('tier')
                     ->label('Tier')
                     ->badge()
                     ->state(fn (Subscription $record): string => self::resolveTier($record)->value)
                     ->color(fn (string $state): string => match ($state) {
                         SubscriptionTier::Pro->value => 'success',
-                        default                      => 'gray',
+                        default => 'gray',
                     }),
                 TextColumn::make('stripe_status')
                     ->label('Status')
@@ -133,12 +137,12 @@ class SubscriptionResource extends Resource
                     ->modalHeading('Cancel Subscription at Period End')
                     ->modalDescription(
                         'The subscription will remain active until the end of the current billing period. '
-                        . 'This will be refused if the team has members that exceed the Free tier cap.'
+                        .'This will be refused if the team has members that exceed the Free tier cap.',
                     )
                     ->visible(fn (Subscription $record): bool => $record->active() && ! $record->canceled())
                     ->action(function (Subscription $record): void {
                         /** @var User $operator */
-                        $operator = auth()->user();
+                        $operator = Auth::user();
 
                         try {
                             app(CancelSubscription::class)->execute($record, $operator);
@@ -156,14 +160,17 @@ class SubscriptionResource extends Resource
                     ->visible(fn (Subscription $record): bool => $record->onGracePeriod())
                     ->action(function (Subscription $record): void {
                         /** @var User $operator */
-                        $operator = auth()->user();
+                        $operator = Auth::user();
+
+                        $team = $record->owner;
+                        /** @var Team $team */
 
                         $record->resume();
 
                         activity('admin')
                             ->causedBy($operator)
                             ->performedOn($record)
-                            ->withProperties(['team_id' => $record->owner->id])
+                            ->withProperties(['team_id' => $team->id])
                             ->log('subscription.resume');
 
                         Notification::make()->title('Subscription resumed.')->success()->send();
@@ -181,7 +188,14 @@ class SubscriptionResource extends Resource
                     ->visible(fn (Subscription $record): bool => $record->onTrial())
                     ->action(function (Subscription $record, array $data): void {
                         /** @var User $operator */
-                        $operator = auth()->user();
+                        $operator = Auth::user();
+
+                        if (! is_string($data['trial_ends_at'] ?? null)) {
+                            return;
+                        }
+
+                        $team = $record->owner;
+                        /** @var Team $team */
 
                         $oldDate = $record->trial_ends_at?->toDateString();
                         $newDate = Carbon::parse($data['trial_ends_at']);
@@ -192,7 +206,7 @@ class SubscriptionResource extends Resource
                             ->causedBy($operator)
                             ->performedOn($record)
                             ->withProperties([
-                                'team_id'  => $record->owner->id,
+                                'team_id'  => $team->id,
                                 'old_date' => $oldDate,
                                 'new_date' => $newDate->toDateString(),
                             ])

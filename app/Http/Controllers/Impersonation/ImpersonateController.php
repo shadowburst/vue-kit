@@ -7,22 +7,21 @@ namespace App\Http\Controllers\Impersonation;
 use App\Filament\Resources\UserResource;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Lab404\Impersonate\Services\ImpersonateManager;
 
 final class ImpersonateController extends Controller
 {
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, #[CurrentUser] User $target): RedirectResponse
     {
-        /** @var User $target */
-        $target = auth()->user();
-
         if (! $target->isImpersonated()) {
             return redirect()->intended('/');
         }
 
         /** @var User $operator */
-        $operator = app(\Lab404\Impersonate\Services\ImpersonateManager::class)->getImpersonator();
+        $operator = app(ImpersonateManager::class)->getImpersonator();
 
         activity('admin')
             ->causedBy($operator)

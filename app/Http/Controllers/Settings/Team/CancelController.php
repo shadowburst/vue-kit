@@ -22,6 +22,10 @@ final class CancelController extends Controller
         $subscription = $team->subscription('default');
 
         if ($subscription !== null) {
+            if (! $subscription instanceof Subscription) {
+                return redirect()->route('teams.billing.show');
+            }
+
             app(CancelSubscription::class)->execute($subscription);
         }
 

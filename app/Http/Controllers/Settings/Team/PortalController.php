@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings\Team;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subscription;
 use App\Services\Team\TeamContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
-use App\Models\Subscription;
 
 final class PortalController extends Controller
 {

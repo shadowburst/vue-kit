@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Services\Impersonation;
 
 use App\Models\User;
 use Lab404\Impersonate\Services\ImpersonateManager;
@@ -24,9 +24,7 @@ final class ImpersonationContext
             return null;
         }
 
-        /** @var User|null $user */
-        $user = $this->manager->getImpersonator();
-
-        return $user;
+        /** @var User|null */
+        return $this->manager->getImpersonator();
     }
 }

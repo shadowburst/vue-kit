@@ -26,6 +26,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 class TeamResource extends Resource
@@ -72,13 +73,13 @@ class TeamResource extends Resource
                     TextEntry::make('owner.name')->label('Owner'),
                     TextEntry::make('members_count')
                         ->label('Members')
-                        ->state(fn (Team $record): int => $record->members()->count()),
+                        ->state(fn (Team $record): int => (int) $record->members()->count()),
                     TextEntry::make('tier')
                         ->badge()
-                        ->state(fn (Team $record): string => $record->tier()->value)
+                        ->state(fn (Team $record): string => $record->tier->value)
                         ->color(fn (string $state): string => match ($state) {
                             SubscriptionTier::Pro->value => 'success',
-                            default                      => 'gray',
+                            default => 'gray',
                         }),
                     TextEntry::make('created_at')->dateTime(),
                 ])
@@ -104,10 +105,10 @@ class TeamResource extends Resource
                     ->sortable(),
                 TextColumn::make('tier')
                     ->badge()
-                    ->state(fn (Team $record): string => $record->tier()->value)
+                    ->state(fn (Team $record): string => $record->tier->value)
                     ->color(fn (string $state): string => match ($state) {
                         SubscriptionTier::Pro->value => 'success',
-                        default                      => 'gray',
+                        default => 'gray',
                     }),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -128,7 +129,7 @@ class TeamResource extends Resource
                     ->modalHeading('Force Delete Team')
                     ->modalDescription(
                         'This permanently removes all team data and cannot be undone. '
-                        . 'The team must be soft-deleted, have no remaining members, and no active subscription.'
+                        .'The team must be soft-deleted, have no remaining members, and no active subscription.',
                     )
                     ->action(function (Team $record): void {
                         if (static::hasBlockingMemberships($record)) {
@@ -162,7 +163,7 @@ class TeamResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        // Eager-load subscriptions so tier() does not trigger lazy-loading violation in the table view.
+        // Eager-load subscriptions so the tier accessor does not trigger lazy-loading violation in the table view.
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([SoftDeletingScope::class])
             ->with('subscriptions');
@@ -186,7 +187,7 @@ class TeamResource extends Resource
 
     public static function hasBlockingMemberships(Team $team): bool
     {
-        return DB::table(config('permission.table_names.model_has_roles', 'model_has_roles'))
+        return DB::table(Config::string('permission.table_names.model_has_roles', 'model_has_roles'))
             ->where('team_id', $team->getKey())
             ->where('model_type', (new User)->getMorphClass())
             ->where('model_id', '!=', $team->owner_id)

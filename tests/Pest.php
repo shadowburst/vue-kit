@@ -96,7 +96,7 @@ function discoverPhpClasses(string $directory, string $namespace, string $filePa
     return collect(iterator_to_array($iterator))
         ->filter(fn (SplFileInfo $file): bool => $file->isFile() && fnmatch($filePattern, $file->getFilename()))
         ->map(function (SplFileInfo $file) use ($directory, $namespace): string {
-            $relativePath = str_replace($directory.DIRECTORY_SEPARATOR, '', $file->getPathname());
+            $relativePath  = str_replace($directory.DIRECTORY_SEPARATOR, '', $file->getPathname());
             $relativeClass = str_replace([DIRECTORY_SEPARATOR, '.php'], ['\\', ''], $relativePath);
 
             return $namespace.'\\'.$relativeClass;

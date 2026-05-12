@@ -18,10 +18,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Lab404\Impersonate\Models\Impersonate;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\Models\Activity as ActivityModel;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -75,8 +78,11 @@ class User extends Authenticatable implements FilamentUser
 
     public function beforeActivityLogged(Activity $activity, string $eventName): void
     {
-        if (auth()->user() instanceof self && auth()->user()->hasAdminRole()) {
-            $activity->log_name = 'admin';
+        /** @var self|null $user */
+        $user = Auth::user();
+
+        if ($user?->hasAdminRole() === true && $activity instanceof ActivityModel) {
+            $activity->setAttribute('log_name', 'admin');
         }
     }
 
@@ -94,7 +100,7 @@ class User extends Authenticatable implements FilamentUser
     {
         // model_has_roles.team_id is NOT NULL (Spatie teams mode), so $this->can() would need
         // a team context. Operators transcend teams, so we query the pivot directly.
-        return DB::table(config('permission.table_names.model_has_roles') ?? 'model_has_roles')
+        return DB::table(Config::string('permission.table_names.model_has_roles', 'model_has_roles'))
             ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
             ->where('model_has_roles.model_id', $this->getKey())
             ->where('model_has_roles.model_type', $this->getMorphClass())

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
+use App\Models\Subscription;
 use App\Models\Team;
 use App\Models\User;
-use App\Models\Subscription;
 use App\Policies\SubscriptionPolicy;
 use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;

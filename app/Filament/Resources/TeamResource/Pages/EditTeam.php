@@ -16,6 +16,7 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditTeam extends EditRecord
 {
@@ -33,18 +34,26 @@ class EditTeam extends EditRecord
                 ->modalHeading('Change Team Owner')
                 ->modalDescription(
                     'The new owner will be assigned the manager role if they do not already hold it. '
-                    . 'The previous owner keeps their existing roles. '
-                    . 'This action bypasses the personal-team deletion restriction — '
-                    . 'if you then need to delete the previous owner\'s account, proceed from the User Resource.'
+                    .'The previous owner keeps their existing roles. '
+                    .'This action bypasses the personal-team deletion restriction — '
+                    .'if you then need to delete the previous owner\'s account, proceed from the User Resource.',
                 )
                 ->schema(function (): array {
                     /** @var Team $team */
                     $team = $this->getRecord();
 
+                    $options = [];
+
+                    foreach ($team->members()->pluck('name', 'id')->all() as $id => $name) {
+                        if (is_string($name) && (is_int($id) || is_string($id))) {
+                            $options[$id] = $name;
+                        }
+                    }
+
                     return [
                         Select::make('new_owner_id')
                             ->label('New Owner')
-                            ->options($team->members()->pluck('name', 'id')->toArray())
+                            ->options($options)
                             ->required()
                             ->native(false),
                     ];
@@ -53,11 +62,15 @@ class EditTeam extends EditRecord
                     /** @var Team $team */
                     $team = $this->getRecord();
 
+                    if (! is_numeric($data['new_owner_id'] ?? null)) {
+                        return;
+                    }
+
                     /** @var User $newOwner */
-                    $newOwner = User::findOrFail($data['new_owner_id']);
+                    $newOwner = User::query()->findOrFail((int) $data['new_owner_id']);
 
                     /** @var User $operator */
-                    $operator = auth()->user();
+                    $operator = Auth::user();
 
                     app(ChangeTeamOwner::class)->execute($team, $newOwner, $operator);
 
@@ -70,10 +83,14 @@ class EditTeam extends EditRecord
                 ->modalHeading('Force Delete Team')
                 ->modalDescription(
                     'This permanently removes all team data and cannot be undone. '
-                    . 'The team must be soft-deleted, have no remaining members, and no active subscription.'
+                    .'The team must be soft-deleted, have no remaining members, and no active subscription.',
                 )
                 ->action(function (): void {
                     $record = $this->getRecord();
+
+                    if (! $record instanceof Team) {
+                        return;
+                    }
 
                     if (TeamResource::hasBlockingMemberships($record)) {
                         Notification::make()

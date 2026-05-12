@@ -7,14 +7,17 @@ use App\Models\Team;
 use App\Models\User;
 use Spatie\Permission\PermissionRegistrar;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
+
 it('redirects unauthenticated requests to /login', function (): void {
-    $this->get('/admin')->assertRedirect('/login');
+    get('/admin')->assertRedirect('/login');
 });
 
 it('returns 403 for authenticated user without admin permission', function (): void {
     $user = User::factory()->createOne();
 
-    $this->actingAs($user)->get('/admin')->assertForbidden();
+    actingAs($user)->get('/admin')->assertForbidden();
 });
 
 it('allows authenticated admin to access the panel', function (): void {
@@ -23,7 +26,7 @@ it('allows authenticated admin to access the panel', function (): void {
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $admin->assignRole(Role::Admin->value);
 
-    $this->actingAs($admin)->get('/admin')->assertSuccessful();
+    actingAs($admin)->get('/admin')->assertSuccessful();
 });
 
 it('prevents an operator from revoking their own admin role', function (): void {

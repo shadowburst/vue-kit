@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Filament\Widgets;
 
 use App\Enums\Subscription\SubscriptionTier;
-use App\Models\Team;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class TiersChartWidget extends ChartWidget
 {
@@ -19,10 +20,19 @@ class TiersChartWidget extends ChartWidget
 
     protected function getData(): array
     {
+        /** @var array{freeCount: int, proCount: int} $data */
         $data = Cache::remember(static::class, 60, function (): array {
-            $proCount = Team::whereHas('subscriptions', fn ($query) => $query->where('stripe_status', 'active'))->count();
-            $totalTeams = Team::count();
-            $freeCount = $totalTeams - $proCount;
+            $proCount = DB::table('teams')
+                ->whereExists(
+                    fn (Builder $query): Builder => $query
+                        ->selectRaw('1')
+                        ->from('subscriptions')
+                        ->whereColumn('subscriptions.team_id', 'teams.id')
+                        ->where('subscriptions.stripe_status', 'active'),
+                )
+                ->count();
+            $totalTeams = DB::table('teams')->count();
+            $freeCount  = $totalTeams - $proCount;
 
             return compact('freeCount', 'proCount');
         });
@@ -30,11 +40,11 @@ class TiersChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'data' => [$data['freeCount'], $data['proCount']],
+                    'data'            => [$data['freeCount'], $data['proCount']],
                     'backgroundColor' => ['#6B7280', '#10B981'],
                 ],
             ],
-            'labels' => [
+            'labels'   => [
                 SubscriptionTier::Free->name,
                 SubscriptionTier::Pro->name,
             ],

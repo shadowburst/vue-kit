@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Data\Settings\UserSettingsData;
 use App\Enums\Role\Role;
+use App\Enums\Settings\Locale;
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\Team;
 use App\Models\User;
@@ -140,6 +142,21 @@ it('current team switch returns 403 during impersonation', function (): void {
         ->assertForbidden();
 
     expect($target->fresh()?->current_team_id)->toBe($teamA->id);
+});
+
+it('locale update returns 403 and does not mutate settings during impersonation', function (): void {
+    $operator = makeImpersonationRefuseOperator();
+    $target   = User::factory()->createOne([
+        'settings' => new UserSettingsData(locale: Locale::Fr),
+    ]);
+    Team::factory()->createOne(['owner_id' => $target->id]);
+
+    actingAs($target)
+        ->withSession(makeImpersonatedSession($target, $operator))
+        ->patch(route('locale.update'), ['locale' => Locale::En->value])
+        ->assertForbidden();
+
+    expect($target->fresh()?->settings?->locale)->toBe(Locale::Fr);
 });
 
 it('mutation routes are not blocked for non-impersonated user', function (): void {

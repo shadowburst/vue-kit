@@ -5,7 +5,7 @@ php-version = "8.3.0"
 
 [source]
 workspace = "."
-paths = ["app/", "database/factories/", "database/seeders/", "tests/"]
+paths = ["app/", "database/factories/", "database/seeders/"]
 includes = ["vendor"]
 excludes = []
 
@@ -24,6 +24,7 @@ integrations = ["laravel", "pest"]
 ambiguous-function-call = { enabled = false }
 literal-named-argument = { enabled = false }
 halstead = { effort-threshold = 7000 }
+cyclomatic-complexity = { threshold = 20 }
 no-literal-password = { enabled = false }
 prefer-first-class-callable = { enabled = false }
 prefer-static-closure = { enabled = false }

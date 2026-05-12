@@ -7,6 +7,7 @@ namespace App\Actions\Admin;
 use App\Models\Subscription;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use RuntimeException;
 use Spatie\QueueableAction\QueueableAction;
@@ -17,28 +18,31 @@ final class CancelSubscription
 
     public function execute(Subscription $subscription, ?User $operator = null): void
     {
-        /** @var Team $team */
         $team = $subscription->owner;
 
+        if (! $team instanceof Team) {
+            throw new RuntimeException('Subscription is not attached to a team.');
+        }
+
         $freeMemberCap = Config::integer('billing.tiers.free.member_cap');
-        $nonOwnerCount = $team->members()->whereKeyNot($team->owner_id)->count();
+        $nonOwnerCount = (int) $team->members()->whereKeyNot($team->owner_id)->count();
 
         if ($nonOwnerCount > $freeMemberCap) {
             throw new RuntimeException(
-                'Cannot cancel: team exceeds the Free tier member cap. Remove members first.'
+                'Cannot cancel: team exceeds the Free tier member cap. Remove members first.',
             );
         }
 
         $subscription->cancel();
 
         /** @var User|null $causer */
-        $causer = $operator ?? auth()->user();
+        $causer = $operator ?? Auth::user();
 
-        $builder = ($operator instanceof User ? activity('admin') : activity())
+        $builder = ($operator !== null ? activity('admin') : activity())
             ->performedOn($subscription)
             ->withProperties(['team_id' => $team->id]);
 
-        if ($causer instanceof User) {
+        if ($causer !== null) {
             $builder = $builder->causedBy($causer);
         }
 

@@ -6,7 +6,6 @@ namespace App\Models;
 
 use App\Concerns\HasMembers;
 use App\Enums\Feature\Feature as FeatureEnum;
-use App\Enums\Permission\Permission;
 use App\Enums\Subscription\SubscriptionTier;
 use App\Observers\TeamObserver;
 use Database\Factories\TeamFactory;
@@ -18,10 +17,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Laravel\Cashier\Billable;
 use Laravel\Pennant\Feature;
 use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\Models\Activity as ActivityModel;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Sluggable\HasSlug;
@@ -63,8 +64,11 @@ class Team extends Model
 
     public function beforeActivityLogged(Activity $activity, string $eventName): void
     {
-        if (auth()->user() instanceof User && auth()->user()->hasAdminRole()) {
-            $activity->log_name = 'admin';
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if ($user?->hasAdminRole() === true && $activity instanceof ActivityModel) {
+            $activity->setAttribute('log_name', 'admin');
         }
     }
 

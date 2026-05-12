@@ -16,6 +16,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MembersRelationManager extends RelationManager
@@ -54,7 +55,7 @@ class MembersRelationManager extends RelationManager
                     })
                     ->color(fn (string $state): string => match ($state) {
                         Role::Manager->value => 'warning',
-                        default              => 'gray',
+                        default => 'gray',
                     }),
             ])
             ->recordActions([
@@ -77,7 +78,11 @@ class MembersRelationManager extends RelationManager
                         $team = $this->getOwnerRecord();
 
                         /** @var User $operator */
-                        $operator = auth()->user();
+                        $operator = Auth::user();
+
+                        if (! is_string($data['role'] ?? null)) {
+                            return;
+                        }
 
                         app(ChangeMembershipRole::class)->execute($record, $team, Role::from($data['role']));
 
@@ -110,7 +115,7 @@ class MembersRelationManager extends RelationManager
                         }
 
                         /** @var User $operator */
-                        $operator = auth()->user();
+                        $operator = Auth::user();
 
                         app(RemoveMembership::class)->execute($record, $team);
 

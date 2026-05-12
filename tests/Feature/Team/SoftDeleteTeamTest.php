@@ -14,8 +14,10 @@ it('soft-deletes a team without hard-removing it', function (): void {
 
     $team->delete();
 
-    expect(Team::find($team->id))->toBeNull()
-        ->and(Team::withTrashed()->find($team->id))->not->toBeNull();
+    expect(Team::find($team->id))
+        ->toBeNull()
+        ->and(Team::withTrashed()->find($team->id))
+        ->not->toBeNull();
 });
 
 it('soft-deleting a team nullifies current_team_id for users pointed at it', function (): void {

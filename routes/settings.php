@@ -11,7 +11,7 @@ use App\Http\Controllers\Settings\Team\CancelController;
 use App\Http\Controllers\Settings\Team\CheckoutController;
 use App\Http\Controllers\Settings\Team\PortalController;
 use App\Http\Controllers\Settings\Team\ResumeController;
-use App\Http\Middleware\RefuseDuringImpersonation;
+use App\Http\Middleware\Impersonation\RefuseDuringImpersonation;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -22,7 +22,9 @@ Route::middleware(['auth'])->group(function () {
         ->name('profile.update')
         ->middleware(RefuseDuringImpersonation::class);
 
-    Route::patch('settings/locale', [LocaleController::class, 'update'])->name('locale.update');
+    Route::patch('settings/locale', [LocaleController::class, 'update'])
+        ->name('locale.update')
+        ->middleware(RefuseDuringImpersonation::class);
 
     Route::get('settings/teams/billing', [BillingController::class, 'show'])->name('teams.billing.show');
     Route::get('settings/teams/billing/portal', [PortalController::class, 'show'])

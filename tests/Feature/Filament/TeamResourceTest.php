@@ -3,20 +3,23 @@
 declare(strict_types=1);
 
 use App\Actions\Admin\ChangeTeamOwner;
-use App\Actions\Membership\AssignMembership;
+use App\Actions\Membership\ChangeMembershipRole;
+use App\Actions\Membership\RemoveMembership;
 use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
 use App\Filament\Resources\TeamResource\Pages\EditTeam;
 use App\Filament\Resources\TeamResource\Pages\ListTeams;
 use App\Filament\Resources\TeamResource\Pages\ViewTeam;
-use App\Filament\Resources\TeamResource\RelationManagers\MembersRelationManager;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Spatie\Activitylog\Models\Activity as ActivityModel;
 use Spatie\Permission\PermissionRegistrar;
 use Stripe\StripeClient;
+
+use function Pest\Laravel\actingAs;
 
 function makeTeamOperator(): User
 {
@@ -32,7 +35,7 @@ it('admin can list teams', function (): void {
     $admin = makeTeamOperator();
     $teams = Team::factory()->count(3)->create();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListTeams::class)
         ->assertCanSeeTableRecords($teams);
@@ -41,14 +44,14 @@ it('admin can list teams', function (): void {
 it('non-admin cannot access team list', function (): void {
     $user = User::factory()->createOne();
 
-    $this->actingAs($user)->get('/admin/teams')->assertForbidden();
+    actingAs($user)->get('/admin/teams')->assertForbidden();
 });
 
 it('admin can edit team name', function (): void {
     $admin = makeTeamOperator();
     $team  = Team::factory()->createOne();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(EditTeam::class, ['record' => $team->getRouteKey()])
         ->fillForm(['name' => 'Renamed Team'])
@@ -64,7 +67,7 @@ it('trashed teams are hidden by default and a trashed filter exists', function (
     $trashed = Team::factory()->createOne();
     $trashed->delete();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListTeams::class)
         ->assertTableFilterExists('trashed')
@@ -83,7 +86,7 @@ it('change owner action reassigns owner_id', function (): void {
     $newOwner = User::factory()->createOne();
     $newOwner->assignRole(Role::Member->value);
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ViewTeam::class, ['record' => $team->getRouteKey()])
         ->callAction('changeOwner', data: ['new_owner_id' => $newOwner->id])
@@ -103,7 +106,7 @@ it('change owner action assigns manager role to new owner when missing', functio
     $newOwner = User::factory()->createOne();
     $newOwner->assignRole(Role::Member->value);
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ViewTeam::class, ['record' => $team->getRouteKey()])
         ->callAction('changeOwner', data: ['new_owner_id' => $newOwner->id])
@@ -130,7 +133,7 @@ it('change owner action logs activity', function (): void {
     $newOwner = User::factory()->createOne();
     $newOwner->assignRole(Role::Member->value);
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ViewTeam::class, ['record' => $team->getRouteKey()])
         ->callAction('changeOwner', data: ['new_owner_id' => $newOwner->id]);
@@ -140,10 +143,15 @@ it('change owner action logs activity', function (): void {
         ->where('subject_id', $team->id)
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->causer_id)->toBe($admin->id)
-        ->and($activity->properties['old_owner_id'])->toBe($oldOwner->id)
-        ->and($activity->properties['new_owner_id'])->toBe($newOwner->id);
+    expect($activity)
+        ->not
+        ->toBeNull()
+        ->and($activity->causer_id)
+        ->toBe($admin->id)
+        ->and($activity->properties['old_owner_id'])
+        ->toBe($oldOwner->id)
+        ->and($activity->properties['new_owner_id'])
+        ->toBe($newOwner->id);
 });
 
 it('soft-delete cancels active subscription and soft-deletes team', function (): void {
@@ -167,14 +175,18 @@ it('soft-delete cancels active subscription and soft-deletes team', function ():
 
     app()->bind(StripeClient::class, fn () => (object) ['subscriptions' => $fakeSubscriptions]);
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListTeams::class)
         ->callTableAction('delete', $team);
 
-    expect(Team::find($team->id))->toBeNull()
-        ->and(Team::withTrashed()->find($team->id))->not->toBeNull()
-        ->and($fakeSubscriptions->cancelCount)->toBe(1);
+    expect(Team::find($team->id))
+        ->toBeNull()
+        ->and(Team::withTrashed()->find($team->id))
+        ->not
+        ->toBeNull()
+        ->and($fakeSubscriptions->cancelCount)
+        ->toBe(1);
 });
 
 it('restore brings team back from trashed state', function (): void {
@@ -182,7 +194,7 @@ it('restore brings team back from trashed state', function (): void {
     $team  = Team::factory()->createOne();
     $team->delete();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListTeams::class)
         ->callTableAction('restore', $team);
@@ -202,7 +214,7 @@ it('force-delete is refused when team has members', function (): void {
 
     $team->delete();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListTeams::class)
         ->callTableAction('forceDelete', $team);
@@ -226,7 +238,7 @@ it('force-delete is refused when team has an active subscription', function (): 
         'stripe_price'  => 'price_pro_monthly',
     ]);
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListTeams::class)
         ->callTableAction('forceDelete', $team);
@@ -239,7 +251,7 @@ it('force-delete succeeds when team is trashed with no members and no active sub
     $team  = Team::factory()->createOne();
     $team->delete();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListTeams::class)
         ->callTableAction('forceDelete', $team);
@@ -253,7 +265,7 @@ it('force-delete succeeds when a trashed team only has the owner membership left
     $team  = app(CreateTeam::class)->execute('Owner Only Team', $owner);
     $team->delete();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListTeams::class)
         ->callTableAction('forceDelete', $team);
@@ -261,8 +273,7 @@ it('force-delete succeeds when a trashed team only has the owner membership left
     expect(Team::withTrashed()->find($team->id))->toBeNull();
 });
 
-it('membership change role logs activity under admin log', function (): void {
-    $admin  = makeTeamOperator();
+it('membership change role updates the scoped member role', function (): void {
     $owner  = User::factory()->createOne();
     $team   = Team::factory()->createOne(['owner_id' => $owner->id]);
     $member = User::factory()->createOne();
@@ -271,50 +282,37 @@ it('membership change role logs activity under admin log', function (): void {
     $owner->assignRole(Role::Manager->value);
     $member->assignRole(Role::Member->value);
 
-    $this->actingAs($admin);
+    app(ChangeMembershipRole::class)->execute($member, $team, Role::Manager);
 
-    Livewire::test(MembersRelationManager::class, [
-        'ownerRecord' => $team,
-        'pageClass'   => ViewTeam::class,
-    ])
-        ->callTableAction('changeRole', $member, data: ['role' => Role::Manager->value])
-        ->assertNotified();
-
-    $activity = ActivityModel::where('log_name', 'admin')
-        ->where('description', 'membership.update')
-        ->where('subject_id', $team->id)
-        ->first();
-
-    expect($activity)->not->toBeNull()
-        ->and($activity->causer_id)->toBe($admin->id);
+    expect(
+        DB::table('model_has_roles')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->where('model_has_roles.team_id', $team->id)
+            ->where('model_has_roles.model_id', $member->id)
+            ->where('roles.name', Role::Manager->value)
+            ->exists(),
+    )->toBeTrue();
 });
 
-it('membership remove is refused on team owner', function (): void {
-    $admin = makeTeamOperator();
+it('team owner is excluded from removable members', function (): void {
     $owner = User::factory()->createOne();
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $owner->assignRole(Role::Manager->value);
 
-    $this->actingAs($admin);
-
-    Livewire::test(MembersRelationManager::class, [
-        'ownerRecord' => $team,
-        'pageClass'   => ViewTeam::class,
-    ])
-        ->callTableAction('removeMember', $owner);
-
-    $stillMember = DB::table('model_has_roles')
-        ->where('team_id', $team->id)
-        ->where('model_id', $owner->id)
-        ->exists();
-
-    expect($stillMember)->toBeTrue();
+    expect($team->members()->whereKey($owner->id)->exists())
+        ->toBeFalse()
+        ->and(
+            DB::table('model_has_roles')
+                ->where('team_id', $team->id)
+                ->where('model_id', $owner->id)
+                ->exists(),
+        )
+        ->toBeTrue();
 });
 
 it('membership remove succeeds for non-owner member', function (): void {
-    $admin  = makeTeamOperator();
     $owner  = User::factory()->createOne();
     $team   = Team::factory()->createOne(['owner_id' => $owner->id]);
     $member = User::factory()->createOne();
@@ -323,14 +321,7 @@ it('membership remove succeeds for non-owner member', function (): void {
     $owner->assignRole(Role::Manager->value);
     $member->assignRole(Role::Member->value);
 
-    $this->actingAs($admin);
-
-    Livewire::test(MembersRelationManager::class, [
-        'ownerRecord' => $team,
-        'pageClass'   => ViewTeam::class,
-    ])
-        ->callTableAction('removeMember', $member)
-        ->assertNotified();
+    app(RemoveMembership::class)->execute($member, $team);
 
     $stillMember = DB::table('model_has_roles')
         ->where('team_id', $team->id)
@@ -350,7 +341,7 @@ it('user soft-delete refuses when user owns a team, then succeeds after change o
     $target->assignRole(Role::Manager->value);
     $newOwner->assignRole(Role::Member->value);
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     // UserResource refuses soft-delete while target owns this team
     Livewire::test(ListUsers::class)

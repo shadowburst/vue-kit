@@ -18,6 +18,8 @@ use Stripe\StripeClient;
 use Stripe\Subscription as StripeSubscription;
 use Stripe\SubscriptionItem as StripeSubscriptionItem;
 
+use function Pest\Laravel\actingAs;
+
 function makeSubscriptionOperator(): User
 {
     $admin = User::factory()->createOne();
@@ -38,7 +40,9 @@ function bindFakeStripeClientForCancel(): void
     ]);
 
     $fakeSubscriptions = new class($fakeStripeSubscription) {
-        public function __construct(private StripeSubscription $subscription) {}
+        public function __construct(
+            private StripeSubscription $subscription,
+        ) {}
 
         /** @param array<string, mixed> $params */
         public function update(string $id, array $params): StripeSubscription
@@ -48,7 +52,9 @@ function bindFakeStripeClientForCancel(): void
     };
 
     $fakeSubscriptionItems = new class($fakeStripeItem) {
-        public function __construct(private StripeSubscriptionItem $item) {}
+        public function __construct(
+            private StripeSubscriptionItem $item,
+        ) {}
 
         /** @param array<string, mixed> $params */
         public function retrieve(string $id, array $params = []): StripeSubscriptionItem
@@ -68,7 +74,9 @@ function bindFakeStripeClientForUpdate(): void
     $fakeStripeSubscription = StripeSubscription::constructFrom(['id' => 'sub_test', 'status' => 'active']);
 
     $fakeSubscriptions = new class($fakeStripeSubscription) {
-        public function __construct(private StripeSubscription $subscription) {}
+        public function __construct(
+            private StripeSubscription $subscription,
+        ) {}
 
         /** @param array<string, mixed> $params */
         public function update(string $id, array $params): StripeSubscription
@@ -92,24 +100,26 @@ function createActiveSubscription(Team $team, string $stripeId = 'sub_test'): Su
         'stripe_price'  => 'price_pro_monthly_test',
     ]);
 
-    $subscription->items()->create([
-        'stripe_id'      => 'si_test',
-        'stripe_product' => 'prod_test',
-        'stripe_price'   => 'price_pro_monthly_test',
-        'quantity'       => 1,
-    ]);
+    $subscription
+        ->items()
+        ->create([
+            'stripe_id'      => 'si_test',
+            'stripe_product' => 'prod_test',
+            'stripe_price'   => 'price_pro_monthly_test',
+            'quantity'       => 1,
+        ]);
 
     return $subscription;
 }
 
 it('admin can list subscriptions', function (): void {
-    $admin  = makeSubscriptionOperator();
-    $team   = Team::factory()->createOne();
+    $admin = makeSubscriptionOperator();
+    $team  = Team::factory()->createOne();
     createActiveSubscription($team, 'sub_list_test');
 
     $subscriptions = Subscription::all();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ListSubscriptions::class)
         ->assertCanSeeTableRecords($subscriptions);
@@ -118,7 +128,7 @@ it('admin can list subscriptions', function (): void {
 it('non-admin cannot access subscription list', function (): void {
     $user = User::factory()->createOne();
 
-    $this->actingAs($user)->get('/admin/subscriptions')->assertForbidden();
+    actingAs($user)->get('/admin/subscriptions')->assertForbidden();
 });
 
 it('cancel at period end sets ends_at and logs activity', function (): void {
@@ -128,7 +138,7 @@ it('cancel at period end sets ends_at and logs activity', function (): void {
 
     bindFakeStripeClientForCancel();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ViewSubscription::class, ['record' => $subscription->getRouteKey()])
         ->callAction('cancelAtPeriodEnd')
@@ -141,9 +151,13 @@ it('cancel at period end sets ends_at and logs activity', function (): void {
         ->where('subject_id', $subscription->id)
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->causer_id)->toBe($admin->id)
-        ->and($activity->properties['team_id'])->toBe($team->id);
+    expect($activity)
+        ->not
+        ->toBeNull()
+        ->and($activity->causer_id)
+        ->toBe($admin->id)
+        ->and($activity->properties['team_id'])
+        ->toBe($team->id);
 });
 
 it('cancel is refused when team has non-owner members', function (): void {
@@ -158,7 +172,7 @@ it('cancel is refused when team has non-owner members', function (): void {
 
     $subscription = createActiveSubscription($team, 'sub_overcap_test');
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ViewSubscription::class, ['record' => $subscription->getRouteKey()])
         ->callAction('cancelAtPeriodEnd');
@@ -186,7 +200,7 @@ it('resume clears ends_at and logs activity when on grace period', function (): 
 
     bindFakeStripeClientForUpdate();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ViewSubscription::class, ['record' => $subscription->getRouteKey()])
         ->callAction('resume')
@@ -199,8 +213,11 @@ it('resume clears ends_at and logs activity when on grace period', function (): 
         ->where('subject_id', $subscription->id)
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->causer_id)->toBe($admin->id);
+    expect($activity)
+        ->not
+        ->toBeNull()
+        ->and($activity->causer_id)
+        ->toBe($admin->id);
 });
 
 it('extend trial updates trial_ends_at and logs old and new dates', function (): void {
@@ -209,18 +226,18 @@ it('extend trial updates trial_ends_at and logs old and new dates', function ():
     $originalEnd = Carbon::now()->addDays(5)->startOfDay();
 
     $subscription = $team->subscriptions()->create([
-        'type'           => 'default',
-        'stripe_id'      => 'sub_trial_test',
-        'stripe_status'  => 'trialing',
-        'stripe_price'   => 'price_pro_monthly_test',
-        'trial_ends_at'  => $originalEnd,
+        'type'          => 'default',
+        'stripe_id'     => 'sub_trial_test',
+        'stripe_status' => 'trialing',
+        'stripe_price'  => 'price_pro_monthly_test',
+        'trial_ends_at' => $originalEnd,
     ]);
 
     bindFakeStripeClientForUpdate();
 
     $newDate = Carbon::now()->addDays(30)->toDateString();
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ViewSubscription::class, ['record' => $subscription->getRouteKey()])
         ->callAction('extendTrial', data: ['trial_ends_at' => $newDate])
@@ -233,10 +250,15 @@ it('extend trial updates trial_ends_at and logs old and new dates', function ():
         ->where('subject_id', $subscription->id)
         ->first();
 
-    expect($activity)->not->toBeNull()
-        ->and($activity->causer_id)->toBe($admin->id)
-        ->and($activity->properties['old_date'])->toBe($originalEnd->toDateString())
-        ->and($activity->properties['new_date'])->toBe($newDate);
+    expect($activity)
+        ->not
+        ->toBeNull()
+        ->and($activity->causer_id)
+        ->toBe($admin->id)
+        ->and($activity->properties['old_date'])
+        ->toBe($originalEnd->toDateString())
+        ->and($activity->properties['new_date'])
+        ->toBe($newDate);
 });
 
 it('invoices relation manager renders without error when team has no stripe id', function (): void {
@@ -244,7 +266,7 @@ it('invoices relation manager renders without error when team has no stripe id',
     $team         = Team::factory()->createOne(['stripe_id' => null]);
     $subscription = createActiveSubscription($team, 'sub_inv_test');
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(InvoicesRelationManager::class, [
         'ownerRecord' => $subscription,
@@ -258,7 +280,7 @@ it('open in stripe header action is visible when team has a stripe id', function
     $team         = Team::factory()->createOne(['stripe_id' => 'cus_test123']);
     $subscription = createActiveSubscription($team, 'sub_stripe_test');
 
-    $this->actingAs($admin);
+    actingAs($admin);
 
     Livewire::test(ViewSubscription::class, ['record' => $subscription->getRouteKey()])
         ->assertActionExists('openInStripe');
