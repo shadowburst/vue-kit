@@ -8,20 +8,19 @@ import { useFormat } from '@/composables/useFormat';
 import type { ProfileEditProps, UserResource } from '@/spatie/types';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { Head, Link, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import { computed } from 'vue';
 
 defineProps<ProfileEditProps>();
 
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            {
-                title: 'Profile settings',
-                href: ProfileController.edit(),
-            },
-        ],
-    },
+setLayoutProps({
+    breadcrumbs: [
+        {
+            title: trans('settings.profile.title'),
+            href: ProfileController.edit(),
+        },
+    ],
 });
 
 const page = usePage();
@@ -35,32 +34,41 @@ const form = useForm({
 </script>
 
 <template>
-    <Head title="Profile settings" />
+    <Head :title="trans('settings.profile.title')" />
 
-    <h1 class="sr-only">Profile settings</h1>
+    <h1 class="sr-only">{{ trans('settings.profile.title') }}</h1>
 
     <div class="flex flex-col space-y-6">
-        <Heading variant="small" title="Profile information" description="Update your name and email address" />
+        <Heading
+            variant="small"
+            :title="trans('settings.profile.information')"
+            :description="trans('settings.profile.description')"
+        />
 
         <Form :form="form" :action="ProfileController.update()" class="space-y-6">
             <FieldGroup>
                 <Field required>
-                    <FieldLabel>Name</FieldLabel>
+                    <FieldLabel>{{ trans('settings.attributes.name') }}</FieldLabel>
                     <FieldControl>
-                        <Input v-model="form.name" name="name" autocomplete="name" placeholder="Full name" />
+                        <Input
+                            v-model="form.name"
+                            name="name"
+                            autocomplete="name"
+                            :placeholder="trans('settings.profile.full_name')"
+                        />
                     </FieldControl>
                     <FieldError :errors="[form.errors.name]" />
                 </Field>
 
                 <Field required>
-                    <FieldLabel>Email address</FieldLabel>
+                    <FieldLabel>{{ trans('settings.attributes.email') }}</FieldLabel>
                     <FieldControl>
                         <Input
                             v-model="form.email"
                             type="email"
                             name="email"
                             autocomplete="username"
-                            placeholder="Email address"
+                            :placeholder="trans('settings.attributes.email')"
                         />
                     </FieldControl>
                     <FieldError :errors="[form.errors.email]" />
@@ -68,29 +76,31 @@ const form = useForm({
 
                 <div v-if="mustVerifyEmail && !user.email_verified_at">
                     <p class="-mt-4 text-sm text-muted-foreground">
-                        Your email address is unverified.
+                        {{ trans('settings.profile.email_unverified') }}
                         <Link
                             :href="EmailVerificationNotificationController.store()"
                             as="button"
                             class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
                         >
-                            Click here to resend the verification email.
+                            {{ trans('settings.profile.resend_verification') }}
                         </Link>
                     </p>
 
                     <div v-if="status === 'verification-link-sent'" class="mt-2 text-sm font-medium text-green-600">
-                        A new verification link has been sent to your email address.
+                        {{ trans('settings.profile.verification_sent') }}
                     </div>
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <Button :disabled="form.processing" data-test="update-profile-button">Save</Button>
+                    <Button :disabled="form.processing" data-test="update-profile-button">
+                        {{ trans('common.save') }}
+                    </Button>
                 </div>
             </FieldGroup>
         </Form>
 
         <p v-if="user.created_at" class="text-sm text-muted-foreground">
-            Member since {{ formatDate(user.created_at) }}
+            {{ trans('settings.profile.member_since', { date: formatDate(user.created_at) }) }}
         </p>
     </div>
 

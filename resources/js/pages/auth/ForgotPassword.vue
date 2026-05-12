@@ -6,13 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import PasswordResetLinkController from '@/wayfinder/Laravel/Fortify/Http/Controllers/PasswordResetLinkController';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 
-defineOptions({
-    layout: {
-        title: 'Forgot password',
-        description: 'Enter your email to receive a password reset link',
-    },
+setLayoutProps({
+    title: trans('auth.forgot_password.title'),
+    description: trans('auth.forgot_password.description'),
 });
 
 defineProps<{
@@ -25,7 +24,7 @@ const form = useForm({
 </script>
 
 <template>
-    <Head title="Forgot password" />
+    <Head :title="trans('auth.forgot_password.title')" />
 
     <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
         {{ status }}
@@ -34,7 +33,7 @@ const form = useForm({
     <div class="space-y-6">
         <Form :form="form" :action="PasswordResetLinkController.store()">
             <Field>
-                <FieldLabel>Email address</FieldLabel>
+                <FieldLabel>{{ trans('auth.attributes.email') }}</FieldLabel>
                 <FieldControl>
                     <Input
                         v-model="form.email"
@@ -42,7 +41,7 @@ const form = useForm({
                         name="email"
                         autocomplete="off"
                         autofocus
-                        placeholder="email@example.com"
+                        :placeholder="trans('auth.placeholders.email')"
                     />
                 </FieldControl>
                 <FieldError :errors="[form.errors.email]" />
@@ -51,14 +50,16 @@ const form = useForm({
             <div class="my-6 flex items-center justify-start">
                 <Button class="w-full" :disabled="form.processing" data-test="email-password-reset-link-button">
                     <Spinner v-if="form.processing" />
-                    Email password reset link
+                    {{ trans('auth.forgot_password.submit') }}
                 </Button>
             </div>
         </Form>
 
         <div class="space-x-1 text-center text-sm text-muted-foreground">
-            <span>Or, return to</span>
-            <InertiaLink variant="text" :href="AuthenticatedSessionController.create()">log in</InertiaLink>
+            <span>{{ trans('auth.forgot_password.return_to') }}</span>
+            <InertiaLink variant="text" :href="AuthenticatedSessionController.create()">
+                {{ trans('common.log_in') }}
+            </InertiaLink>
         </div>
     </div>
 </template>

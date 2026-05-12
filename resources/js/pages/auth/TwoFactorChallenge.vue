@@ -6,21 +6,22 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import type { TwoFactorConfigContent } from '@/types';
 import TwoFactorAuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticatedSessionController';
 import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import { computed, ref, watchEffect } from 'vue';
 
 const authConfigContent = computed<TwoFactorConfigContent>(() => {
     if (showRecoveryInput.value) {
         return {
-            title: 'Recovery code',
-            description: 'Please confirm access to your account by entering one of your emergency recovery codes.',
-            buttonText: 'login using an authentication code',
+            title: trans('auth.two_factor_challenge.recovery_title'),
+            description: trans('auth.two_factor_challenge.recovery_description'),
+            buttonText: trans('auth.two_factor_challenge.use_authentication_code'),
         };
     }
 
     return {
-        title: 'Authentication code',
-        description: 'Enter the authentication code provided by your authenticator application.',
-        buttonText: 'login using a recovery code',
+        title: trans('auth.two_factor_challenge.authentication_title'),
+        description: trans('auth.two_factor_challenge.authentication_description'),
+        buttonText: trans('auth.two_factor_challenge.use_recovery_code'),
     };
 });
 
@@ -46,7 +47,7 @@ const toggleRecoveryMode = (): void => {
 </script>
 
 <template>
-    <Head title="Two-factor authentication" />
+    <Head :title="trans('auth.two_factor_challenge.title')" />
 
     <div class="space-y-6">
         <template v-if="!showRecoveryInput">
@@ -72,9 +73,11 @@ const toggleRecoveryMode = (): void => {
                     </div>
                     <FieldError :errors="[otpForm.errors.code]" />
                 </div>
-                <Button type="submit" class="w-full" :disabled="otpForm.processing">Continue</Button>
+                <Button type="submit" class="w-full" :disabled="otpForm.processing">
+                    {{ trans('common.continue') }}
+                </Button>
                 <div class="text-center text-sm text-muted-foreground">
-                    <span>or you can </span>
+                    <span>{{ trans('auth.two_factor_challenge.or_you_can') }} </span>
                     <button
                         type="button"
                         class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
@@ -97,15 +100,17 @@ const toggleRecoveryMode = (): void => {
                     v-model="recoveryForm.recovery_code"
                     name="recovery_code"
                     type="text"
-                    placeholder="Enter recovery code"
+                    :placeholder="trans('auth.two_factor_challenge.recovery_code_placeholder')"
                     :autofocus="showRecoveryInput"
                     required
                 />
                 <FieldError :errors="[recoveryForm.errors.recovery_code]" />
-                <Button type="submit" class="w-full" :disabled="recoveryForm.processing">Continue</Button>
+                <Button type="submit" class="w-full" :disabled="recoveryForm.processing">
+                    {{ trans('common.continue') }}
+                </Button>
 
                 <div class="text-center text-sm text-muted-foreground">
-                    <span>or you can </span>
+                    <span>{{ trans('auth.two_factor_challenge.or_you_can') }} </span>
                     <button
                         type="button"
                         class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"

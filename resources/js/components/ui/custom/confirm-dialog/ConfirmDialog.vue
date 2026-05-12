@@ -27,6 +27,7 @@ import {
     SmartDialogTitle,
 } from '@/components/ui/custom/smart-dialog';
 import { upperFirst } from 'es-toolkit';
+import { trans } from 'laravel-vue-i18n';
 import { createContext } from 'reka-ui';
 import { reactive, ref } from 'vue';
 
@@ -56,7 +57,7 @@ provideConfirmDialogContext({
         <SmartDialogContent>
             <SmartDialogHeader>
                 <SmartDialogTitle>
-                    {{ state.title ?? $t(`components.ui.custom.confirm_dialog.title.${state.variant}`) }}
+                    {{ state.title ?? trans(`components.ui.custom.confirm_dialog.title.${state.variant}`) }}
                 </SmartDialogTitle>
                 <SmartDialogDescription v-if="state.description">
                     {{ state.description }}
@@ -68,12 +69,12 @@ provideConfirmDialogContext({
             <SmartDialogFooter>
                 <SmartDialogClose as-child>
                     <Button v-if="state.callback" :variant="state.variant" @click="state.callback()">
-                        {{ upperFirst($t('confirm')) }}
+                        {{ upperFirst(trans('common.confirm')) }}
                     </Button>
                 </SmartDialogClose>
                 <SmartDialogClose as-child>
                     <Button variant="ghost">
-                        {{ upperFirst($t('cancel')) }}
+                        {{ upperFirst(trans('common.cancel')) }}
                     </Button>
                 </SmartDialogClose>
             </SmartDialogFooter>

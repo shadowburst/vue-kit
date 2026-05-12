@@ -9,21 +9,20 @@ import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import type { SecurityEditProps } from '@/spatie/types';
 import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
 import TwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticationController';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
 import { ShieldCheck } from '@lucide/vue';
+import { trans } from 'laravel-vue-i18n';
 import { onUnmounted, ref } from 'vue';
 
 defineProps<SecurityEditProps>();
 
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            {
-                title: 'Security settings',
-                href: SecurityController.edit(),
-            },
-        ],
-    },
+setLayoutProps({
+    breadcrumbs: [
+        {
+            title: trans('settings.security.title'),
+            href: SecurityController.edit(),
+        },
+    ],
 });
 
 const { hasSetupData, clearTwoFactorAuthData } = useTwoFactorAuth();
@@ -42,15 +41,15 @@ onUnmounted(() => clearTwoFactorAuthData());
 </script>
 
 <template>
-    <Head title="Security settings" />
+    <Head :title="trans('settings.security.title')" />
 
-    <h1 class="sr-only">Security settings</h1>
+    <h1 class="sr-only">{{ trans('settings.security.title') }}</h1>
 
     <div class="space-y-6">
         <Heading
             variant="small"
-            title="Update password"
-            description="Ensure your account is using a long, random password to stay secure"
+            :title="trans('settings.security.update_password')"
+            :description="trans('settings.security.password_description')"
         />
 
         <Form
@@ -64,49 +63,51 @@ onUnmounted(() => clearTwoFactorAuthData());
             class="space-y-6"
         >
             <Field>
-                <FieldLabel>Current password</FieldLabel>
+                <FieldLabel>{{ trans('settings.attributes.current_password') }}</FieldLabel>
                 <FieldControl>
                     <PasswordInput
                         v-model="passwordForm.current_password"
                         name="current_password"
                         class="mt-1 block w-full"
                         autocomplete="current-password"
-                        placeholder="Current password"
+                        :placeholder="trans('settings.attributes.current_password')"
                     />
                 </FieldControl>
                 <FieldError :errors="[passwordForm.errors.current_password]" />
             </Field>
 
             <Field>
-                <FieldLabel>New password</FieldLabel>
+                <FieldLabel>{{ trans('settings.attributes.new_password') }}</FieldLabel>
                 <FieldControl>
                     <PasswordInput
                         v-model="passwordForm.password"
                         name="password"
                         class="mt-1 block w-full"
                         autocomplete="new-password"
-                        placeholder="New password"
+                        :placeholder="trans('settings.attributes.new_password')"
                     />
                 </FieldControl>
                 <FieldError :errors="[passwordForm.errors.password]" />
             </Field>
 
             <Field>
-                <FieldLabel>Confirm password</FieldLabel>
+                <FieldLabel>{{ trans('settings.attributes.password_confirmation') }}</FieldLabel>
                 <FieldControl>
                     <PasswordInput
                         v-model="passwordForm.password_confirmation"
                         name="password_confirmation"
                         class="mt-1 block w-full"
                         autocomplete="new-password"
-                        placeholder="Confirm password"
+                        :placeholder="trans('settings.attributes.password_confirmation')"
                     />
                 </FieldControl>
                 <FieldError :errors="[passwordForm.errors.password_confirmation]" />
             </Field>
 
             <div class="flex items-center gap-4">
-                <Button :disabled="passwordForm.processing" data-test="update-password-button"> Save password </Button>
+                <Button :disabled="passwordForm.processing" data-test="update-password-button">
+                    {{ trans('settings.security.save_password') }}
+                </Button>
             </div>
         </Form>
     </div>
@@ -114,39 +115,41 @@ onUnmounted(() => clearTwoFactorAuthData());
     <div v-if="canManageTwoFactor" class="space-y-6">
         <Heading
             variant="small"
-            title="Two-factor authentication"
-            description="Manage your two-factor authentication settings"
+            :title="trans('settings.security.two_factor_title')"
+            :description="trans('settings.security.two_factor_description')"
         />
 
         <div v-if="!twoFactorEnabled" class="flex flex-col items-start justify-start space-y-4">
             <p class="text-sm text-muted-foreground">
-                When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin
-                can be retrieved from a TOTP-supported application on your phone.
+                {{ trans('settings.security.two_factor_disabled_body') }}
             </p>
 
             <div>
-                <Button v-if="hasSetupData" @click="showSetupModal = true"> <ShieldCheck />Continue setup </Button>
+                <Button v-if="hasSetupData" @click="showSetupModal = true">
+                    <ShieldCheck />{{ trans('settings.security.continue_setup') }}
+                </Button>
                 <Form
                     v-else
                     :form="enableTwoFactorForm"
                     :action="TwoFactorAuthenticationController.store()"
                     :options="{ onSuccess: () => (showSetupModal = true) }"
                 >
-                    <Button type="submit" :disabled="enableTwoFactorForm.processing"> Enable 2FA </Button>
+                    <Button type="submit" :disabled="enableTwoFactorForm.processing">
+                        {{ trans('settings.security.enable_two_factor') }}
+                    </Button>
                 </Form>
             </div>
         </div>
 
         <div v-else class="flex flex-col items-start justify-start space-y-4">
             <p class="text-sm text-muted-foreground">
-                You will be prompted for a secure, random pin during login, which you can retrieve from the
-                TOTP-supported application on your phone.
+                {{ trans('settings.security.two_factor_enabled_body') }}
             </p>
 
             <div class="relative inline">
                 <Form :form="disableTwoFactorForm" :action="TwoFactorAuthenticationController.destroy()">
                     <Button variant="destructive" type="submit" :disabled="disableTwoFactorForm.processing">
-                        Disable 2FA
+                        {{ trans('settings.security.disable_two_factor') }}
                     </Button>
                 </Form>
             </div>

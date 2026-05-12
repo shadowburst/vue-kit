@@ -213,6 +213,10 @@ Vue components must have a single root element.
 
 Issues live in the `shadowburst/vue-kit` GitHub repo, accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
+### Pull requests
+
+Pull request titles MUST always follow Conventional Commits, matching the style used for commit messages (for example, `feat(frontend): translate Vue view strings`).
+
 ### Triage labels
 
 Canonical role names used as-is (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
@@ -220,4 +224,3 @@ Canonical role names used as-is (`needs-triage`, `needs-info`, `ready-for-agent`
 ### Domain docs
 
 Single-context layout — `CONTEXT.md` + `docs/adr/` at the repo root (created lazily). See `docs/agents/domain.md`.
-

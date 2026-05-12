@@ -7,20 +7,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { LocaleEditProps } from '@/spatie/types';
 import { Locale } from '@/wayfinder/App/Enums/Settings/Locale';
 import LocaleController from '@/wayfinder/App/Http/Controllers/Settings/LocaleController';
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 
 defineProps<LocaleEditProps>();
 
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            {
-                title: 'Language settings',
-                href: LocaleController.edit(),
-            },
-        ],
-    },
+setLayoutProps({
+    breadcrumbs: [
+        {
+            title: trans('settings.language_settings'),
+            href: LocaleController.edit(),
+        },
+    ],
 });
 
 const page = usePage();
@@ -44,7 +42,7 @@ function submit(): void {
 </script>
 
 <template>
-    <Head title="Language settings" />
+    <Head :title="trans('settings.language_settings')" />
 
     <h1 class="sr-only">{{ trans('settings.language') }}</h1>
 
@@ -74,7 +72,7 @@ function submit(): void {
             </div>
 
             <Button type="submit" :disabled="form.processing">
-                {{ trans('settings.save') }}
+                {{ trans('common.save') }}
             </Button>
         </form>
     </div>

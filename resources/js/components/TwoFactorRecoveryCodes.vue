@@ -7,6 +7,7 @@ import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import RecoveryCodeController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RecoveryCodeController';
 import { useForm } from '@inertiajs/vue3';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from '@lucide/vue';
+import { trans } from 'laravel-vue-i18n';
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
 
 const { recoveryCodesList, fetchRecoveryCodes, errors } = useTwoFactorAuth();
@@ -38,17 +39,22 @@ onMounted(async () => {
 <template>
     <Card class="w-full">
         <CardHeader>
-            <CardTitle class="flex gap-3"> <LockKeyhole class="size-4" />2FA recovery codes </CardTitle>
+            <CardTitle class="flex gap-3">
+                <LockKeyhole class="size-4" />{{ trans('components.two_factor_recovery_codes.title') }}
+            </CardTitle>
             <CardDescription>
-                Recovery codes let you regain access if you lose your 2FA device. Store them in a secure password
-                manager.
+                {{ trans('components.two_factor_recovery_codes.description') }}
             </CardDescription>
         </CardHeader>
         <CardContent>
             <div class="flex flex-col gap-3 select-none sm:flex-row sm:items-center sm:justify-between">
                 <Button @click="toggleRecoveryCodesVisibility" class="w-fit">
                     <component :is="isRecoveryCodesVisible ? EyeOff : Eye" class="size-4" />
-                    {{ isRecoveryCodesVisible ? 'Hide' : 'View' }} recovery codes
+                    {{
+                        isRecoveryCodesVisible
+                            ? trans('components.two_factor_recovery_codes.hide')
+                            : trans('components.two_factor_recovery_codes.view')
+                    }}
                 </Button>
 
                 <Form
@@ -58,7 +64,7 @@ onMounted(async () => {
                     :options="{ preserveScroll: true, onSuccess: () => fetchRecoveryCodes() }"
                 >
                     <Button variant="secondary" type="submit" :disabled="regenerateForm.processing">
-                        <RefreshCw /> Regenerate codes
+                        <RefreshCw /> {{ trans('components.two_factor_recovery_codes.regenerate') }}
                     </Button>
                 </Form>
             </div>
@@ -81,9 +87,11 @@ onMounted(async () => {
                         </div>
                     </div>
                     <p class="text-xs text-muted-foreground select-none">
-                        Each recovery code can be used once to access your account and will be removed after use. If you
-                        need more, click
-                        <span class="font-bold">Regenerate codes</span> above.
+                        {{
+                            trans('components.two_factor_recovery_codes.help', {
+                                action: trans('components.two_factor_recovery_codes.regenerate'),
+                            })
+                        }}
                     </p>
                 </div>
             </div>
