@@ -350,3 +350,15 @@ it('GrantAdminRole action class refuses when target has no owned team', function
     expect(fn () => app(GrantAdminRole::class)->execute($target))
         ->toThrow(RuntimeException::class);
 });
+
+it('impersonate action is hidden for soft-deleted users', function (): void {
+    $admin = makeOperator();
+    $target = User::factory()->createOne();
+    $target->delete();
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)
+        ->filterTable('trashed', 'only')
+        ->assertTableActionHidden('impersonate', $target);
+});

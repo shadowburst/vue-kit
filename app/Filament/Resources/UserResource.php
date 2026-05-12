@@ -192,8 +192,14 @@ class UserResource extends Resource
                     ->requiresConfirmation()
                     ->modalHeading(fn (User $record): string => "Impersonate {$record->name}")
                     ->modalDescription('You will assume this user\'s identity. A banner will appear — use "Leave impersonation" to return.')
-                    ->visible(fn (User $record): bool => ! static::isAdmin($record))
+                    ->visible(fn (User $record): bool => ! static::isAdmin($record) && ! $record->trashed())
                     ->action(function (User $record): void {
+                        if ($record->trashed()) {
+                            Notification::make()->title('Cannot impersonate a soft-deleted user.')->danger()->send();
+
+                            return;
+                        }
+
                         /** @var User $operator */
                         $operator = auth()->user();
 
