@@ -25,3 +25,4 @@ Current assignments: `name → Short`, `email → Medium`, `password → Short`,
 - `app/Enums/Validation/StringMaxLength.php` is the single source for string caps shared by backend validation and frontend `maxlength`.
 - New `max:` constraints on string fields must reference a tier case; the arch test fails the build otherwise.
 - A fourth tier (e.g. `Tiny`, `Huge`) is added only when a real callsite forces the number to be argued for.
+- The enum is int-backed because the tier value *is* the validation length and the generated TypeScript type (`100 | 255 | 2000`) drops into `maxlength` attributes without remapping. This is the worked example that triggered ADR-0004 D5's revision on 2026-05-12 from string-backed-only to any-enum.
