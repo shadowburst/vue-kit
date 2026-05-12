@@ -9,9 +9,11 @@ use App\Data\Auth\AuthFeaturesData;
 use App\Data\Auth\AuthSubscriptionData;
 use App\Data\Shared\SharedAuthData;
 use App\Data\Shared\SharedData;
+use App\Data\Shared\SharedImpersonatorData;
 use App\Data\Team\TeamResource;
 use App\Data\User\UserResource;
 use App\Models\User;
+use App\Services\ImpersonationContext;
 use App\Services\Team\TeamContext;
 use Closure;
 use Illuminate\Http\Request;
@@ -23,6 +25,7 @@ class HandleInertiaRequests extends Middleware
 {
     public function __construct(
         private readonly TeamContext $teamContext,
+        private readonly ImpersonationContext $impersonationContext,
     ) {}
 
     /**
@@ -74,6 +77,14 @@ class HandleInertiaRequests extends Middleware
         /** @var string $appName */
         $appName = config('app.name');
 
+        $impersonator = null;
+        if ($this->impersonationContext->isImpersonating()) {
+            $operator = $this->impersonationContext->impersonator();
+            if ($operator !== null) {
+                $impersonator = new SharedImpersonatorData(id: $operator->id, name: $operator->name);
+            }
+        }
+
         return new SharedData(
             name       : $appName,
             auth       : new SharedAuthData(
@@ -81,6 +92,7 @@ class HandleInertiaRequests extends Middleware
                 abilities   : AuthAbilitiesData::fromUser($user, $currentTeam),
                 features    : AuthFeaturesData::fromTeam($currentTeam),
                 subscription: AuthSubscriptionData::fromTeam($currentTeam),
+                impersonator: $impersonator,
             ),
             currentTeam: $currentTeam !== null ? TeamResource::from($currentTeam) : null,
             sidebarOpen: ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',

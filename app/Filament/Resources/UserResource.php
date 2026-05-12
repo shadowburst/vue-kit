@@ -180,6 +180,30 @@ class UserResource extends Resource
                         app(RevokeAdminRole::class)->execute($record, $operator);
                         Notification::make()->title('Admin role revoked.')->success()->send();
                     }),
+                \Filament\Actions\Action::make('impersonate')
+                    ->label('Impersonate')
+                    ->icon('heroicon-o-user-circle')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (User $record): string => "Impersonate {$record->name}")
+                    ->modalDescription('You will assume this user\'s identity. A banner will appear — use "Leave impersonation" to return.')
+                    ->visible(fn (User $record): bool => ! static::isAdmin($record))
+                    ->action(function (User $record): void {
+                        /** @var User $operator */
+                        $operator = auth()->user();
+
+                        activity('admin')
+                            ->causedBy($operator)
+                            ->performedOn($record)
+                            ->withProperties([
+                                'ip'         => request()->ip(),
+                                'user_agent' => request()->userAgent(),
+                            ])
+                            ->log('impersonation.start');
+
+                        $operator->impersonate($record);
+                    })
+                    ->successRedirectUrl(fn (): string => route('dashboard')),
                 DeleteAction::make()
                     ->action(function (DeleteAction $action, User $record): void {
                         if ($record->ownedTeams()->exists()) {

@@ -11,6 +11,8 @@ use App\Models\Team;
 use App\Policies\SubscriptionPolicy;
 use App\Services\Team\TeamContext;
 use Carbon\CarbonImmutable;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
@@ -51,6 +53,11 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Event::listen(WebhookHandled::class, PurgeFeaturesOnSubscriptionChange::class);
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_START,
+            fn (): \Illuminate\Contracts\View\View => view('filament.impersonation-banner'),
+        );
     }
 
     /**

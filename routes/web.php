@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Impersonation\ImpersonateController;
 use App\Http\Controllers\Team\CurrentTeamController;
 use App\Http\Controllers\Team\TeamController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,10 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('impersonate/leave', [ImpersonateController::class, 'store'])->name('impersonate.leave');
 });
 
 require __DIR__.'/settings.php';
