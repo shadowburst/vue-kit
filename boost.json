@@ -32,6 +32,7 @@
         "spatie-security",
         "spatie-version-control",
         "caveman",
+        "custom-form",
         "diagnose",
         "grill-me",
         "grill-with-docs",
