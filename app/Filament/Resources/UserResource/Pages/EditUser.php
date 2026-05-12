@@ -67,7 +67,7 @@ class EditUser extends EditRecord
                         return;
                     }
 
-                    if ($record->teams()->exists()) {
+                    if (UserResource::hasMemberships($record)) {
                         Notification::make()
                             ->title('Cannot force-delete: remove all team memberships first.')
                             ->danger()

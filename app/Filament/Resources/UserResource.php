@@ -152,7 +152,7 @@ class UserResource extends Resource
                     ->icon('heroicon-o-shield-check')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn (User $record): bool => ! static::isAdmin($record))
+                    ->visible(fn (User $record): bool => ! static::isAdmin($record) && $record->ownedTeams()->exists())
                     ->action(function (User $record): void {
                         try {
                             /** @var User $operator */
@@ -234,7 +234,7 @@ class UserResource extends Resource
                             return;
                         }
 
-                        if ($record->teams()->exists()) {
+                        if (static::hasMemberships($record)) {
                             Notification::make()
                                 ->title('Cannot force-delete: remove all team memberships first.')
                                 ->danger()
@@ -297,6 +297,14 @@ class UserResource extends Resource
             ->where('model_has_roles.model_type', $user->getMorphClass())
             ->where('roles.name', Role::Admin->value)
             ->where('roles.guard_name', 'web')
+            ->exists();
+    }
+
+    public static function hasMemberships(User $user): bool
+    {
+        return DB::table(config('permission.table_names.model_has_roles', 'model_has_roles'))
+            ->where('model_id', $user->getKey())
+            ->where('model_type', $user->getMorphClass())
             ->exists();
     }
 }

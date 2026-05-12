@@ -75,9 +75,9 @@ class EditTeam extends EditRecord
                 ->action(function (): void {
                     $record = $this->getRecord();
 
-                    if ($record->members()->exists()) {
+                    if (TeamResource::hasBlockingMemberships($record)) {
                         Notification::make()
-                            ->title('Cannot force-delete: remove all members first.')
+                            ->title('Cannot force-delete: remove all non-owner members first.')
                             ->danger()
                             ->send();
 

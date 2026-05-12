@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 use App\Actions\Admin\GrantAdminRole;
+use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
 use App\Filament\Resources\UserResource\Pages\EditUser;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
+use App\Filament\Resources\UserResource\Pages\ViewUser;
+use App\Filament\Resources\UserResource\RelationManagers\MembershipsRelationManager;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -159,6 +162,16 @@ it('grant admin action is hidden when user is already an admin', function (): vo
         ->assertTableActionHidden('grantAdmin', $target);
 });
 
+it('grant admin action is hidden when user owns no team', function (): void {
+    $admin  = makeOperator();
+    $target = User::factory()->createOne();
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)
+        ->assertTableActionHidden('grantAdmin', $target);
+});
+
 it('soft-delete is refused when user owns active teams', function (): void {
     $admin  = makeOperator();
     $target = User::factory()->createOne();
@@ -192,6 +205,25 @@ it('force-delete is refused when user still has team memberships', function (): 
     $memberTeam = Team::factory()->createOne(['owner_id' => $admin->id]);
     app(PermissionRegistrar::class)->setPermissionsTeamId($memberTeam->id);
     $target->assignRole(Role::Member->value);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)
+        ->callTableAction('forceDelete', $target);
+
+    expect(User::withTrashed()->find($target->id))->not->toBeNull();
+});
+
+it('force-delete is refused when user memberships only remain on soft-deleted teams', function (): void {
+    $admin      = makeOperator();
+    $target     = User::factory()->createOne();
+    $memberTeam = app(CreateTeam::class)->execute('Member Team', $admin);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($memberTeam->id);
+    $target->assignRole(Role::Member->value);
+
+    $memberTeam->delete();
+    $target->delete();
 
     $this->actingAs($admin);
 
@@ -246,6 +278,27 @@ it('profile edit writes an activity log entry with log_name=admin', function ():
         ->first();
 
     expect($activity)->not->toBeNull();
+});
+
+it('memberships relation manager refuses removing the owner from their owned team', function (): void {
+    $admin = makeOperator();
+    $owner = User::factory()->createOne();
+    $team  = app(CreateTeam::class)->execute('Owned Team', $owner);
+
+    $this->actingAs($admin);
+
+    Livewire::test(MembershipsRelationManager::class, [
+        'ownerRecord' => $owner,
+        'pageClass'   => ViewUser::class,
+    ])
+        ->callTableAction('removeFromTeam', $team);
+
+    $stillMember = DB::table('model_has_roles')
+        ->where('team_id', $team->id)
+        ->where('model_id', $owner->id)
+        ->exists();
+
+    expect($stillMember)->toBeTrue();
 });
 
 it('GrantAdminRole action class refuses when target has no owned team', function (): void {

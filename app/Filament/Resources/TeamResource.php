@@ -8,6 +8,7 @@ use App\Enums\Subscription\SubscriptionTier;
 use App\Filament\Resources\TeamResource\Pages;
 use App\Filament\Resources\TeamResource\RelationManagers\MembersRelationManager;
 use App\Models\Team;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -25,6 +26,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class TeamResource extends Resource
 {
@@ -129,9 +131,9 @@ class TeamResource extends Resource
                         . 'The team must be soft-deleted, have no remaining members, and no active subscription.'
                     )
                     ->action(function (Team $record): void {
-                        if ($record->members()->exists()) {
+                        if (static::hasBlockingMemberships($record)) {
                             Notification::make()
-                                ->title('Cannot force-delete: remove all members first.')
+                                ->title('Cannot force-delete: remove all non-owner members first.')
                                 ->danger()
                                 ->send();
 
@@ -180,5 +182,14 @@ class TeamResource extends Resource
             'view'  => Pages\ViewTeam::route('/{record}'),
             'edit'  => Pages\EditTeam::route('/{record}/edit'),
         ];
+    }
+
+    public static function hasBlockingMemberships(Team $team): bool
+    {
+        return DB::table(config('permission.table_names.model_has_roles', 'model_has_roles'))
+            ->where('team_id', $team->getKey())
+            ->where('model_type', (new User)->getMorphClass())
+            ->where('model_id', '!=', $team->owner_id)
+            ->exists();
     }
 }

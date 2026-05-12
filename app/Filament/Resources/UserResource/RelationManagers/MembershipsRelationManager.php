@@ -53,6 +53,16 @@ class MembershipsRelationManager extends RelationManager
                     ->action(function (Team $record): void {
                         /** @var User $user */
                         $user = $this->getOwnerRecord();
+
+                        if ($record->owner_id === $user->id) {
+                            Notification::make()
+                                ->title('Cannot remove the team owner. Use the Change Owner action first.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
                         app(RemoveMembership::class)->execute($user, $record);
                         Notification::make()->title('User removed from team.')->success()->send();
                     }),

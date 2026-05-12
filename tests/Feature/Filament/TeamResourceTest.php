@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\Admin\ChangeTeamOwner;
 use App\Actions\Membership\AssignMembership;
+use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
 use App\Filament\Resources\TeamResource\Pages\EditTeam;
 use App\Filament\Resources\TeamResource\Pages\ListTeams;
@@ -236,6 +237,20 @@ it('force-delete is refused when team has an active subscription', function (): 
 it('force-delete succeeds when team is trashed with no members and no active subscription', function (): void {
     $admin = makeTeamOperator();
     $team  = Team::factory()->createOne();
+    $team->delete();
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListTeams::class)
+        ->callTableAction('forceDelete', $team);
+
+    expect(Team::withTrashed()->find($team->id))->toBeNull();
+});
+
+it('force-delete succeeds when a trashed team only has the owner membership left', function (): void {
+    $admin = makeTeamOperator();
+    $owner = User::factory()->createOne();
+    $team  = app(CreateTeam::class)->execute('Owner Only Team', $owner);
     $team->delete();
 
     $this->actingAs($admin);
