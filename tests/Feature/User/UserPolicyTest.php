@@ -108,12 +108,6 @@ function insertProSubscription(Team $team): void
     ]);
 }
 
-function assignRoleInTeam(User $user, Team $team, Role $role): void
-{
-    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
-    $user->assignRole($role->value);
-}
-
 function pushNonOwnerMember(Team $team): User
 {
     $member = User::factory()->createOne();

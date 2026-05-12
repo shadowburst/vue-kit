@@ -12,7 +12,7 @@ use Laravel\Fortify\Features;
 use function Pest\Laravel\post;
 
 beforeEach(function (): void {
-    skip_unless_fortify_has(Features::registration());
+    skipUnlessFortifyHas(Features::registration());
 });
 
 test('signup creates one user, one team, records owner_id, and assigns Admin role', function (): void {

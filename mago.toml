@@ -29,6 +29,7 @@ prefer-first-class-callable = { enabled = false }
 prefer-static-closure = { enabled = false }
 # Spatie Data classes intentionally take all their fields as constructor properties.
 excessive-parameter-list = { enabled = false }
+function-name = { camel = true}
 
 [analyzer]
 plugins = []

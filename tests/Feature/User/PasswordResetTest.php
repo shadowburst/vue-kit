@@ -12,7 +12,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 beforeEach(function () {
-    skip_unless_fortify_has(Features::resetPasswords());
+    skipUnlessFortifyHas(Features::resetPasswords());
 });
 
 test('reset password link screen can be rendered with typed props', function () {

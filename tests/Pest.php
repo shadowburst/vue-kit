@@ -62,11 +62,17 @@ pest()
  |
  */
 
-function skip_unless_fortify_has(string $feature, ?string $message = null): void
+function skipUnlessFortifyHas(string $feature, ?string $message = null): void
 {
     if (! Features::enabled($feature)) {
         Assert::markTestSkipped($message ?? "Fortify feature [{$feature}] is not enabled.");
     }
+}
+
+function assignRoleInTeam(User $user, Team $team, Role $role): void
+{
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    $user->assignRole($role->value);
 }
 
 /** @mago-expect analysis:mixed-return-statement */

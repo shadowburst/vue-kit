@@ -14,7 +14,7 @@ use function Pest\Laravel\withoutMiddleware;
 beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 
 test('security page is displayed', function () {
-    skip_unless_fortify_has(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     Features::twoFactorAuthentication([
         'confirm'         => true,
@@ -36,7 +36,7 @@ test('security page is displayed', function () {
 });
 
 test('security page requires password confirmation when enabled', function () {
-    skip_unless_fortify_has(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     $user = User::factory()->createOne();
 
@@ -51,7 +51,7 @@ test('security page requires password confirmation when enabled', function () {
 });
 
 test('security page does not require password confirmation when disabled', function () {
-    skip_unless_fortify_has(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     $user = User::factory()->createOne();
 
@@ -71,7 +71,7 @@ test('security page does not require password confirmation when disabled', funct
 });
 
 test('security page renders without two factor when feature is disabled', function () {
-    skip_unless_fortify_has(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     config(['fortify.features' => []]);
 

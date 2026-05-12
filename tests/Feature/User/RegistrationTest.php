@@ -10,7 +10,7 @@ use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 
 beforeEach(function () {
-    skip_unless_fortify_has(Features::registration());
+    skipUnlessFortifyHas(Features::registration());
 });
 
 test('registration screen can be rendered with typed props', function () {
