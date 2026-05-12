@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Laravel\Cashier\Billable;
@@ -33,6 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $trial_ends_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  * @property-read array<string, mixed> $features
  * @property-read User $owner
  * @property-read Collection<int, User> $members
@@ -43,7 +45,7 @@ use Spatie\Sluggable\SlugOptions;
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
-    use Billable, HasFactory, HasMembers, HasSlug;
+    use Billable, HasFactory, HasMembers, HasSlug, SoftDeletes;
 
     protected $fillable = ['name', 'owner_id'];
 
