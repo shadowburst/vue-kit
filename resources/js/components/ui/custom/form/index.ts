@@ -8,7 +8,6 @@ export {
 } from './context';
 
 export { default as Field } from './Field.vue';
-export { default as Form } from './Form.vue';
 export { default as FieldContent } from './FieldContent.vue';
 export { default as FieldControl } from './FieldControl.vue';
 export { default as FieldDescription } from './FieldDescription.vue';
@@ -19,3 +18,4 @@ export { default as FieldLegend } from './FieldLegend.vue';
 export { default as FieldSeparator } from './FieldSeparator.vue';
 export { default as FieldSet } from './FieldSet.vue';
 export { default as FieldTitle } from './FieldTitle.vue';
+export { default as Form } from './Form.vue';

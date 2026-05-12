@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AlertError from '@/components/AlertError.vue';
-import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import { FieldError, Form } from '@/components/ui/custom/form';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { Spinner } from '@/components/ui/spinner';
@@ -9,7 +9,7 @@ import { useAppearance } from '@/composables/useAppearance';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import type { TwoFactorConfigContent } from '@/types';
 import ConfirmedTwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/ConfirmedTwoFactorAuthenticationController';
-import { Form } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { Check, Copy, ScanLine } from '@lucide/vue';
 import { useClipboard } from '@vueuse/core';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
@@ -28,7 +28,10 @@ const { copy, copied } = useClipboard();
 const { qrCodeSvg, manualSetupKey, clearSetupData, fetchSetupData, errors } = useTwoFactorAuth();
 
 const showVerificationStep = ref(false);
-const code = ref<string>('');
+
+const confirmForm = useForm({
+    code: '',
+});
 
 const pinInputContainerRef = useTemplateRef('pinInputContainerRef');
 
@@ -79,7 +82,8 @@ const resetModalState = () => {
     }
 
     showVerificationStep.value = false;
-    code.value = '';
+    confirmForm.reset('code');
+    confirmForm.clearErrors();
 };
 
 watch(
@@ -187,22 +191,28 @@ watch(
 
                 <template v-else>
                     <Form
+                        :form="confirmForm"
                         :action="ConfirmedTwoFactorAuthenticationController.store()"
-                        error-bag="confirmTwoFactorAuthentication"
-                        reset-on-error
-                        @finish="code = ''"
-                        @success="isOpen = false"
-                        v-slot="{ errors, processing }"
+                        :options="{
+                            errorBag: 'confirmTwoFactorAuthentication',
+                            onFinish: () => confirmForm.reset('code'),
+                            onSuccess: () => (isOpen = false),
+                        }"
                     >
-                        <input type="hidden" name="code" :value="code" />
                         <div ref="pinInputContainerRef" class="relative w-full space-y-3">
                             <div class="flex w-full flex-col items-center justify-center space-y-3 py-2">
-                                <InputOTP id="otp" v-model="code" :maxlength="6" :disabled="processing" autofocus>
+                                <InputOTP
+                                    id="otp"
+                                    v-model="confirmForm.code"
+                                    :maxlength="6"
+                                    :disabled="confirmForm.processing"
+                                    autofocus
+                                >
                                     <InputOTPGroup>
                                         <InputOTPSlot v-for="index in 6" :key="index" :index="index - 1" />
                                     </InputOTPGroup>
                                 </InputOTP>
-                                <InputError :message="errors?.code" />
+                                <FieldError :errors="[confirmForm.errors.code]" />
                             </div>
 
                             <div class="flex w-full items-center space-x-5">
@@ -211,11 +221,15 @@ watch(
                                     variant="outline"
                                     class="w-auto flex-1"
                                     @click="showVerificationStep = false"
-                                    :disabled="processing"
+                                    :disabled="confirmForm.processing"
                                 >
                                     Back
                                 </Button>
-                                <Button type="submit" class="w-auto flex-1" :disabled="processing || code.length < 6">
+                                <Button
+                                    type="submit"
+                                    class="w-auto flex-1"
+                                    :disabled="confirmForm.processing || confirmForm.code.length < 6"
+                                >
                                     Confirm
                                 </Button>
                             </div>

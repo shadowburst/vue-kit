@@ -131,13 +131,17 @@ describe('Form', () => {
             defineComponent({
                 setup: () => ({ stub }),
                 render() {
-                    return h(Form, { form: this.stub, disabled: true, canSubmit: false }, {
-                        default: (slotProps: Record<string, unknown>) => {
-                            captured = slotProps;
+                    return h(
+                        Form,
+                        { form: this.stub, disabled: true, canSubmit: false },
+                        {
+                            default: (slotProps: Record<string, unknown>) => {
+                                captured = slotProps;
 
-                            return h('span');
+                                return h('span');
+                            },
                         },
-                    });
+                    );
                 },
             }),
         );

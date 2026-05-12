@@ -40,8 +40,12 @@ type ResolvedFormContext<TData extends object> = FormContext<TData> & {
 };
 
 export function injectFormContext<TData extends object = Record<string, FormDataConvertible>>(): FormContext<TData>;
-export function injectFormContext<TData extends object>(opts: InjectFormContextRequiredOptions): ResolvedFormContext<TData>;
-export function injectFormContext<TData extends object>(opts: InjectFormContextDefaultOptions<TData>): ResolvedFormContext<TData>;
+export function injectFormContext<TData extends object>(
+    opts: InjectFormContextRequiredOptions,
+): ResolvedFormContext<TData>;
+export function injectFormContext<TData extends object>(
+    opts: InjectFormContextDefaultOptions<TData>,
+): ResolvedFormContext<TData>;
 export function injectFormContext<TData extends object>(opts?: {
     required?: true;
     default?: InertiaForm<TData> | InertiaPrecognitiveForm<TData>;

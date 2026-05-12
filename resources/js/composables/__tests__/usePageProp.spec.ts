@@ -34,10 +34,12 @@ function mountWith<T>(setup: () => T) {
     const Comp = defineComponent({
         setup() {
             captured = setup();
+
             return () => h('div');
         },
     });
     const wrapper = mount(Comp);
+
     return { result: captured, wrapper };
 }
 

@@ -8,6 +8,7 @@ const Probe = defineComponent({
     setup(_, { expose }) {
         const { depth, zIndex } = useSmartDialogDepth();
         expose({ depth, zIndex });
+
         return () => h('div');
     },
 });

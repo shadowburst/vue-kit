@@ -64,11 +64,7 @@ defineSlots<{
 </script>
 
 <template>
-    <form
-        :data-disabled="disabled ? 'true' : undefined"
-        :class="props.class"
-        @submit.prevent="onSubmit"
-    >
+    <form :data-disabled="disabled ? 'true' : undefined" :class="props.class" @submit.prevent="onSubmit">
         <slot :form="props.form" :disabled="disabled" :can-submit="canSubmit" />
     </form>
 </template>

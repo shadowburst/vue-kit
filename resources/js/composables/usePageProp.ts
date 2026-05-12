@@ -3,7 +3,8 @@ import { router, usePage } from '@inertiajs/vue3';
 import { useModal } from '@inertiaui/modal-vue';
 import { reactiveOmit } from '@vueuse/core';
 import { get } from 'es-toolkit/compat';
-import { computed, MaybeRefOrGetter, onMounted, reactive, shallowRef, toValue, watch } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
+import { computed, onMounted, reactive, shallowRef, toValue, watch } from 'vue';
 
 type ReloadInit = ReloadOptions & { immediate?: boolean };
 
@@ -49,11 +50,13 @@ export function usePageProp<T>(key: MaybeRefOrGetter<string>, options: UsePagePr
         const dataKey = toValue(key);
 
         const modalValue = modal?.props ? get(modal.props, dataKey) : undefined;
+
         if (modalValue !== undefined) {
             return modalValue as T;
         }
 
         const pageValue = get(page.props, dataKey);
+
         if (pageValue !== undefined) {
             return pageValue as T;
         }
@@ -75,6 +78,7 @@ export function usePageProp<T>(key: MaybeRefOrGetter<string>, options: UsePagePr
         }
 
         const dataKey = toValue(key);
+
         if (!dataKey) {
             return;
         }
