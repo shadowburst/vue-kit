@@ -43,5 +43,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('settings/appearance', [AppearanceController::class, 'edit'])->name('appearance.edit');
 
-    Route::get('settings/language', [LocaleController::class, 'edit'])->name('locale.edit');
+    Route::get('settings/locale', [LocaleController::class, 'edit'])->name('locale.edit');
 });

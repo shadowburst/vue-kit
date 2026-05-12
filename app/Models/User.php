@@ -6,7 +6,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Concerns\HasTeams;
-use App\Data\User\UserSettingsData;
+use App\Data\Settings\UserSettingsData;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -31,6 +31,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Team> $teams
+ * @property-read ?Team $currentTeam
  */
 #[Fillable(['name', 'email', 'password', 'settings', 'current_team_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]

@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { TeamCreateProps } from '@/spatie/types';
 import { Head } from '@inertiajs/vue3';
+
+defineProps<TeamCreateProps>();
 </script>
 
 <template>

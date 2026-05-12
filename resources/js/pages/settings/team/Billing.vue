@@ -2,6 +2,7 @@
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import type { TeamBillingProps } from '@/spatie/types';
 import BillingController from '@/wayfinder/App/Http/Controllers/Settings/Team/BillingController';
 import CancelController from '@/wayfinder/App/Http/Controllers/Settings/Team/CancelController';
 import CheckoutController from '@/wayfinder/App/Http/Controllers/Settings/Team/CheckoutController';
@@ -11,16 +12,7 @@ import { Form, Head, router, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
 import { computed, onMounted, ref } from 'vue';
 
-type Props = {
-    tier: 'free' | 'pro';
-    interval: 'monthly' | 'yearly' | null;
-    subscriptionStatus: 'active' | 'grace' | null;
-    pmLastFour: string | null;
-    nextChargeDate: string | null;
-    nextChargeAmount: string | null;
-};
-
-defineProps<Props>();
+defineProps<TeamBillingProps>();
 
 defineOptions({
     layout: {
@@ -33,19 +25,9 @@ defineOptions({
     },
 });
 
-type PageProps = {
-    auth: {
-        abilities: {
-            subscription: {
-                update: boolean;
-            };
-        } | null;
-    };
-};
+const page = usePage();
 
-const page = usePage<PageProps>();
-
-const canManageBilling = computed(() => page.props.auth?.abilities?.subscription?.update === true);
+const canManageBilling = computed(() => page.props.auth.abilities.subscription.update === true);
 
 const selectedInterval = ref<'monthly' | 'yearly'>('monthly');
 

@@ -2,6 +2,6 @@
 
 declare(strict_types=1);
 
-arch('Enums in App\Enums are string-backed')
+arch('Classes in App\Enums are enums')
     ->expect('App\Enums')
-    ->toBeStringBackedEnums();
+    ->toBeEnums();

@@ -14,8 +14,6 @@ $enforcedTypeFolders = [
     'Enums',
     'Http/Controllers',
     'Http/Middleware',
-    'Http/Requests',
-    'Http/Resources',
     'Services',
 ];
 

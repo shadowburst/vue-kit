@@ -2,6 +2,7 @@
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import type { UserResource } from '@/spatie/types';
 import type { BreadcrumbItem } from '@/types';
 import CurrentTeamController from '@/wayfinder/App/Http/Controllers/Team/CurrentTeamController';
 import { useForm, usePage } from '@inertiajs/vue3';
@@ -18,9 +19,12 @@ withDefaults(
 
 const page = usePage();
 
-const user = computed(() => (page.props.auth?.user ?? null) as App.Http.Resources.User.UserResource | null);
-const userTeams = computed<App.Http.Resources.Team.TeamResource[]>(() => user.value?.teams ?? []);
-const currentTeam = computed(() => userTeams.value.find((team) => team.id === user.value?.current_team_id) ?? null);
+const user = computed(() => page.props.auth.user);
+const userTeams = computed(() => user.value?.teams ?? []);
+type UserTeam = NonNullable<UserResource['teams']>[number];
+const currentTeam = computed(
+    () => userTeams.value.find((team: UserTeam) => team.id === user.value?.current_team_id) ?? null,
+);
 const showTeamSwitcher = computed(() => currentTeam.value !== null && userTeams.value.length > 1);
 
 const form = useForm({

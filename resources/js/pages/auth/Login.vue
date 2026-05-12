@@ -7,6 +7,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import type { AuthLoginProps } from '@/spatie/types';
+import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import PasswordResetLinkController from '@/wayfinder/Laravel/Fortify/Http/Controllers/PasswordResetLinkController';
 import RegisteredUserController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RegisteredUserController';
@@ -19,11 +21,7 @@ defineOptions({
     },
 });
 
-defineProps<{
-    status?: string;
-    canResetPassword: boolean;
-    canRegister: boolean;
-}>();
+defineProps<AuthLoginProps>();
 </script>
 
 <template>
@@ -50,6 +48,7 @@ defineProps<{
                     autofocus
                     :tabindex="1"
                     autocomplete="email"
+                    :maxlength="StringMaxLength.Medium"
                     placeholder="email@example.com"
                 />
                 <InputError :message="errors.email" />
@@ -73,6 +72,7 @@ defineProps<{
                     required
                     :tabindex="2"
                     autocomplete="current-password"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Password"
                 />
                 <InputError :message="errors.password" />

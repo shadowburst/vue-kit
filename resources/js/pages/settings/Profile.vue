@@ -6,13 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useFormat } from '@/composables/useFormat';
+import type { ProfileEditProps, UserResource } from '@/spatie/types';
+import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
-import type { Inertia } from '@/wayfinder/types';
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
-defineProps<Inertia.Pages.Settings.Profile>();
+defineProps<ProfileEditProps>();
 
 defineOptions({
     layout: {
@@ -26,7 +27,7 @@ defineOptions({
 });
 
 const page = usePage();
-const user = computed(() => page.props.auth.user!);
+const user = computed(() => page.props.auth.user as UserResource);
 const { formatDate } = useFormat();
 </script>
 
@@ -48,6 +49,7 @@ const { formatDate } = useFormat();
                     :default-value="user.name"
                     required
                     autocomplete="name"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Full name"
                 />
                 <InputError class="mt-2" :message="errors.name" />
@@ -63,6 +65,7 @@ const { formatDate } = useFormat();
                     :default-value="user.email"
                     required
                     autocomplete="username"
+                    :maxlength="StringMaxLength.Medium"
                     placeholder="Email address"
                 />
                 <InputError class="mt-2" :message="errors.email" />

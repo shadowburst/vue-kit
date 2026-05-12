@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertGuest;
@@ -14,9 +15,16 @@ beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 test('profile page is displayed', function () {
     $user = User::factory()->createOne();
 
-    $response = actingAs($user)->get(route('profile.edit'));
-
-    $response->assertOk();
+    actingAs($user)
+        ->get(route('profile.edit'))
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('settings/Profile')
+                ->has('mustVerifyEmail')
+                ->where('mustVerifyEmail', false)
+                ->has('status')
+                ->where('status', null),
+        );
 });
 
 test('profile information can be updated', function () {

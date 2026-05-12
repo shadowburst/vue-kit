@@ -80,7 +80,7 @@ test('non-Fortify actions declare exactly one public execute method and no prote
             $ref->getMethods(),
             fn (ReflectionMethod $m): bool => (
                 $m->class === $ref->getName()
-                && ! isset($traitMethodNames[$m->getName()])
+                && ! array_key_exists($m->getName(), $traitMethodNames)
             ),
         );
 

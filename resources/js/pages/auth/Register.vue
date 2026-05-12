@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import type { AuthRegisterProps } from '@/spatie/types';
+import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import RegisteredUserController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RegisteredUserController';
 import { Form, Head } from '@inertiajs/vue3';
@@ -16,6 +18,8 @@ defineOptions({
         description: 'Enter your details below to create your account',
     },
 });
+
+defineProps<AuthRegisterProps>();
 </script>
 
 <template>
@@ -38,6 +42,7 @@ defineOptions({
                     :tabindex="1"
                     autocomplete="name"
                     name="name"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Full name"
                 />
                 <InputError :message="errors.name" />
@@ -52,6 +57,7 @@ defineOptions({
                     :tabindex="2"
                     autocomplete="email"
                     name="email"
+                    :maxlength="StringMaxLength.Medium"
                     placeholder="email@example.com"
                 />
                 <InputError :message="errors.email" />
@@ -65,6 +71,7 @@ defineOptions({
                     :tabindex="3"
                     autocomplete="new-password"
                     name="password"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Password"
                 />
                 <InputError :message="errors.password" />
@@ -78,6 +85,7 @@ defineOptions({
                     :tabindex="4"
                     autocomplete="new-password"
                     name="password_confirmation"
+                    :maxlength="StringMaxLength.Short"
                     placeholder="Confirm password"
                 />
                 <InputError :message="errors.password_confirmation" />

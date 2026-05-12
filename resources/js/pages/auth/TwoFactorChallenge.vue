@@ -3,6 +3,7 @@ import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import type { AuthTwoFactorChallengeProps } from '@/spatie/types';
 import type { TwoFactorConfigContent } from '@/types';
 import TwoFactorAuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticatedSessionController';
 import { Form, Head, setLayoutProps } from '@inertiajs/vue3';
@@ -40,6 +41,8 @@ const toggleRecoveryMode = (clearErrors: () => void): void => {
 };
 
 const code = ref<string>('');
+
+defineProps<AuthTwoFactorChallengeProps>();
 </script>
 
 <template>

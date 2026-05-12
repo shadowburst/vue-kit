@@ -4,6 +4,8 @@ import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import type { AuthConfirmPasswordProps } from '@/spatie/types';
+import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import ConfirmablePasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/ConfirmablePasswordController';
 import { Form, Head } from '@inertiajs/vue3';
 
@@ -13,6 +15,8 @@ defineOptions({
         description: 'This is a secure area of the application. Please confirm your password before continuing.',
     },
 });
+
+defineProps<AuthConfirmPasswordProps>();
 </script>
 
 <template>
@@ -29,6 +33,7 @@ defineOptions({
                     required
                     autocomplete="current-password"
                     autofocus
+                    :maxlength="StringMaxLength.Short"
                 />
 
                 <InputError :message="errors.password" />

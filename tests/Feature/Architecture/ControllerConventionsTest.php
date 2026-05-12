@@ -11,7 +11,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * @return list<class-string>
  */
-function controller_classes(): array
+function controllerClasses(): array
 {
     $base    = app_path('Http/Controllers');
     $classes = [];
@@ -47,7 +47,7 @@ it('only exposes resource verbs as public instance methods', function (): void {
     $allowed    = ['__construct', 'index', 'create', 'store', 'show', 'edit', 'update', 'destroy'];
     $violations = [];
 
-    foreach (controller_classes() as $class) {
+    foreach (controllerClasses() as $class) {
         $reflection = new ReflectionClass($class);
 
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
@@ -71,7 +71,7 @@ it('only exposes resource verbs as public instance methods', function (): void {
 it('does not use __invoke', function (): void {
     $violations = [];
 
-    foreach (controller_classes() as $class) {
+    foreach (controllerClasses() as $class) {
         if (! (new ReflectionClass($class))->hasMethod('__invoke')) {
             continue;
         }
@@ -85,7 +85,7 @@ it('does not use __invoke', function (): void {
 it('declares non-public methods as private, never protected', function (): void {
     $violations = [];
 
-    foreach (controller_classes() as $class) {
+    foreach (controllerClasses() as $class) {
         $reflection = new ReflectionClass($class);
 
         foreach ($reflection->getMethods(ReflectionMethod::IS_PROTECTED) as $method) {

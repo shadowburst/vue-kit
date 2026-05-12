@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
 use Illuminate\Support\Facades\RateLimiter;
+use Inertia\Testing\AssertableInertia;
 use Laravel\Fortify\Features;
 
 use function Pest\Laravel\actingAs;
@@ -16,10 +17,17 @@ use function Pest\Laravel\withoutMiddleware;
 
 beforeEach(fn () => withoutMiddleware(SetCurrentTeam::class));
 
-test('login screen can be rendered', function () {
+test('login screen can be rendered with typed props', function () {
     $response = get(route('login'));
 
     $response->assertOk();
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('auth/Login')
+            ->has('canResetPassword')
+            ->has('canRegister')
+            ->where('status', null),
+    );
 });
 
 test('users can authenticate using the login screen', function () {
@@ -35,7 +43,7 @@ test('users can authenticate using the login screen', function () {
 });
 
 test('users with two factor enabled are redirected to two factor challenge', function () {
-    skip_unless_fortify_has(Features::twoFactorAuthentication());
+    skipUnlessFortifyHas(Features::twoFactorAuthentication());
 
     Features::twoFactorAuthentication([
         'confirm'         => true,

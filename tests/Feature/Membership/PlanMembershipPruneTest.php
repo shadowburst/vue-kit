@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\PermissionRegistrar;
 
-function prune_assign(Team $team, Role $role, User $user): void
+function pruneAssign(Team $team, Role $role, User $user): void
 {
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $user->assignRole($role->value);
@@ -20,7 +20,7 @@ it('returns empty when the team is under cap', function (): void {
     $owner  = User::factory()->createOne();
     $team   = (new CreateTeam)->execute('Acme', $owner);
     $member = User::factory()->createOne();
-    prune_assign($team, Role::Member, $member);
+    pruneAssign($team, Role::Member, $member);
 
     expect((new PlanMembershipPrune)->execute($team, 3))->toBeEmpty();
 });
@@ -30,7 +30,7 @@ it('returns empty when the team is exactly at cap', function (): void {
     $team  = (new CreateTeam)->execute('Acme', $owner);
 
     foreach (range(1, 3) as $_) {
-        prune_assign($team, Role::Member, User::factory()->createOne());
+        pruneAssign($team, Role::Member, User::factory()->createOne());
     }
 
     expect((new PlanMembershipPrune)->execute($team, 3))->toBeEmpty();
@@ -47,7 +47,7 @@ it('returns the correct excess members ordered by most-recently-added first', fu
     $newest3 = User::factory()->createOne();
 
     foreach ([[$oldest, -5], [$middle, -4], [$newest1, -3], [$newest2, -2], [$newest3, -1]] as [$user, $offset]) {
-        prune_assign($team, Role::Member, $user);
+        pruneAssign($team, Role::Member, $user);
         DB::table('model_has_roles')
             ->where('model_id', $user->id)
             ->where('team_id', $team->id)
@@ -70,9 +70,9 @@ it('returns all non-owner members when cap is zero', function (): void {
     $member2 = User::factory()->createOne();
     $member3 = User::factory()->createOne();
 
-    prune_assign($team, Role::Member, $member1);
-    prune_assign($team, Role::Member, $member2);
-    prune_assign($team, Role::Member, $member3);
+    pruneAssign($team, Role::Member, $member1);
+    pruneAssign($team, Role::Member, $member2);
+    pruneAssign($team, Role::Member, $member3);
 
     $result = (new PlanMembershipPrune)->execute($team, 0);
 
@@ -86,8 +86,8 @@ it('excludes the team owner regardless of other roles present', function (): voi
     $admin  = User::factory()->createOne();
     $member = User::factory()->createOne();
 
-    prune_assign($team, Role::Manager, $admin);
-    prune_assign($team, Role::Member, $member);
+    pruneAssign($team, Role::Manager, $admin);
+    pruneAssign($team, Role::Member, $member);
 
     $result = (new PlanMembershipPrune)->execute($team, 0);
 
@@ -103,9 +103,9 @@ it('ordering by created_at desc is stable across members added in sequence', fun
     $second = User::factory()->createOne();
     $third  = User::factory()->createOne();
 
-    prune_assign($team, Role::Manager, $first);
-    prune_assign($team, Role::Member, $second);
-    prune_assign($team, Role::Member, $third);
+    pruneAssign($team, Role::Manager, $first);
+    pruneAssign($team, Role::Member, $second);
+    pruneAssign($team, Role::Member, $third);
 
     DB::table('model_has_roles')
         ->where('model_id', $first->id)

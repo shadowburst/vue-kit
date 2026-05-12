@@ -270,10 +270,32 @@ The abstract base `Controller` is explicitly ignored in the arch rule:
 
 ## Decision 5 — Enum Class Shape
 
-### Choice Made
+> **Revised 2026-05-12:** the original "string-backed only" rule was relaxed to
+> "must be an enum" (any backing, or none). ADR-0018's `StringMaxLength` is
+> legitimately int-backed — the integer *is* the validation `max:` value — and
+> the deliberate-friction carve-out floated in the original Consequences below
+> proved more friction than the convention earned. The current arch rule uses
+> `toBeEnums()`; no constraint is placed on the backing kind.
+
+### Choice Made (revised)
+
+Every class under `App\Enums` must be an enum. A single arch rule expresses this:
+
+```php
+arch('Classes in App\Enums are enums')
+    ->expect('App\Enums')
+    ->toBeEnums();
+```
+
+Pest's `toBeEnums()` matcher verifies the file declares an enum. The backing
+kind (string, int, or unbacked) is no longer constrained at the arch layer;
+authors pick the backing that fits the case at hand. See ADR-0018 for the
+worked example that drove this revision.
+
+### Choice Made (original — superseded by the revision above)
 
 Every class under `App\Enums` must be a string-backed enum. A single arch rule
-expresses this:
+expressed this:
 
 ```php
 arch('Enums in App\Enums are string-backed')

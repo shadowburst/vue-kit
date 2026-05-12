@@ -182,7 +182,7 @@ follow the same rule.
   `@/types` (`UserMenuContent.vue`, `UserInfo.vue`, etc.) migrate
   to `App.Models.*`.
 
-> **Narrowed by ADR-0017:** For Eloquent model shapes specifically, sub-components reference `App.Http.Resources.*`-derived types (not `App.Models.*`) — see [ADR-0017](0017-eloquent-via-jsonresource.md). Non-Eloquent typed shapes (`AuthAbilitiesData`, `UserSettingsData`) remain in `App.Data.*`.
+> **Narrowed by ADR-0017:** For Eloquent model shapes — and for every backend shape that crosses the Inertia/JS boundary — sub-components reference `App.Data.*`-derived types (not `App.Models.*`), produced by Spatie Data via the TypeScript Transformer. See [ADR-0017](0017-eloquent-via-spatie-data.md).
 
 ---
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Middleware\Team\SetCurrentTeam;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -17,8 +18,11 @@ test('guests are redirected to the login page', function () {
 test('authenticated users can visit the dashboard', function () {
     withoutMiddleware(SetCurrentTeam::class);
     $user = User::factory()->createOne();
-    actingAs($user);
 
-    $response = get(route('dashboard'));
-    $response->assertOk();
+    actingAs($user)
+        ->get(route('dashboard'))
+        ->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Dashboard'),
+        );
 });

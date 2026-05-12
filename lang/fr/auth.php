@@ -17,4 +17,12 @@ return [
     'password' => 'Le mot de passe fourni est incorrect.',
     'throttle' => 'Tentatives de connexion trop nombreuses. Veuillez réessayer dans :seconds secondes.',
 
+    'attributes' => [
+        'email' => 'adresse e-mail',
+        'password' => 'mot de passe',
+        'password_confirmation' => 'confirmation du mot de passe',
+        'name' => 'nom',
+        'token' => 'jeton de réinitialisation',
+    ],
+
 ];

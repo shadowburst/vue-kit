@@ -2,6 +2,7 @@
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import type { AuthVerifyEmailProps } from '@/spatie/types';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
 import { Form, Head } from '@inertiajs/vue3';
@@ -13,9 +14,7 @@ defineOptions({
     },
 });
 
-defineProps<{
-    status?: string;
-}>();
+defineProps<AuthVerifyEmailProps>();
 </script>
 
 <template>
