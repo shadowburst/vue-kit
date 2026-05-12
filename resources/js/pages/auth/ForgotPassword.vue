@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import { Field, FieldControl, FieldError, FieldLabel, Form } from '@/components/ui/custom/form';
 import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import type { AuthForgotPasswordProps } from '@/spatie/types';
-import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import PasswordResetLinkController from '@/wayfinder/Laravel/Fortify/Http/Controllers/PasswordResetLinkController';
-import { Form, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 
 defineOptions({
     layout: {
@@ -18,7 +15,13 @@ defineOptions({
     },
 });
 
-defineProps<AuthForgotPasswordProps>();
+defineProps<{
+    status?: string;
+}>();
+
+const form = useForm({
+    email: '',
+});
 </script>
 
 <template>
@@ -29,24 +32,25 @@ defineProps<AuthForgotPasswordProps>();
     </div>
 
     <div class="space-y-6">
-        <Form :action="PasswordResetLinkController.store()" v-slot="{ errors, processing }">
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    name="email"
-                    autocomplete="off"
-                    autofocus
-                    :maxlength="StringMaxLength.Medium"
-                    placeholder="email@example.com"
-                />
-                <InputError :message="errors.email" />
-            </div>
+        <Form :form="form" :action="PasswordResetLinkController.store()">
+            <Field>
+                <FieldLabel>Email address</FieldLabel>
+                <FieldControl>
+                    <Input
+                        v-model="form.email"
+                        type="email"
+                        name="email"
+                        autocomplete="off"
+                        autofocus
+                        placeholder="email@example.com"
+                    />
+                </FieldControl>
+                <FieldError :errors="[form.errors.email]" />
+            </Field>
 
             <div class="my-6 flex items-center justify-start">
-                <Button class="w-full" :disabled="processing" data-test="email-password-reset-link-button">
-                    <Spinner v-if="processing" />
+                <Button class="w-full" :disabled="form.processing" data-test="email-password-reset-link-button">
+                    <Spinner v-if="form.processing" />
                     Email password reset link
                 </Button>
             </div>

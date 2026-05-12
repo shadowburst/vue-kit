@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import DeleteUser from '@/components/DeleteUser.vue';
 import Heading from '@/components/Heading.vue';
-import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
+import { Field, FieldControl, FieldError, FieldGroup, FieldLabel, Form } from '@/components/ui/custom/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useFormat } from '@/composables/useFormat';
 import type { ProfileEditProps, UserResource } from '@/spatie/types';
-import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
-import { Form, Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 defineProps<ProfileEditProps>();
@@ -29,6 +27,11 @@ defineOptions({
 const page = usePage();
 const user = computed(() => page.props.auth.user as UserResource);
 const { formatDate } = useFormat();
+
+const form = useForm({
+    name: user.value.name,
+    email: user.value.email,
+});
 </script>
 
 <template>
@@ -39,58 +42,51 @@ const { formatDate } = useFormat();
     <div class="flex flex-col space-y-6">
         <Heading variant="small" title="Profile information" description="Update your name and email address" />
 
-        <Form :action="ProfileController.update()" class="space-y-6" v-slot="{ errors, processing }">
-            <div class="grid gap-2">
-                <Label for="name">Name</Label>
-                <Input
-                    id="name"
-                    class="mt-1 block w-full"
-                    name="name"
-                    :default-value="user.name"
-                    required
-                    autocomplete="name"
-                    :maxlength="StringMaxLength.Short"
-                    placeholder="Full name"
-                />
-                <InputError class="mt-2" :message="errors.name" />
-            </div>
+        <Form :form="form" :action="ProfileController.update()" class="space-y-6">
+            <FieldGroup>
+                <Field required>
+                    <FieldLabel>Name</FieldLabel>
+                    <FieldControl>
+                        <Input v-model="form.name" name="name" autocomplete="name" placeholder="Full name" />
+                    </FieldControl>
+                    <FieldError :errors="[form.errors.name]" />
+                </Field>
 
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    name="email"
-                    :default-value="user.email"
-                    required
-                    autocomplete="username"
-                    :maxlength="StringMaxLength.Medium"
-                    placeholder="Email address"
-                />
-                <InputError class="mt-2" :message="errors.email" />
-            </div>
+                <Field required>
+                    <FieldLabel>Email address</FieldLabel>
+                    <FieldControl>
+                        <Input
+                            v-model="form.email"
+                            type="email"
+                            name="email"
+                            autocomplete="username"
+                            placeholder="Email address"
+                        />
+                    </FieldControl>
+                    <FieldError :errors="[form.errors.email]" />
+                </Field>
 
-            <div v-if="mustVerifyEmail && !user.email_verified_at">
-                <p class="-mt-4 text-sm text-muted-foreground">
-                    Your email address is unverified.
-                    <Link
-                        :href="EmailVerificationNotificationController.store()"
-                        as="button"
-                        class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                    >
-                        Click here to resend the verification email.
-                    </Link>
-                </p>
+                <div v-if="mustVerifyEmail && !user.email_verified_at">
+                    <p class="-mt-4 text-sm text-muted-foreground">
+                        Your email address is unverified.
+                        <Link
+                            :href="EmailVerificationNotificationController.store()"
+                            as="button"
+                            class="text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                        >
+                            Click here to resend the verification email.
+                        </Link>
+                    </p>
 
-                <div v-if="status === 'verification-link-sent'" class="mt-2 text-sm font-medium text-green-600">
-                    A new verification link has been sent to your email address.
+                    <div v-if="status === 'verification-link-sent'" class="mt-2 text-sm font-medium text-green-600">
+                        A new verification link has been sent to your email address.
+                    </div>
                 </div>
-            </div>
 
-            <div class="flex items-center gap-4">
-                <Button :disabled="processing" data-test="update-profile-button">Save</Button>
-            </div>
+                <div class="flex items-center gap-4">
+                    <Button :disabled="form.processing" data-test="update-profile-button">Save</Button>
+                </div>
+            </FieldGroup>
         </Form>
 
         <p v-if="user.created_at" class="text-sm text-muted-foreground">

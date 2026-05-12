@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
-import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
+import { Field, FieldControl, FieldError, FieldLabel, Form } from '@/components/ui/custom/form';
 import {
     Dialog,
     DialogClose,
@@ -13,13 +13,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
-import { Form } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { useTemplateRef } from 'vue';
 
 const passwordInput = useTemplateRef('passwordInput');
+
+const form = useForm({
+    password: '',
+});
 </script>
 
 <template>
@@ -36,14 +38,14 @@ const passwordInput = useTemplateRef('passwordInput');
                 </DialogTrigger>
                 <DialogContent>
                     <Form
+                        :form="form"
                         :action="ProfileController.destroy()"
-                        reset-on-success
-                        @error="() => passwordInput?.focus()"
                         :options="{
                             preserveScroll: true,
+                            onSuccess: () => form.reset(),
+                            onError: () => passwordInput?.focus(),
                         }"
                         class="space-y-6"
-                        v-slot="{ errors, processing, reset, clearErrors }"
                     >
                         <DialogHeader class="space-y-3">
                             <DialogTitle>Are you sure you want to delete your account?</DialogTitle>
@@ -54,17 +56,18 @@ const passwordInput = useTemplateRef('passwordInput');
                             </DialogDescription>
                         </DialogHeader>
 
-                        <div class="grid gap-2">
-                            <Label for="password" class="sr-only">Password</Label>
-                            <PasswordInput
-                                id="password"
-                                name="password"
-                                ref="passwordInput"
-                                :maxlength="StringMaxLength.Short"
-                                placeholder="Password"
-                            />
-                            <InputError :message="errors.password" />
-                        </div>
+                        <Field>
+                            <FieldLabel class="sr-only">Password</FieldLabel>
+                            <FieldControl>
+                                <PasswordInput
+                                    v-model="form.password"
+                                    name="password"
+                                    ref="passwordInput"
+                                    placeholder="Password"
+                                />
+                            </FieldControl>
+                            <FieldError :errors="[form.errors.password]" />
+                        </Field>
 
                         <DialogFooter class="gap-2">
                             <DialogClose as-child>
@@ -72,8 +75,8 @@ const passwordInput = useTemplateRef('passwordInput');
                                     variant="secondary"
                                     @click="
                                         () => {
-                                            clearErrors();
-                                            reset();
+                                            form.clearErrors();
+                                            form.reset();
                                         }
                                     "
                                 >
@@ -84,7 +87,7 @@ const passwordInput = useTemplateRef('passwordInput');
                             <Button
                                 type="submit"
                                 variant="destructive"
-                                :disabled="processing"
+                                :disabled="form.processing"
                                 data-test="confirm-delete-user-button"
                             >
                                 Delete account

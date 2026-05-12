@@ -130,6 +130,7 @@ export function usePageProp<T>(key: MaybeRefOrGetter<string>, options: UsePagePr
 
         if (immediate) {
             reload();
+
             return;
         }
 

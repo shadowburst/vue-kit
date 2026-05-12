@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
-import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import TwoFactorRecoveryCodes from '@/components/TwoFactorRecoveryCodes.vue';
 import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Field, FieldControl, FieldError, FieldLabel, Form } from '@/components/ui/custom/form';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
-import type { SecurityEditProps } from '@/spatie/types';
-import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
 import TwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticationController';
-import { Form, Head } from '@inertiajs/vue3';
+import type { Inertia } from '@/wayfinder/types';
+import { Head, useForm } from '@inertiajs/vue3';
 import { ShieldCheck } from '@lucide/vue';
 import { onUnmounted, ref } from 'vue';
 
-defineProps<SecurityEditProps>();
+defineProps<Inertia.Pages.Settings.Security>();
 
 defineOptions({
     layout: {
@@ -30,6 +28,15 @@ defineOptions({
 
 const { hasSetupData, clearTwoFactorAuthData } = useTwoFactorAuth();
 const showSetupModal = ref<boolean>(false);
+
+const passwordForm = useForm({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+});
+
+const enableTwoFactorForm = useForm({});
+const disableTwoFactorForm = useForm({});
 
 onUnmounted(() => clearTwoFactorAuthData());
 </script>
@@ -47,56 +54,59 @@ onUnmounted(() => clearTwoFactorAuthData());
         />
 
         <Form
+            :form="passwordForm"
             :action="SecurityController.update()"
             :options="{
                 preserveScroll: true,
+                onSuccess: () => passwordForm.reset(),
+                onError: () => passwordForm.reset('password', 'password_confirmation', 'current_password'),
             }"
-            reset-on-success
-            :reset-on-error="['password', 'password_confirmation', 'current_password']"
             class="space-y-6"
-            v-slot="{ errors, processing }"
         >
-            <div class="grid gap-2">
-                <Label for="current_password">Current password</Label>
-                <PasswordInput
-                    id="current_password"
-                    name="current_password"
-                    class="mt-1 block w-full"
-                    autocomplete="current-password"
-                    :maxlength="StringMaxLength.Short"
-                    placeholder="Current password"
-                />
-                <InputError :message="errors.current_password" />
-            </div>
+            <Field>
+                <FieldLabel>Current password</FieldLabel>
+                <FieldControl>
+                    <PasswordInput
+                        v-model="passwordForm.current_password"
+                        name="current_password"
+                        class="mt-1 block w-full"
+                        autocomplete="current-password"
+                        placeholder="Current password"
+                    />
+                </FieldControl>
+                <FieldError :errors="[passwordForm.errors.current_password]" />
+            </Field>
 
-            <div class="grid gap-2">
-                <Label for="password">New password</Label>
-                <PasswordInput
-                    id="password"
-                    name="password"
-                    class="mt-1 block w-full"
-                    autocomplete="new-password"
-                    :maxlength="StringMaxLength.Short"
-                    placeholder="New password"
-                />
-                <InputError :message="errors.password" />
-            </div>
+            <Field>
+                <FieldLabel>New password</FieldLabel>
+                <FieldControl>
+                    <PasswordInput
+                        v-model="passwordForm.password"
+                        name="password"
+                        class="mt-1 block w-full"
+                        autocomplete="new-password"
+                        placeholder="New password"
+                    />
+                </FieldControl>
+                <FieldError :errors="[passwordForm.errors.password]" />
+            </Field>
 
-            <div class="grid gap-2">
-                <Label for="password_confirmation">Confirm password</Label>
-                <PasswordInput
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    class="mt-1 block w-full"
-                    autocomplete="new-password"
-                    :maxlength="StringMaxLength.Short"
-                    placeholder="Confirm password"
-                />
-                <InputError :message="errors.password_confirmation" />
-            </div>
+            <Field>
+                <FieldLabel>Confirm password</FieldLabel>
+                <FieldControl>
+                    <PasswordInput
+                        v-model="passwordForm.password_confirmation"
+                        name="password_confirmation"
+                        class="mt-1 block w-full"
+                        autocomplete="new-password"
+                        placeholder="Confirm password"
+                    />
+                </FieldControl>
+                <FieldError :errors="[passwordForm.errors.password_confirmation]" />
+            </Field>
 
             <div class="flex items-center gap-4">
-                <Button :disabled="processing" data-test="update-password-button"> Save password </Button>
+                <Button :disabled="passwordForm.processing" data-test="update-password-button"> Save password </Button>
             </div>
         </Form>
     </div>
@@ -118,11 +128,11 @@ onUnmounted(() => clearTwoFactorAuthData());
                 <Button v-if="hasSetupData" @click="showSetupModal = true"> <ShieldCheck />Continue setup </Button>
                 <Form
                     v-else
+                    :form="enableTwoFactorForm"
                     :action="TwoFactorAuthenticationController.store()"
-                    @success="showSetupModal = true"
-                    #default="{ processing }"
+                    :options="{ onSuccess: () => (showSetupModal = true) }"
                 >
-                    <Button type="submit" :disabled="processing"> Enable 2FA </Button>
+                    <Button type="submit" :disabled="enableTwoFactorForm.processing"> Enable 2FA </Button>
                 </Form>
             </div>
         </div>
@@ -134,8 +144,10 @@ onUnmounted(() => clearTwoFactorAuthData());
             </p>
 
             <div class="relative inline">
-                <Form :action="TwoFactorAuthenticationController.destroy()" #default="{ processing }">
-                    <Button variant="destructive" type="submit" :disabled="processing"> Disable 2FA </Button>
+                <Form :form="disableTwoFactorForm" :action="TwoFactorAuthenticationController.destroy()">
+                    <Button variant="destructive" type="submit" :disabled="disableTwoFactorForm.processing">
+                        Disable 2FA
+                    </Button>
                 </Form>
             </div>
 
