@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
-import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Button } from '@/components/ui/button';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -105,7 +105,9 @@ defineProps<AuthRegisterProps>();
 
         <div class="text-center text-sm text-muted-foreground">
             Already have an account?
-            <InertiaLink variant="text" :href="AuthenticatedSessionController.create()" :tabindex="6">Log in</InertiaLink>
+            <InertiaLink variant="text" :href="AuthenticatedSessionController.create()" :tabindex="6"
+                >Log in</InertiaLink
+            >
         </div>
     </Form>
 </template>

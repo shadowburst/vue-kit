@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Button } from '@/components/ui/button';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Spinner } from '@/components/ui/spinner';
 import type { AuthVerifyEmailProps } from '@/spatie/types';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
@@ -34,7 +34,12 @@ defineProps<AuthVerifyEmailProps>();
             Resend verification email
         </Button>
 
-        <InertiaLink variant="text" :href="AuthenticatedSessionController.destroy()" as="button" class="mx-auto block text-sm">
+        <InertiaLink
+            variant="text"
+            :href="AuthenticatedSessionController.destroy()"
+            as="button"
+            class="mx-auto block text-sm"
+        >
             Log out
         </InertiaLink>
     </Form>

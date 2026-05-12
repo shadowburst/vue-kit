@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InputError from '@/components/InputError.vue';
-import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Button } from '@/components/ui/button';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
