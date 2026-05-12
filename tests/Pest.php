@@ -85,3 +85,34 @@ function actingAsMemberOf(Team $team, Role $role): TestCase
 
     return test()->actingAs($user);
 }
+
+/**
+ * @return list<class-string>
+ */
+function discoverPhpClasses(string $directory, string $namespace, string $filePattern = '*.php'): array
+{
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory));
+
+    return collect(iterator_to_array($iterator))
+        ->filter(fn (SplFileInfo $file): bool => $file->isFile() && fnmatch($filePattern, $file->getFilename()))
+        ->map(function (SplFileInfo $file) use ($directory, $namespace): string {
+            $relativePath = str_replace($directory.DIRECTORY_SEPARATOR, '', $file->getPathname());
+            $relativeClass = str_replace([DIRECTORY_SEPARATOR, '.php'], ['\\', ''], $relativePath);
+
+            return $namespace.'\\'.$relativeClass;
+        })
+        ->sort()
+        ->values()
+        ->all();
+}
+
+expect()->extend('toHaveCorrespondingResourceIn', function (string $resourceNamespace) {
+    $resourceClass = $resourceNamespace.'\\'.class_basename($this->value).'Resource';
+
+    Assert::assertTrue(
+        class_exists($resourceClass),
+        "Expected model [{$this->value}] to have corresponding resource [{$resourceClass}].",
+    );
+
+    return $this;
+});
