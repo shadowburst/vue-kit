@@ -19,7 +19,7 @@ use Spatie\Permission\PermissionRegistrar;
 function makeOperator(): User
 {
     $admin = User::factory()->createOne();
-    $team  = Team::factory()->createOne(['owner_id' => $admin->id]);
+    $team = Team::factory()->createOne(['owner_id' => $admin->id]);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $admin->assignRole(Role::Admin->value);
 
@@ -43,14 +43,14 @@ it('non-admin cannot access user list', function (): void {
 });
 
 it('admin can edit user profile fields', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
 
     $this->actingAs($admin);
 
     Livewire::test(EditUser::class, ['record' => $target->getRouteKey()])
         ->fillForm([
-            'name'  => 'Updated Name',
+            'name' => 'Updated Name',
             'email' => 'updated@example.com',
         ])
         ->call('save')
@@ -61,8 +61,8 @@ it('admin can edit user profile fields', function (): void {
 });
 
 it('password is updated when provided', function (): void {
-    $admin   = makeOperator();
-    $target  = User::factory()->createOne();
+    $admin = makeOperator();
+    $target = User::factory()->createOne();
     $oldHash = $target->password;
 
     $this->actingAs($admin);
@@ -76,8 +76,8 @@ it('password is updated when provided', function (): void {
 });
 
 it('password is unchanged when left blank', function (): void {
-    $admin   = makeOperator();
-    $target  = User::factory()->createOne();
+    $admin = makeOperator();
+    $target = User::factory()->createOne();
     $oldHash = $target->password;
 
     $this->actingAs($admin);
@@ -91,7 +91,7 @@ it('password is unchanged when left blank', function (): void {
 });
 
 it('grant admin action grants the admin role and logs activity', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
     Team::factory()->createOne(['owner_id' => $target->id]);
 
@@ -111,9 +111,9 @@ it('grant admin action grants the admin role and logs activity', function (): vo
 });
 
 it('revoke admin action revokes the admin role and logs activity', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
-    $team   = Team::factory()->createOne(['owner_id' => $target->id]);
+    $team = Team::factory()->createOne(['owner_id' => $target->id]);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $target->assignRole(Role::Admin->value);
 
@@ -150,9 +150,9 @@ it('revoke admin action is hidden for the authenticated operator themselves', fu
 });
 
 it('grant admin action is hidden when user is already an admin', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
-    $team   = Team::factory()->createOne(['owner_id' => $target->id]);
+    $team = Team::factory()->createOne(['owner_id' => $target->id]);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
     $target->assignRole(Role::Admin->value);
 
@@ -163,7 +163,7 @@ it('grant admin action is hidden when user is already an admin', function (): vo
 });
 
 it('grant admin action is hidden when user owns no team', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
 
     $this->actingAs($admin);
@@ -173,7 +173,7 @@ it('grant admin action is hidden when user owns no team', function (): void {
 });
 
 it('soft-delete is refused when user owns active teams', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
     Team::factory()->createOne(['owner_id' => $target->id]);
 
@@ -185,8 +185,22 @@ it('soft-delete is refused when user owns active teams', function (): void {
     expect($target->fresh()->deleted_at)->toBeNull();
 });
 
+it('soft-delete is refused when user still owns soft-deleted teams', function (): void {
+    $admin = makeOperator();
+    $target = User::factory()->createOne();
+    $team = Team::factory()->createOne(['owner_id' => $target->id]);
+    $team->delete();
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)
+        ->callTableAction('delete', $target);
+
+    expect($target->fresh()->deleted_at)->toBeNull();
+});
+
 it('soft-delete succeeds when user owns no teams', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
 
     $this->actingAs($admin);
@@ -198,7 +212,7 @@ it('soft-delete succeeds when user owns no teams', function (): void {
 });
 
 it('force-delete is refused when user still has team memberships', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
     $target->delete();
 
@@ -215,8 +229,8 @@ it('force-delete is refused when user still has team memberships', function (): 
 });
 
 it('force-delete is refused when user memberships only remain on soft-deleted teams', function (): void {
-    $admin      = makeOperator();
-    $target     = User::factory()->createOne();
+    $admin = makeOperator();
+    $target = User::factory()->createOne();
     $memberTeam = app(CreateTeam::class)->execute('Member Team', $admin);
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($memberTeam->id);
@@ -234,8 +248,8 @@ it('force-delete is refused when user memberships only remain on soft-deleted te
 });
 
 it('force-delete is refused when user owns soft-deleted teams', function (): void {
-    $admin     = makeOperator();
-    $target    = User::factory()->createOne();
+    $admin = makeOperator();
+    $target = User::factory()->createOne();
     $ownedTeam = Team::factory()->createOne(['owner_id' => $target->id]);
     $ownedTeam->delete();
     $target->delete();
@@ -249,7 +263,7 @@ it('force-delete is refused when user owns soft-deleted teams', function (): voi
 });
 
 it('force-delete succeeds when user is trashed with no memberships and no owned teams', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
     $target->delete();
 
@@ -262,7 +276,7 @@ it('force-delete succeeds when user is trashed with no memberships and no owned 
 });
 
 it('profile edit writes an activity log entry with log_name=admin', function (): void {
-    $admin  = makeOperator();
+    $admin = makeOperator();
     $target = User::factory()->createOne();
 
     $this->actingAs($admin);
@@ -283,13 +297,13 @@ it('profile edit writes an activity log entry with log_name=admin', function ():
 it('memberships relation manager refuses removing the owner from their owned team', function (): void {
     $admin = makeOperator();
     $owner = User::factory()->createOne();
-    $team  = app(CreateTeam::class)->execute('Owned Team', $owner);
+    $team = app(CreateTeam::class)->execute('Owned Team', $owner);
 
     $this->actingAs($admin);
 
     Livewire::test(MembershipsRelationManager::class, [
         'ownerRecord' => $owner,
-        'pageClass'   => ViewUser::class,
+        'pageClass' => ViewUser::class,
     ])
         ->callTableAction('removeFromTeam', $team);
 

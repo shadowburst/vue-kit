@@ -13,10 +13,14 @@ use App\Filament\Resources\UserResource\RelationManagers\MembershipsRelationMana
 use App\Filament\Resources\UserResource\RelationManagers\OwnedTeamsRelationManager;
 use App\Models\User;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -147,7 +151,7 @@ class UserResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                \Filament\Actions\Action::make('grantAdmin')
+                Action::make('grantAdmin')
                     ->label('Grant Admin')
                     ->icon('heroicon-o-shield-check')
                     ->color('success')
@@ -163,7 +167,7 @@ class UserResource extends Resource
                             Notification::make()->title($e->getMessage())->danger()->send();
                         }
                     }),
-                \Filament\Actions\Action::make('revokeAdmin')
+                Action::make('revokeAdmin')
                     ->label('Revoke Admin')
                     ->icon('heroicon-o-shield-exclamation')
                     ->color('danger')
@@ -180,7 +184,7 @@ class UserResource extends Resource
                         app(RevokeAdminRole::class)->execute($record, $operator);
                         Notification::make()->title('Admin role revoked.')->success()->send();
                     }),
-                \Filament\Actions\Action::make('impersonate')
+                Action::make('impersonate')
                     ->label('Impersonate')
                     ->icon('heroicon-o-user-circle')
                     ->color('warning')
@@ -196,7 +200,7 @@ class UserResource extends Resource
                             ->causedBy($operator)
                             ->performedOn($record)
                             ->withProperties([
-                                'ip'         => request()->ip(),
+                                'ip' => request()->ip(),
                                 'user_agent' => request()->userAgent(),
                             ])
                             ->log('impersonation.start');
@@ -206,8 +210,8 @@ class UserResource extends Resource
                     ->successRedirectUrl(fn (): string => route('dashboard')),
                 DeleteAction::make()
                     ->action(function (DeleteAction $action, User $record): void {
-                        if ($record->ownedTeams()->exists()) {
-                            $count = $record->ownedTeams()->count();
+                        if ($record->ownedTeams()->withTrashed()->exists()) {
+                            $count = $record->ownedTeams()->withTrashed()->count();
                             Notification::make()
                                 ->title("Transfer ownership of {$count} team(s) in the Team Resource first.")
                                 ->danger()
@@ -247,9 +251,9 @@ class UserResource extends Resource
                     }),
             ])
             ->toolbarActions([
-                \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\DeleteBulkAction::make(),
-                    \Filament\Actions\RestoreBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -271,9 +275,9 @@ class UserResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListUsers::route('/'),
-            'view'   => Pages\ViewUser::route('/{record}'),
-            'edit'   => Pages\EditUser::route('/{record}/edit'),
+            'index' => Pages\ListUsers::route('/'),
+            'view' => Pages\ViewUser::route('/{record}'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 

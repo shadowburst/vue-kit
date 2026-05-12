@@ -20,8 +20,8 @@ final class CancelSubscription
         /** @var Team $team */
         $team = $subscription->owner;
 
-        $freeMemberCap  = Config::integer('billing.tiers.free.member_cap');
-        $nonOwnerCount  = $team->members()->whereKeyNot($team->owner_id)->count();
+        $freeMemberCap = Config::integer('billing.tiers.free.member_cap');
+        $nonOwnerCount = $team->members()->whereKeyNot($team->owner_id)->count();
 
         if ($nonOwnerCount > $freeMemberCap) {
             throw new RuntimeException(
@@ -31,12 +31,15 @@ final class CancelSubscription
 
         $subscription->cancel();
 
-        $builder = activity('admin')
+        /** @var User|null $causer */
+        $causer = $operator ?? auth()->user();
+
+        $builder = ($operator instanceof User ? activity('admin') : activity())
             ->performedOn($subscription)
             ->withProperties(['team_id' => $team->id]);
 
-        if ($operator !== null) {
-            $builder = $builder->causedBy($operator);
+        if ($causer instanceof User) {
+            $builder = $builder->causedBy($causer);
         }
 
         $builder->log('subscription.cancel.period_end');
