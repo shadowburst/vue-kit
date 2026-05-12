@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Enums\Role\Role;
+use App\Actions\Admin\GrantAdminRole;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\PermissionRegistrar;
 
 class DatabaseSeeder extends Seeder
 {
@@ -32,7 +31,6 @@ class DatabaseSeeder extends Seeder
         $adminTeam = $admin->ownedTeams()->firstOrCreate(['name' => 'Platform Admin']);
         $admin->update(['current_team_id' => $adminTeam->id]);
 
-        app(PermissionRegistrar::class)->setPermissionsTeamId($adminTeam->id);
-        $admin->syncRoles([Role::Admin->value]);
+        app(GrantAdminRole::class)->execute($admin);
     }
 }
