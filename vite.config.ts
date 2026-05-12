@@ -1,9 +1,9 @@
 import inertia from '@inertiajs/vite';
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
-import i18n from 'laravel-vue-i18n/vite';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import i18n from 'laravel-vue-i18n/vite';
 import fs from 'node:fs';
 import path from 'path';
 import { defineConfig } from 'vite';
@@ -55,11 +55,6 @@ export default defineConfig({
         }),
         i18n(),
         watchAndRun([
-            {
-                name: 'spatie-data',
-                watch: [path.resolve('app/Data/**/*.php')],
-                run: "php artisan typescript:transform && sed -i 's/^\\( \\+\\)namespace /\\1export namespace /g' resources/js/spatie/types.d.ts && sed -i 's/ = object;/ = {};/g' resources/js/spatie/types.d.ts",
-            },
             {
                 name: 'wayfinder',
                 watch: [

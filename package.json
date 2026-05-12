@@ -10,7 +10,7 @@
     "scripts": {
         "build": "vite build",
         "build:ssr": "vite build && vite build --ssr",
-        "dev": "concurrently -c '#c4b5fd,#fb7185,#fdba74' --kill-others --names=queue,logs,vite 'php artisan queue:listen --tries=1 --timeout=0' 'php artisan pail --timeout=0' 'vite' ",
+        "dev": "concurrently -c '#c4b5fd,#fb7185,#fdba74,#93c5fd' --kill-others --names=queue,logs,vite,typescript 'php artisan queue:listen --tries=1 --timeout=0' 'php artisan pail --timeout=0' 'vite' 'php artisan typescript:transform --watch' ",
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
@@ -25,6 +25,7 @@
         "@types/node": "^22.19.17",
         "@vitejs/plugin-vue": "^6.0.6",
         "@vue/eslint-config-typescript": "^14.7.0",
+        "chokidar": "^5.0.0",
         "concurrently": "^9.2.1",
         "eslint": "^9.39.4",
         "eslint-config-prettier": "^10.1.8",
