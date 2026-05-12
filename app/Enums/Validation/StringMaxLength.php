@@ -6,9 +6,9 @@ namespace App\Enums\Validation;
 
 enum StringMaxLength: int
 {
-    case Short = 100;
+    case Short  = 100;
     case Medium = 255;
-    case Long = 2000;
+    case Long   = 2000;
 
     public function maxRule(): string
     {

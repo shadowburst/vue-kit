@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Data\Settings;
 
+use App\Concerns\WithTranslatedAttributes;
 use App\Enums\Validation\StringMaxLength;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,8 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 final class ProfileUpdateRequest extends Data
 {
+    use WithTranslatedAttributes;
+
     public function __construct(
         public string $name,
         public string $email,
@@ -22,8 +25,14 @@ final class ProfileUpdateRequest extends Data
     public static function rules(?ValidationContext $context = null): array
     {
         return [
-            'name' => ['required', 'string', StringMaxLength::Short->maxRule()],
-            'email' => ['required', 'string', 'email', StringMaxLength::Medium->maxRule(), Rule::unique(User::class)->ignore(Auth::id())],
+            'name'  => ['required', 'string', StringMaxLength::Short->maxRule()],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                StringMaxLength::Medium->maxRule(),
+                Rule::unique(User::class)->ignore(Auth::id()),
+            ],
         ];
     }
 }

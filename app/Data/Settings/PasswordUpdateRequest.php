@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Data\Settings;
 
+use App\Concerns\WithTranslatedAttributes;
 use App\Enums\Validation\StringMaxLength;
 use Illuminate\Validation\Rules\Password;
 use Spatie\LaravelData\Data;
@@ -11,6 +12,8 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 final class PasswordUpdateRequest extends Data
 {
+    use WithTranslatedAttributes;
+
     public function __construct(
         #[\SensitiveParameter]
         public string $current_password,
@@ -23,7 +26,13 @@ final class PasswordUpdateRequest extends Data
     {
         return [
             'current_password' => ['required', 'string', StringMaxLength::Short->maxRule(), 'current_password'],
-            'password' => ['required', 'string', StringMaxLength::Short->maxRule(), Password::default(), 'confirmed'],
+            'password'         => [
+                'required',
+                'string',
+                StringMaxLength::Short->maxRule(),
+                Password::default(),
+                'confirmed',
+            ],
         ];
     }
 }

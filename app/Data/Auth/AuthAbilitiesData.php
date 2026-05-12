@@ -26,18 +26,18 @@ final class AuthAbilitiesData extends Data
         return new self(
             user        : [
                 'view_any' => $user?->can(Permission::UserViewAny->value) ?? false,
-                'view' => $user?->can(Permission::UserView->value) ?? false,
-                'create' => $user?->can('create', User::class) ?? false,
-                'update' => $user?->can(Permission::UserUpdate->value) ?? false,
-                'delete' => $user?->can(Permission::UserDelete->value) ?? false,
+                'view'     => $user?->can(Permission::UserView->value) ?? false,
+                'create'   => $user?->can('create', User::class) ?? false,
+                'update'   => $user?->can(Permission::UserUpdate->value) ?? false,
+                'delete'   => $user?->can(Permission::UserDelete->value) ?? false,
             ],
             team        : [
-                'view' => $team !== null && ($user?->can(Permission::TeamView->value, $team) ?? false),
+                'view'   => $team !== null && ($user?->can(Permission::TeamView->value, $team) ?? false),
                 'update' => $team !== null && ($user?->can('update', $team) ?? false),
                 'delete' => $team !== null && ($user?->can('delete', $team) ?? false),
             ],
             subscription: [
-                'view' => $user?->can(Permission::SubscriptionView->value) ?? false,
+                'view'   => $user?->can(Permission::SubscriptionView->value) ?? false,
                 'update' => $team !== null && ($user?->can('update', [Subscription::class, $team]) ?? false),
             ],
         );

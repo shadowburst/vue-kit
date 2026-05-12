@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Data\Auth;
 
+use App\Concerns\WithTranslatedAttributes;
 use App\Enums\Validation\StringMaxLength;
 use App\Models\User;
 use Illuminate\Validation\Rule;
@@ -13,6 +14,8 @@ use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 final class AuthRegisterRequest extends Data
 {
+    use WithTranslatedAttributes;
+
     public function __construct(
         public string $name,
         public string $email,
@@ -25,8 +28,14 @@ final class AuthRegisterRequest extends Data
     public static function rules(?ValidationContext $context = null): array
     {
         return [
-            'name' => ['required', 'string', StringMaxLength::Short->maxRule()],
-            'email' => ['required', 'string', 'email', StringMaxLength::Medium->maxRule(), Rule::unique(User::class)],
+            'name'     => ['required', 'string', StringMaxLength::Short->maxRule()],
+            'email'    => [
+                'required',
+                'string',
+                'email',
+                StringMaxLength::Medium->maxRule(),
+                Rule::unique(User::class),
+            ],
             'password' => ['required', 'string', StringMaxLength::Short->maxRule(), Password::default(), 'confirmed'],
         ];
     }

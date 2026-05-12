@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Data\Auth;
 
+use App\Concerns\WithTranslatedAttributes;
 use App\Enums\Validation\StringMaxLength;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 
 final class AuthLoginRequest extends Data
 {
+    use WithTranslatedAttributes;
+
     public function __construct(
         public string $email,
         #[\SensitiveParameter]
@@ -20,7 +23,7 @@ final class AuthLoginRequest extends Data
     public static function rules(?ValidationContext $context = null): array
     {
         return [
-            'email' => ['required', 'string', 'email', StringMaxLength::Medium->maxRule()],
+            'email'    => ['required', 'string', 'email', StringMaxLength::Medium->maxRule()],
             'password' => ['required', 'string', StringMaxLength::Short->maxRule()],
         ];
     }

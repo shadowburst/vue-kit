@@ -21,7 +21,7 @@ arch('no class in app/ extends FormRequest (ADR-0017 D6: FormRequest is replaced
 test('Data classes have allowed suffixes (Data, Request, Resource, Props)', function (): void {
     $allowed = ['Data', 'Request', 'Resource', 'Props'];
 
-    $dataDir = realpath(__DIR__.'/../../app/Data');
+    $dataDir    = realpath(__DIR__.'/../../app/Data');
     $violations = [];
 
     if ($dataDir === false) {
@@ -37,7 +37,7 @@ test('Data classes have allowed suffixes (Data, Request, Resource, Props)', func
             continue;
         }
 
-        $realPath = realpath($file->getPathname());
+        $realPath     = realpath($file->getPathname());
         $relativePath = ltrim(
             str_replace([$dataDir, '.php'], ['', ''], $realPath === false ? '' : $realPath),
             DIRECTORY_SEPARATOR,
@@ -60,7 +60,7 @@ test('Data classes have allowed suffixes (Data, Request, Resource, Props)', func
 });
 
 test('Data classes extend the correct Spatie LaravelData base class', function (): void {
-    $dataDir = realpath(__DIR__.'/../../app/Data');
+    $dataDir    = realpath(__DIR__.'/../../app/Data');
     $violations = [];
 
     if ($dataDir === false) {
@@ -76,7 +76,7 @@ test('Data classes extend the correct Spatie LaravelData base class', function (
             continue;
         }
 
-        $realPath = realpath($file->getPathname());
+        $realPath     = realpath($file->getPathname());
         $relativePath = ltrim(
             str_replace([$dataDir, '.php'], ['', ''], $realPath === false ? '' : $realPath),
             DIRECTORY_SEPARATOR,
@@ -87,7 +87,7 @@ test('Data classes extend the correct Spatie LaravelData base class', function (
             continue;
         }
 
-        $ref = new ReflectionClass($className);
+        $ref       = new ReflectionClass($className);
         $shortName = $ref->getShortName();
 
         $expectsResource = str_ends_with($shortName, 'Resource') || str_ends_with($shortName, 'Props');
@@ -201,7 +201,7 @@ test('non-abstract Data classes are final', function (): void {
         }
 
         $relativePath = ltrim(str_replace([$dataDir, '.php'], ['', ''], $realPath), DIRECTORY_SEPARATOR);
-        $className = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+        $className    = 'App\\Data\\'.str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
 
         if (! class_exists($className)) {
             continue;
