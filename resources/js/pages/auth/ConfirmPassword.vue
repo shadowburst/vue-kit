@@ -4,13 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldControl, FieldError, FieldLabel, Form } from '@/components/ui/custom/form';
 import { Spinner } from '@/components/ui/spinner';
 import ConfirmablePasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/ConfirmablePasswordController';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 
-defineOptions({
-    layout: {
-        title: 'Confirm your password',
-        description: 'This is a secure area of the application. Please confirm your password before continuing.',
-    },
+setLayoutProps({
+    title: trans('auth.confirm_password.layout_title'),
+    description: trans('auth.confirm_password.description'),
 });
 
 const form = useForm({
@@ -19,7 +18,7 @@ const form = useForm({
 </script>
 
 <template>
-    <Head title="Confirm password" />
+    <Head :title="trans('auth.confirm_password.title')" />
 
     <Form
         :form="form"
@@ -28,7 +27,7 @@ const form = useForm({
     >
         <div class="space-y-6">
             <Field required>
-                <FieldLabel>Password</FieldLabel>
+                <FieldLabel>{{ trans('auth.attributes.password') }}</FieldLabel>
                 <FieldControl>
                     <PasswordInput
                         v-model="form.password"
@@ -44,7 +43,7 @@ const form = useForm({
             <div class="flex items-center">
                 <Button class="w-full" :disabled="form.processing" data-test="confirm-password-button">
                     <Spinner v-if="form.processing" />
-                    Confirm password
+                    {{ trans('auth.confirm_password.title') }}
                 </Button>
             </div>
         </div>

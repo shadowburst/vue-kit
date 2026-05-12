@@ -11,6 +11,7 @@ import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/Profile
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import { Link, router } from '@inertiajs/vue3';
 import { LogOut, Settings } from '@lucide/vue';
+import { trans } from 'laravel-vue-i18n';
 
 defineProps<{
     user: UserResource;
@@ -32,7 +33,7 @@ const handleLogout = () => {
         <DropdownMenuItem :as-child="true">
             <Link class="block w-full cursor-pointer" :href="ProfileController.edit()" prefetch>
                 <Settings class="mr-2 h-4 w-4" />
-                Settings
+                {{ trans('common.settings') }}
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>
@@ -46,7 +47,7 @@ const handleLogout = () => {
             data-test="logout-button"
         >
             <LogOut class="mr-2 h-4 w-4" />
-            Log out
+            {{ trans('common.log_out') }}
         </Link>
     </DropdownMenuItem>
 </template>

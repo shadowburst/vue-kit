@@ -10,13 +10,12 @@ import { Spinner } from '@/components/ui/spinner';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import PasswordResetLinkController from '@/wayfinder/Laravel/Fortify/Http/Controllers/PasswordResetLinkController';
 import RegisteredUserController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RegisteredUserController';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 
-defineOptions({
-    layout: {
-        title: 'Log in to your account',
-        description: 'Enter your email and password below to log in',
-    },
+setLayoutProps({
+    title: trans('auth.login.layout_title'),
+    description: trans('auth.login.description'),
 });
 
 defineProps<{
@@ -33,7 +32,7 @@ const form = useForm({
 </script>
 
 <template>
-    <Head title="Log in" />
+    <Head :title="trans('auth.login.title')" />
 
     <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
         {{ status }}
@@ -47,7 +46,7 @@ const form = useForm({
     >
         <FieldGroup>
             <Field required>
-                <FieldLabel>Email address</FieldLabel>
+                <FieldLabel>{{ trans('auth.attributes.email') }}</FieldLabel>
                 <FieldControl>
                     <Input
                         v-model="form.email"
@@ -56,7 +55,7 @@ const form = useForm({
                         autofocus
                         :tabindex="1"
                         autocomplete="email"
-                        placeholder="email@example.com"
+                        :placeholder="trans('auth.placeholders.email')"
                     />
                 </FieldControl>
                 <FieldError :errors="[form.errors.email]" />
@@ -64,7 +63,7 @@ const form = useForm({
 
             <Field required>
                 <div class="flex items-center justify-between">
-                    <FieldLabel>Password</FieldLabel>
+                    <FieldLabel>{{ trans('auth.attributes.password') }}</FieldLabel>
                     <InertiaLink
                         v-if="canResetPassword"
                         variant="text"
@@ -72,7 +71,7 @@ const form = useForm({
                         class="text-sm"
                         :tabindex="5"
                     >
-                        Forgot password?
+                        {{ trans('auth.login.forgot_password') }}
                     </InertiaLink>
                 </div>
                 <FieldControl>
@@ -81,7 +80,7 @@ const form = useForm({
                         name="password"
                         :tabindex="2"
                         autocomplete="current-password"
-                        placeholder="Password"
+                        :placeholder="trans('auth.attributes.password')"
                     />
                 </FieldControl>
                 <FieldError :errors="[form.errors.password]" />
@@ -90,7 +89,7 @@ const form = useForm({
             <div class="flex items-center justify-between">
                 <Label for="remember" class="flex items-center space-x-3">
                     <Checkbox id="remember" v-model="form.remember" name="remember" :tabindex="3" />
-                    <span>Remember me</span>
+                    <span>{{ trans('auth.login.remember_me') }}</span>
                 </Label>
             </div>
 
@@ -102,13 +101,15 @@ const form = useForm({
                 data-test="login-button"
             >
                 <Spinner v-if="form.processing" />
-                Log in
+                {{ trans('common.log_in') }}
             </Button>
         </FieldGroup>
 
         <div class="text-center text-sm text-muted-foreground" v-if="canRegister">
-            Don't have an account?
-            <InertiaLink variant="text" :href="RegisteredUserController.create()" :tabindex="5">Sign up</InertiaLink>
+            {{ trans('auth.login.no_account') }}
+            <InertiaLink variant="text" :href="RegisteredUserController.create()" :tabindex="5">
+                {{ trans('auth.login.sign_up') }}
+            </InertiaLink>
         </div>
     </Form>
 </template>

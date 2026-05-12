@@ -10,22 +10,23 @@ import LocaleController from '@/wayfinder/App/Http/Controllers/Settings/LocaleCo
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
 import { Link } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: trans('settings.navigation.profile'),
         href: ProfileController.edit(),
     },
     {
-        title: 'Security',
+        title: trans('settings.navigation.security'),
         href: SecurityController.edit(),
     },
     {
-        title: 'Appearance',
+        title: trans('settings.navigation.appearance'),
         href: AppearanceController.edit(),
     },
     {
-        title: 'Language',
+        title: trans('settings.navigation.language'),
         href: LocaleController.edit(),
     },
 ];
@@ -35,11 +36,11 @@ const { isCurrentOrParentUrl } = useCurrentUrl();
 
 <template>
     <div class="px-4 py-6">
-        <Heading title="Settings" description="Manage your profile and account settings" />
+        <Heading :title="trans('settings.title')" :description="trans('settings.description')" />
 
         <div class="flex flex-col lg:flex-row lg:space-x-12">
             <aside class="w-full max-w-xl lg:w-48">
-                <nav class="flex flex-col space-y-1 space-x-0" aria-label="Settings">
+                <nav class="flex flex-col space-y-1 space-x-0" :aria-label="trans('settings.title')">
                     <Button
                         v-for="item in sidebarNavItems"
                         :key="toUrl(item.href)"

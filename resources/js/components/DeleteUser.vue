@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import ProfileController from '@/wayfinder/App/Http/Controllers/Settings/ProfileController';
 import { useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 import { useTemplateRef } from 'vue';
 
 const passwordInput = useTemplateRef('passwordInput');
@@ -26,15 +27,21 @@ const form = useForm({
 
 <template>
     <div class="space-y-6">
-        <Heading variant="small" title="Delete account" description="Delete your account and all of its resources" />
+        <Heading
+            variant="small"
+            :title="trans('settings.delete_account.title')"
+            :description="trans('settings.delete_account.description')"
+        />
         <div class="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
             <div class="relative space-y-0.5 text-red-600 dark:text-red-100">
-                <p class="font-medium">Warning</p>
-                <p class="text-sm">Please proceed with caution, this cannot be undone.</p>
+                <p class="font-medium">{{ trans('settings.delete_account.warning') }}</p>
+                <p class="text-sm">{{ trans('settings.delete_account.warning_body') }}</p>
             </div>
             <Dialog>
                 <DialogTrigger as-child>
-                    <Button variant="destructive" data-test="delete-user-button">Delete account</Button>
+                    <Button variant="destructive" data-test="delete-user-button">
+                        {{ trans('settings.delete_account.title') }}
+                    </Button>
                 </DialogTrigger>
                 <DialogContent>
                     <Form
@@ -48,22 +55,20 @@ const form = useForm({
                         class="space-y-6"
                     >
                         <DialogHeader class="space-y-3">
-                            <DialogTitle>Are you sure you want to delete your account?</DialogTitle>
+                            <DialogTitle>{{ trans('settings.delete_account.confirm_title') }}</DialogTitle>
                             <DialogDescription>
-                                Once your account is deleted, all of its resources and data will also be permanently
-                                deleted. Please enter your password to confirm you would like to permanently delete your
-                                account.
+                                {{ trans('settings.delete_account.confirm_description') }}
                             </DialogDescription>
                         </DialogHeader>
 
                         <Field>
-                            <FieldLabel class="sr-only">Password</FieldLabel>
+                            <FieldLabel class="sr-only">{{ trans('settings.attributes.password') }}</FieldLabel>
                             <FieldControl>
                                 <PasswordInput
                                     v-model="form.password"
                                     name="password"
                                     ref="passwordInput"
-                                    placeholder="Password"
+                                    :placeholder="trans('settings.attributes.password')"
                                 />
                             </FieldControl>
                             <FieldError :errors="[form.errors.password]" />
@@ -80,7 +85,7 @@ const form = useForm({
                                         }
                                     "
                                 >
-                                    Cancel
+                                    {{ trans('common.cancel') }}
                                 </Button>
                             </DialogClose>
 
@@ -90,7 +95,7 @@ const form = useForm({
                                 :disabled="form.processing"
                                 data-test="confirm-delete-user-button"
                             >
-                                Delete account
+                                {{ trans('settings.delete_account.title') }}
                             </Button>
                         </DialogFooter>
                     </Form>

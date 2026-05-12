@@ -5,13 +5,12 @@ import { Field, FieldControl, FieldError, FieldGroup, FieldLabel, Form } from '@
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import NewPasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/NewPasswordController';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, setLayoutProps, useForm } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 
-defineOptions({
-    layout: {
-        title: 'Reset password',
-        description: 'Please enter your new password below',
-    },
+setLayoutProps({
+    title: trans('auth.reset_password.title'),
+    description: trans('auth.reset_password.description'),
 });
 
 const props = defineProps<{
@@ -28,7 +27,7 @@ const form = useForm({
 </script>
 
 <template>
-    <Head title="Reset password" />
+    <Head :title="trans('auth.reset_password.title')" />
 
     <Form
         :form="form"
@@ -37,7 +36,7 @@ const form = useForm({
     >
         <FieldGroup>
             <Field>
-                <FieldLabel>Email</FieldLabel>
+                <FieldLabel>{{ trans('auth.attributes.email') }}</FieldLabel>
                 <FieldControl>
                     <Input
                         v-model="form.email"
@@ -52,7 +51,7 @@ const form = useForm({
             </Field>
 
             <Field>
-                <FieldLabel>Password</FieldLabel>
+                <FieldLabel>{{ trans('auth.attributes.password') }}</FieldLabel>
                 <FieldControl>
                     <PasswordInput
                         v-model="form.password"
@@ -60,21 +59,21 @@ const form = useForm({
                         autocomplete="new-password"
                         class="mt-1 block w-full"
                         autofocus
-                        placeholder="Password"
+                        :placeholder="trans('auth.attributes.password')"
                     />
                 </FieldControl>
                 <FieldError :errors="[form.errors.password]" />
             </Field>
 
             <Field>
-                <FieldLabel>Confirm password</FieldLabel>
+                <FieldLabel>{{ trans('auth.attributes.password_confirmation') }}</FieldLabel>
                 <FieldControl>
                     <PasswordInput
                         v-model="form.password_confirmation"
                         name="password_confirmation"
                         autocomplete="new-password"
                         class="mt-1 block w-full"
-                        placeholder="Confirm password"
+                        :placeholder="trans('auth.attributes.password_confirmation')"
                     />
                 </FieldControl>
                 <FieldError :errors="[form.errors.password_confirmation]" />
@@ -82,7 +81,7 @@ const form = useForm({
 
             <Button type="submit" class="mt-4 w-full" :disabled="form.processing" data-test="reset-password-button">
                 <Spinner v-if="form.processing" />
-                Reset password
+                {{ trans('auth.reset_password.title') }}
             </Button>
         </FieldGroup>
     </Form>

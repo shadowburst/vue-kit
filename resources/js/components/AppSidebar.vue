@@ -16,10 +16,11 @@ import type { NavItem } from '@/types';
 import DashboardController from '@/wayfinder/App/Http/Controllers/Dashboard/DashboardController';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
+import { trans } from 'laravel-vue-i18n';
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: trans('common.dashboard'),
         href: DashboardController.index(),
         icon: LayoutGrid,
     },
@@ -27,12 +28,12 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
+        title: trans('common.repository'),
         href: 'https://github.com/laravel/vue-starter-kit',
         icon: FolderGit2,
     },
     {
-        title: 'Documentation',
+        title: trans('common.documentation'),
         href: 'https://laravel.com/docs/starter-kits#vue',
         icon: BookOpen,
     },

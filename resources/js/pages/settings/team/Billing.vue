@@ -8,7 +8,7 @@ import CancelController from '@/wayfinder/App/Http/Controllers/Settings/Team/Can
 import CheckoutController from '@/wayfinder/App/Http/Controllers/Settings/Team/CheckoutController';
 import PortalController from '@/wayfinder/App/Http/Controllers/Settings/Team/PortalController';
 import ResumeController from '@/wayfinder/App/Http/Controllers/Settings/Team/ResumeController';
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { Head, router, setLayoutProps, useForm, usePage } from '@inertiajs/vue3';
 import { trans, trans_choice } from 'laravel-vue-i18n';
 import { computed, onMounted, ref, watch } from 'vue';
 
@@ -23,15 +23,13 @@ type Props = {
 
 defineProps<Props>();
 
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            {
-                title: 'Billing',
-                href: BillingController.show().url,
-            },
-        ],
-    },
+setLayoutProps({
+    breadcrumbs: [
+        {
+            title: trans('billing.title'),
+            href: BillingController.show().url,
+        },
+    ],
 });
 
 const page = usePage();

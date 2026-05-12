@@ -2,24 +2,23 @@
 import PlaceholderPattern from '@/components/PlaceholderPattern.vue';
 import type { DashboardIndexProps } from '@/spatie/types';
 import DashboardController from '@/wayfinder/App/Http/Controllers/Dashboard/DashboardController';
-import { Head } from '@inertiajs/vue3';
+import { Head, setLayoutProps } from '@inertiajs/vue3';
+import { trans } from 'laravel-vue-i18n';
 
 defineProps<DashboardIndexProps>();
 
-defineOptions({
-    layout: {
-        breadcrumbs: [
-            {
-                title: 'Dashboard',
-                href: DashboardController.index(),
-            },
-        ],
-    },
+setLayoutProps({
+    breadcrumbs: [
+        {
+            title: trans('common.dashboard'),
+            href: DashboardController.index(),
+        },
+    ],
 });
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head :title="trans('common.dashboard')" />
 
     <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">

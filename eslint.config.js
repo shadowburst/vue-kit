@@ -71,6 +71,44 @@ export default defineConfigWithVueTs(
                     message: 'Import field components from @/components/ui/custom/form instead — the shadcn field primitives are wrapped there.',
                 }],
             }],
+            'no-restricted-syntax': [
+                'error',
+                {
+                    selector: 'CallExpression[callee.name="$t"]',
+                    message: 'Use trans() from laravel-vue-i18n instead of $t().',
+                },
+                {
+                    selector: 'CallExpression[callee.name="$tChoice"]',
+                    message: 'Use trans_choice() from laravel-vue-i18n instead of $tChoice().',
+                },
+                {
+                    selector: 'CallExpression[callee.property.name="$t"]',
+                    message: 'Use trans() from laravel-vue-i18n instead of $t().',
+                },
+                {
+                    selector: 'CallExpression[callee.property.name="$tChoice"]',
+                    message: 'Use trans_choice() from laravel-vue-i18n instead of $tChoice().',
+                },
+            ],
+            'vue/no-restricted-syntax': [
+                'error',
+                {
+                    selector: 'CallExpression[callee.name="$t"]',
+                    message: 'Use trans() from laravel-vue-i18n instead of $t().',
+                },
+                {
+                    selector: 'CallExpression[callee.name="$tChoice"]',
+                    message: 'Use trans_choice() from laravel-vue-i18n instead of $tChoice().',
+                },
+                {
+                    selector: 'CallExpression[callee.property.name="$t"]',
+                    message: 'Use trans() from laravel-vue-i18n instead of $t().',
+                },
+                {
+                    selector: 'CallExpression[callee.property.name="$tChoice"]',
+                    message: 'Use trans_choice() from laravel-vue-i18n instead of $tChoice().',
+                },
+            ],
         },
     },
     {
