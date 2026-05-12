@@ -5,11 +5,13 @@ import { __resetSmartDialogDepthForTests, useSmartDialogDepth } from '../useSmar
 
 const Probe = defineComponent({
     name: 'DepthProbe',
-    setup(_, { expose }) {
+    setup() {
         const { depth, zIndex } = useSmartDialogDepth();
-        expose({ depth, zIndex });
 
-        return () => h('div');
+        return { depth, zIndex };
+    },
+    render() {
+        return h('div');
     },
 });
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { ButtonProps } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
-import type { ButtonProps } from '@/components/ui/button/interface';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { useTailwindBreakpoints } from '@/composables';
 import { cn } from '@/lib/utils';
