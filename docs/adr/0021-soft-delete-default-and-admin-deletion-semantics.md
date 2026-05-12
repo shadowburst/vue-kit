@@ -32,5 +32,5 @@ Force-delete is kept as a real action rather than removed entirely because compl
 - Force-delete is implemented as a separate Filament Action with a confirmation modal that lists what is irrevocable. Available only when the soft-deleted record has zero blocking dependencies.
 - Restore is the inverse of soft-delete. Restoring a Team does *not* restore its subscription — the operator must explicitly create a new Cashier subscription if needed. Restoring a User restores their memberships only if the membership rows themselves were not separately deleted.
 - All four actions (soft-delete, restore, force-delete, change-owner) emit Spatie Activity Log entries with `log_name = 'admin'`, `causer` = operator, `subject` = target, `properties` = a description of the change.
-- The schema-coverage test (ADR-0020) treats `deleted_at` as part of the standard allow-list; it doesn't need to appear in Filament forms.
+- The schema-coverage test (ADR-0022) treats `deleted_at` as part of the standard allow-list; it doesn't need to appear in Filament forms.
 - This is the project default going forward. New user-facing models without `SoftDeletes` will fail review unless they document why (e.g., write-once audit rows like `Activity` itself).

@@ -50,6 +50,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Stick to existing directory structure; don't create new base folders without approval.
 - Do not change the application's dependencies without approval.
+- When adding a new model under `App\Models`, add the corresponding Filament Resource. When adding a persisted column to a model in `App\Models`, update the corresponding Filament Resource's form, table, or infolist - or add the column to the allow-list in `SchemaCoverageTest` with a comment explaining why it's hidden. The Filament coverage tests will fail otherwise.
 
 ## Frontend Bundling
 
@@ -220,4 +221,3 @@ Canonical role names used as-is (`needs-triage`, `needs-info`, `ready-for-agent`
 ### Domain docs
 
 Single-context layout — `CONTEXT.md` + `docs/adr/` at the repo root (created lazily). See `docs/agents/domain.md`.
-

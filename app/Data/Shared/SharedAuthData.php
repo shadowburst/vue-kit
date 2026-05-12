@@ -17,5 +17,6 @@ final class SharedAuthData extends Data
         public AuthAbilitiesData $abilities,
         public AuthFeaturesData $features,
         public ?AuthSubscriptionData $subscription,
+        public ?SharedImpersonatorData $impersonator,
     ) {}
 }

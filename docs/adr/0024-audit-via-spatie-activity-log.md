@@ -4,7 +4,7 @@ status: accepted
 
 # Audit logging via Spatie Activity Log under `log_name = 'admin'`
 
-Operator-initiated actions are recorded via `spatie/laravel-activitylog`, scoped to a single `log_name` value of `'admin'`. Three classes of events flow through this log: (1) impersonation start/stop (per ADR-0021), (2) `admin` role grant and revoke, and (3) Operator-initiated mutations to `User`, `Team`, and `Subscription` rows (soft-delete, restore, force-delete, change-owner, period-end cancel, resume, extend-trial). Model-level mutations use Spatie's `LogsActivity` trait with `getActivitylogOptions()` returning `useLogName('admin')` when the actor is an Operator. Action-level events (impersonation, role changes) are emitted explicitly via `activity('admin')->...->log(...)`. A read-only Filament Resource on Spatie's `Activity` model, scoped to `log_name = 'admin'`, surfaces the timeline.
+Operator-initiated actions are recorded via `spatie/laravel-activitylog`, scoped to a single `log_name` value of `'admin'`. Three classes of events flow through this log: (1) impersonation start/stop (per ADR-0023), (2) `admin` role grant and revoke, and (3) Operator-initiated mutations to `User`, `Team`, and `Subscription` rows (soft-delete, restore, force-delete, change-owner, period-end cancel, resume, extend-trial). Model-level mutations use Spatie's `LogsActivity` trait with `getActivitylogOptions()` returning `useLogName('admin')` when the actor is an Operator. Action-level events (impersonation, role changes) are emitted explicitly via `activity('admin')->...->log(...)`. A read-only Filament Resource on Spatie's `Activity` model, scoped to `log_name = 'admin'`, surfaces the timeline.
 
 ## Considered options
 
@@ -21,7 +21,7 @@ Scoping to `log_name = 'admin'` is the small choice that pays off later. If a fu
 
 The `LogsActivity` trait is applied selectively: only on mutation events that are (a) Operator-initiated or (b) destructive on a user-facing model. Routine writes during normal product use are not logged — the volume is high, the value is low, and the model still has its `updated_at` for forensic purposes. The conditional uses Spatie's `tapActivity()` callback to set `log_name` based on whether `auth()->user()->can('admin')` at the moment of the write.
 
-The audit log is not surfaced to the impersonated user (per ADR-0021's privacy posture). It is also not surfaced in the user-facing Inertia app at all — it is operator-internal.
+The audit log is not surfaced to the impersonated user (per ADR-0023's privacy posture). It is also not surfaced in the user-facing Inertia app at all — it is operator-internal.
 
 ## Consequences
 
@@ -29,7 +29,7 @@ The audit log is not surfaced to the impersonated user (per ADR-0021's privacy p
 - `User`, `Team`, and the Cashier `Subscription` model use `LogsActivity`. `getActivitylogOptions()` configures `logFillable()` and `logOnlyDirty()`. A `tapActivity()` callback sets `log_name = 'admin'` when the causer has the `admin` permission, otherwise leaves it on the default log (which is currently unused but reserved for future user-facing activity).
 - Action-level events (impersonation start/stop, admin grant/revoke) call `activity('admin')->causedBy($operator)->performedOn($target)->withProperties([...])->log('impersonation.start')` (or similar). The `description` argument to `log()` is a stable machine-readable identifier, not a sentence — UI-side translation reads from `lang/{locale}/admin.php`.
 - A Filament Resource `App\Filament\Resources\ActivityResource` over `Spatie\Activitylog\Models\Activity`, scoped via `getEloquentQuery()` to `log_name = 'admin'`. Read-only — no create/edit/delete actions. Table columns: timestamp, causer (Operator), description, subject (polymorphic, displayed as a link to the underlying Resource where one exists). Properties shown in a detail panel.
-- The Activity model is itself **not** soft-deletable, despite ADR-0019's project-wide soft-delete default. Audit rows are write-once; soft-delete on an audit log is a contradiction. This is the documented exception to that default.
+- The Activity model is itself **not** soft-deletable, despite ADR-0021's project-wide soft-delete default. Audit rows are write-once; soft-delete on an audit log is a contradiction. This is the documented exception to that default.
 - The `causer` is nullable. Bootstrap actions (the `DatabaseSeeder`-driven first admin grant) record `causer_id = null` and a `properties.actor = 'system'` field for clarity. The Activity Resource displays "system" for null causers.
 - Per-record retention is not addressed by this ADR. If a future requirement demands a retention window (GDPR, storage cost), it adds a scheduled prune job; the current default keeps everything.
 - Tests cover: each Operator action emits exactly one Activity row with the expected `log_name`, `causer`, `subject`, and `description`; the Activity Resource excludes non-`admin` log_name rows; the bootstrap-grant case records `causer_id = null` correctly.

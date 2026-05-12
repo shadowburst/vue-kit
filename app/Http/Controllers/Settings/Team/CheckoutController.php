@@ -8,10 +8,10 @@ use App\Data\Billing\TeamCheckoutRequest;
 use App\Enums\Subscription\SubscriptionInterval;
 use App\Enums\Subscription\SubscriptionTier;
 use App\Http\Controllers\Controller;
+use App\Models\Subscription;
 use App\Services\Team\TeamContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
-use Laravel\Cashier\Subscription;
 
 final class CheckoutController extends Controller
 {

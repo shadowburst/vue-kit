@@ -11,19 +11,16 @@ use App\Data\Team\TeamIndexProps;
 use App\Data\Team\TeamResource;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\LaravelData\PaginatedDataCollection;
 
 final class TeamController extends Controller
 {
-    public function index(): Response
+    public function index(#[CurrentUser] User $user): Response
     {
-        /** @var User $user */
-        $user = Auth::user();
-
         /** @var PaginatedDataCollection<int, TeamResource> $teams */
         $teams = TeamResource::collect(
             $user->teams()->with('subscriptions')->paginate(),
@@ -38,11 +35,8 @@ final class TeamController extends Controller
         return Inertia::render('teams/Create', new TeamCreateProps);
     }
 
-    public function store(TeamCreateRequest $request): RedirectResponse
+    public function store(TeamCreateRequest $request, #[CurrentUser] User $user): RedirectResponse
     {
-        /** @var User $user */
-        $user = Auth::user();
-
         (new CreateTeam)->execute($request->name, $user);
 
         return redirect()->route('teams.index');

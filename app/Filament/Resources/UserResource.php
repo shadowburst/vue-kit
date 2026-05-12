@@ -1,0 +1,329 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Filament\Resources;
+
+use App\Actions\Admin\GrantAdminRole;
+use App\Actions\Admin\RevokeAdminRole;
+use App\Enums\Settings\Locale;
+use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers\MembershipsRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\OwnedTeamsRelationManager;
+use App\Filament\Resources\UserResource\UserResourceQueries;
+use App\Models\User;
+use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
+use RuntimeException;
+
+class UserResource extends Resource
+{
+    protected static ?string $model = User::class;
+
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
+
+    protected static ?string $navigationLabel = 'Users';
+
+    protected static ?string $modelLabel = 'User';
+
+    protected static bool $shouldSkipAuthorization = true;
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make('Profile')
+                ->schema([
+                    TextInput::make('name')
+                        ->required()
+                        ->maxLength(255),
+                    TextInput::make('email')
+                        ->email()
+                        ->required()
+                        ->unique(User::class, 'email', ignoreRecord: true)
+                        ->maxLength(255),
+                    TextInput::make('password')
+                        ->password()
+                        ->nullable()
+                        ->dehydrated(fn ($state): bool => filled($state))
+                        ->maxLength(255)
+                        ->helperText('Leave blank to keep existing password.'),
+                ])
+                ->columns(2),
+            Section::make('Settings')
+                ->schema([
+                    Select::make('settings.locale')
+                        ->label('Locale')
+                        ->options([
+                            Locale::En->value => 'English',
+                            Locale::Fr->value => 'French',
+                        ])
+                        ->native(false),
+                ]),
+        ]);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make('Profile')
+                ->schema([
+                    TextEntry::make('name'),
+                    TextEntry::make('email'),
+                    TextEntry::make('email_verified_at')
+                        ->label('Verified')
+                        ->badge()
+                        ->state(fn (User $record): string => $record->email_verified_at ? 'Verified' : 'Unverified')
+                        ->color(fn (string $state): string => $state === 'Verified' ? 'success' : 'danger'),
+                    TextEntry::make('roles_display')
+                        ->label('Roles')
+                        ->badge()
+                        ->state(fn (User $record): array => UserResourceQueries::roleNames($record))
+                        ->color('warning'),
+                    TextEntry::make('created_at')->dateTime(),
+                    TextEntry::make('updated_at')->dateTime(),
+                ])
+                ->columns(2),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('email')
+                    ->searchable(),
+                TextColumn::make('verified')
+                    ->label('Verified')
+                    ->badge()
+                    ->state(fn (User $record): string => $record->email_verified_at ? 'Verified' : 'Unverified')
+                    ->color(fn (string $state): string => $state === 'Verified' ? 'success' : 'danger'),
+                TextColumn::make('roles_display')
+                    ->label('Roles')
+                    ->badge()
+                    ->state(fn (User $record): array => UserResourceQueries::roleNames($record))
+                    ->color('warning'),
+                TextColumn::make('teams_count')
+                    ->label('Memberships')
+                    ->counts('teams')
+                    ->sortable(),
+                TextColumn::make('owned_teams_count')
+                    ->label('Owned Teams')
+                    ->counts('ownedTeams')
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->filters([
+                TrashedFilter::make(),
+            ])
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                Action::make('grantAdmin')
+                    ->label('Grant Admin')
+                    ->icon('heroicon-o-shield-check')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(
+                        fn (User $record): bool => (
+                            ! UserResourceQueries::isAdmin($record) && $record->ownedTeams()->exists()
+                        ),
+                    )
+                    ->action(function (User $record): void {
+                        try {
+                            /** @var User $operator */
+                            $operator = Auth::user();
+
+                            app(GrantAdminRole::class)->execute($record, $operator);
+                            Notification::make()->title('Admin role granted.')->success()->send();
+                        } catch (RuntimeException $e) {
+                            Notification::make()->title($e->getMessage())->danger()->send();
+                        }
+                    }),
+                Action::make('revokeAdmin')
+                    ->label('Revoke Admin')
+                    ->icon('heroicon-o-shield-exclamation')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(function (User $record): bool {
+                        /** @var User $operator */
+                        $operator = Auth::user();
+
+                        return UserResourceQueries::isAdmin($record) && $operator->canRevokeAdminRole($record);
+                    })
+                    ->action(function (User $record): void {
+                        /** @var User $operator */
+                        $operator = Auth::user();
+
+                        app(RevokeAdminRole::class)->execute($record, $operator);
+                        Notification::make()->title('Admin role revoked.')->success()->send();
+                    }),
+                Action::make('impersonate')
+                    ->label('Impersonate')
+                    ->icon('heroicon-o-user-circle')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading(fn (User $record): string => "Impersonate {$record->name}")
+                    ->modalDescription(
+                        'You will assume this user\'s identity. A banner will appear — use "Leave impersonation" to return.',
+                    )
+                    ->visible(fn (User $record): bool => UserResourceQueries::canImpersonate($record))
+                    ->action(function (User $record): void {
+                        if (! UserResourceQueries::canImpersonate($record)) {
+                            Notification::make()->title('Cannot impersonate this user.')->danger()->send();
+
+                            return;
+                        }
+
+                        /** @var User $operator */
+                        $operator = Auth::user();
+
+                        activity('admin')
+                            ->causedBy($operator)
+                            ->performedOn($record)
+                            ->withProperties([
+                                'ip'         => request()->ip(),
+                                'user_agent' => request()->userAgent(),
+                            ])
+                            ->log('impersonation.start');
+
+                        $operator->impersonate($record);
+                    })
+                    ->successRedirectUrl(fn (): string => route('dashboard')),
+                DeleteAction::make()
+                    ->action(function (DeleteAction $action, User $record): void {
+                        $count = UserResourceQueries::ownedTeamsCountIncludingTrashed($record);
+
+                        if ($count > 0) {
+                            Notification::make()
+                                ->title("Transfer ownership of {$count} team(s) in the Team Resource first.")
+                                ->danger()
+                                ->send();
+                            $action->cancel();
+
+                            return;
+                        }
+
+                        $record->delete();
+                    }),
+                RestoreAction::make(),
+                ForceDeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalHeading('Force Delete User')
+                    ->modalDescription('This permanently removes all user data and cannot be undone.')
+                    ->action(function (User $record): void {
+                        if ($record->ownedTeams()->withTrashed()->exists()) {
+                            Notification::make()
+                                ->title(
+                                    'Cannot force-delete: user still owns teams (including soft-deleted). Transfer or force-delete those teams first.',
+                                )
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        if (UserResourceQueries::hasMemberships($record)) {
+                            Notification::make()
+                                ->title('Cannot force-delete: remove all team memberships first.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        $record->forceDelete();
+                    }),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('delete')
+                        ->label('Delete')
+                        ->icon('heroicon-o-trash')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            /** @var Collection<int, User> $records */
+                            $blockedUsers = $records->filter(function (Model $record): bool {
+                                /** @var User $record */
+                                return UserResourceQueries::ownedTeamsCountIncludingTrashed($record) > 0;
+                            });
+
+                            $records
+                                ->reject(fn (Model $record): bool => $blockedUsers->contains($record))
+                                ->each(function (Model $record): void {
+                                    /** @var User $record */
+                                    $record->delete();
+                                });
+
+                            if ($blockedUsers->isNotEmpty()) {
+                                Notification::make()
+                                    ->title(
+                                        "Skipped {$blockedUsers->count()} user(s) that still own teams. Transfer ownership first.",
+                                    )
+                                    ->danger()
+                                    ->send();
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    RestoreBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withoutGlobalScopes([SoftDeletingScope::class]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            MembershipsRelationManager::class,
+            OwnedTeamsRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListUsers::route('/'),
+            'view'  => Pages\ViewUser::route('/{record}'),
+            'edit'  => Pages\EditUser::route('/{record}/edit'),
+        ];
+    }
+}

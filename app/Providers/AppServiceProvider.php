@@ -6,10 +6,13 @@ namespace App\Providers;
 
 use App\Enums\Feature\Feature as FeatureEnum;
 use App\Listeners\PurgeFeaturesOnSubscriptionChange;
+use App\Models\Subscription;
 use App\Models\Team;
 use App\Policies\SubscriptionPolicy;
 use App\Services\Team\TeamContext;
 use Carbon\CarbonImmutable;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
@@ -20,7 +23,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Events\WebhookHandled;
-use Laravel\Cashier\Subscription;
 use Laravel\Pennant\Feature;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Cashier::useCustomerModel(Team::class);
+        Cashier::useSubscriptionModel(Subscription::class);
 
         Gate::policy(Subscription::class, SubscriptionPolicy::class);
 
@@ -50,6 +53,11 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Event::listen(WebhookHandled::class, PurgeFeaturesOnSubscriptionChange::class);
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_START,
+            fn (): \Illuminate\Contracts\View\View => view('filament.impersonation-banner'),
+        );
     }
 
     /**

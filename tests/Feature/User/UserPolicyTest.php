@@ -33,9 +33,11 @@ foreach (Role::cases() as $role) {
 
         if (in_array($permission, $rolePermissions, true)) {
             $allowedDataset[$key] = [$role, $method];
-        } else {
-            $deniedDataset[$key] = [$role, $method];
+
+            continue;
         }
+
+        $deniedDataset[$key] = [$role, $method];
     }
 }
 

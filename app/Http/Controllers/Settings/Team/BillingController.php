@@ -8,11 +8,11 @@ use App\Data\Billing\TeamBillingProps;
 use App\Enums\Subscription\SubscriptionInterval;
 use App\Enums\Subscription\SubscriptionTier;
 use App\Http\Controllers\Controller;
+use App\Models\Subscription;
 use App\Services\Team\TeamContext;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
-use Laravel\Cashier\Subscription;
 
 final class BillingController extends Controller
 {

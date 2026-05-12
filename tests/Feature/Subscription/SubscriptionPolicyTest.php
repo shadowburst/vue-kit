@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
+use App\Models\Subscription;
 use App\Models\Team;
 use App\Models\User;
 use App\Policies\SubscriptionPolicy;
 use Illuminate\Support\Facades\Gate;
-use Laravel\Cashier\Subscription;
 use Spatie\Permission\PermissionRegistrar;
 
 it('is explicitly registered in Gate for the Subscription model', function (): void {

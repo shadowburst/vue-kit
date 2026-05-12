@@ -15,10 +15,16 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Laravel\Cashier\Billable;
 use Laravel\Pennant\Feature;
+use Spatie\Activitylog\Contracts\Activity;
+use Spatie\Activitylog\Models\Activity as ActivityModel;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -33,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $trial_ends_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property Carbon|null $deleted_at
  * @property-read array<string, mixed> $features
  * @property-read User $owner
  * @property-read Collection<int, User> $members
@@ -43,9 +50,27 @@ use Spatie\Sluggable\SlugOptions;
 class Team extends Model
 {
     /** @use HasFactory<TeamFactory> */
-    use Billable, HasFactory, HasMembers, HasSlug;
+    use Billable, HasFactory, HasMembers, HasSlug, LogsActivity, SoftDeletes;
 
     protected $fillable = ['name', 'owner_id'];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
+    }
+
+    public function beforeActivityLogged(Activity $activity, string $eventName): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if ($user?->hasAdminRole() === true && $activity instanceof ActivityModel) {
+            $activity->setAttribute('log_name', 'admin');
+        }
+    }
 
     public function owner(): BelongsTo
     {

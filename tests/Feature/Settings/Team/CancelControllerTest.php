@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use App\Actions\Team\CreateTeam;
 use App\Enums\Role\Role;
+use App\Models\Subscription;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity as ActivityModel;
 use Spatie\Permission\PermissionRegistrar;
 use Stripe\StripeClient;
 use Stripe\Subscription as StripeSubscription;
@@ -90,6 +92,15 @@ test('cancel sets ends_at and redirects to billing for an Owner', function (): v
     $response->assertRedirect(route('teams.billing.show'));
     $endsAt = DB::table('subscriptions')->where('type', 'default')->value('ends_at');
     expect($endsAt)->not->toBeNull();
+
+    $activity = ActivityModel::where('description', 'subscription.cancel.period_end')
+        ->where('subject_type', Subscription::class)
+        ->where('subject_id', $subscription->id)
+        ->first();
+
+    expect($activity)
+        ->not->toBeNull()->and($activity->log_name)
+        ->not->toBe('admin')->and($activity->causer_id)->toBe($user->id);
 });
 
 test('cancel returns 403 for an Owner when over Free cap', function (): void {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Data\Auth;
 
 use App\Enums\Permission\Permission;
+use App\Models\Subscription;
 use App\Models\Team;
 use App\Models\User;
-use Laravel\Cashier\Subscription;
 use Spatie\LaravelData\Data;
 
 final class AuthAbilitiesData extends Data
