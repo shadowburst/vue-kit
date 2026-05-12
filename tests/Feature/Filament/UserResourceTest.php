@@ -199,6 +199,35 @@ it('soft-delete is refused when user still owns soft-deleted teams', function ()
     expect($target->fresh()->deleted_at)->toBeNull();
 });
 
+it('edit page soft-delete is refused when user still owns soft-deleted teams', function (): void {
+    $admin = makeOperator();
+    $target = User::factory()->createOne();
+    $team = Team::factory()->createOne(['owner_id' => $target->id]);
+    $team->delete();
+
+    $this->actingAs($admin);
+
+    Livewire::test(EditUser::class, ['record' => $target->getRouteKey()])
+        ->callAction('delete');
+
+    expect($target->fresh()->deleted_at)->toBeNull();
+});
+
+it('bulk soft-delete skips users who still own teams', function (): void {
+    $admin = makeOperator();
+    $blocked = User::factory()->createOne();
+    $allowed = User::factory()->createOne();
+    Team::factory()->createOne(['owner_id' => $blocked->id]);
+
+    $this->actingAs($admin);
+
+    Livewire::test(ListUsers::class)
+        ->callTableBulkAction('delete', [$blocked, $allowed]);
+
+    expect($blocked->fresh()->deleted_at)->toBeNull()
+        ->and(User::withTrashed()->find($allowed->id)?->deleted_at)->not->toBeNull();
+});
+
 it('soft-delete succeeds when user owns no teams', function (): void {
     $admin = makeOperator();
     $target = User::factory()->createOne();

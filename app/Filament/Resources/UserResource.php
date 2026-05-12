@@ -14,9 +14,9 @@ use App\Filament\Resources\UserResource\RelationManagers\OwnedTeamsRelationManag
 use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
@@ -33,6 +33,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -210,8 +211,9 @@ class UserResource extends Resource
                     ->successRedirectUrl(fn (): string => route('dashboard')),
                 DeleteAction::make()
                     ->action(function (DeleteAction $action, User $record): void {
-                        if ($record->ownedTeams()->withTrashed()->exists()) {
-                            $count = $record->ownedTeams()->withTrashed()->count();
+                        $count = static::ownedTeamsCountIncludingTrashed($record);
+
+                        if ($count > 0) {
                             Notification::make()
                                 ->title("Transfer ownership of {$count} team(s) in the Team Resource first.")
                                 ->danger()
@@ -252,7 +254,28 @@ class UserResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    BulkAction::make('delete')
+                        ->label('Delete')
+                        ->icon('heroicon-o-trash')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records): void {
+                            $blockedUsers = $records->filter(
+                                fn (User $record): bool => static::ownedTeamsCountIncludingTrashed($record) > 0,
+                            );
+
+                            $records
+                                ->reject(fn (User $record): bool => $blockedUsers->contains($record))
+                                ->each
+                                ->delete();
+
+                            if ($blockedUsers->isNotEmpty()) {
+                                Notification::make()
+                                    ->title("Skipped {$blockedUsers->count()} user(s) that still own teams. Transfer ownership first.")
+                                    ->danger()
+                                    ->send();
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion(),
                     RestoreBulkAction::make(),
                 ]),
             ]);
@@ -310,5 +333,10 @@ class UserResource extends Resource
             ->where('model_id', $user->getKey())
             ->where('model_type', $user->getMorphClass())
             ->exists();
+    }
+
+    public static function ownedTeamsCountIncludingTrashed(User $user): int
+    {
+        return $user->ownedTeams()->withTrashed()->count();
     }
 }

@@ -35,9 +35,9 @@ class EditUser extends EditRecord
             DeleteAction::make()
                 ->action(function (DeleteAction $action): void {
                     $record = $this->getRecord();
+                    $count = UserResource::ownedTeamsCountIncludingTrashed($record);
 
-                    if ($record->ownedTeams()->exists()) {
-                        $count = $record->ownedTeams()->count();
+                    if ($count > 0) {
                         Notification::make()
                             ->title("Transfer ownership of {$count} team(s) in the Team Resource first.")
                             ->danger()
