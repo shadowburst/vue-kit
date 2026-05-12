@@ -15,7 +15,7 @@ use Spatie\Permission\PermissionRegistrar;
 use function Pest\Laravel\seed;
 
 // Dataset drives permission-based keys only (user.*, team.view, subscription.view).
-// Identity-based keys (team.update, team.delete, subscription.update) are tested separately.
+// Identity-based keys (team.update, team.delete, subscription.cancel, subscription.resume) are tested separately.
 $dataset = [];
 
 foreach (Role::cases() as $role) {
@@ -76,7 +76,7 @@ it('returns correct permission-based booleans for each role', function (
     expect($abilities->subscription['view'])->toBe($expectedSubscriptionView['view']);
 })->with($dataset);
 
-it('returns true for team.update and subscription.update when user is the team owner', function (): void {
+it('returns true for team.update, subscription.cancel, and subscription.resume when user is the team owner at cap', function (): void {
     seed(RolePermissionSeeder::class);
 
     $owner = User::factory()->createOne();
@@ -89,7 +89,8 @@ it('returns true for team.update and subscription.update when user is the team o
     $abilities = AuthAbilitiesData::fromUser($owner, $team);
 
     expect($abilities->team['update'])->toBeTrue();
-    expect($abilities->subscription['update'])->toBeTrue();
+    expect($abilities->subscription['cancel'])->toBeTrue();
+    expect($abilities->subscription['resume'])->toBeTrue();
 });
 
 it('returns false for team.delete when the owner has only one owned team', function (): void {
@@ -138,7 +139,8 @@ it('returns false for identity-based keys when user is not the owner', function 
 
     expect($abilities->team['update'])->toBeFalse();
     expect($abilities->team['delete'])->toBeFalse();
-    expect($abilities->subscription['update'])->toBeFalse();
+    expect($abilities->subscription['cancel'])->toBeFalse();
+    expect($abilities->subscription['resume'])->toBeFalse();
 });
 
 it('returns all-false abilities for a guest (null user)', function (): void {
@@ -165,6 +167,9 @@ it('returns all-false abilities for a guest (null user)', function (): void {
         ->and($abilities->subscription)
         ->toBe([
             'view'   => false,
+            'create' => false,
             'update' => false,
+            'cancel' => false,
+            'resume' => false,
         ]);
 });

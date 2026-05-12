@@ -18,11 +18,16 @@ final class ResetCurrentTeam
             return;
         }
 
-        $newTeamId = $user
-            ->teams()
-            ->when($excluding !== null, fn ($q) => $q->where('teams.id', '!=', $excluding?->id))
-            ->first()
-            ?->id;
+        $teams = $user->teams();
+
+        if ($excluding !== null) {
+            $teams->where('teams.id', '!=', $excluding->id);
+        }
+
+        /** @var Team|null $nextTeam */
+        $nextTeam = $teams->first();
+
+        $newTeamId = $nextTeam?->id;
 
         $user->update(['current_team_id' => $newTeamId]);
     }
@@ -37,6 +42,6 @@ final class ResetCurrentTeam
             return true;
         }
 
-        return ! $user->teams()->where('teams.id', $user->current_team_id)->exists();
+        return ! (bool) $user->teams()->where('teams.id', $user->current_team_id)->exists();
     }
 }

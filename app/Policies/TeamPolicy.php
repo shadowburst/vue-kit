@@ -17,7 +17,11 @@ final class TeamPolicy
 
     public function update(User $user, Team $team): bool
     {
-        return $team->owner_id === $user->id;
+        if ($team->owner_id !== $user->id) {
+            return false;
+        }
+
+        return ! $team->isOverCap();
     }
 
     public function delete(User $user, Team $team): bool

@@ -17,10 +17,12 @@ return [
     'payment_method' => 'Payment method',
     'manage_billing' => 'Manage Billing',
     'cancel_subscription' => 'Cancel Subscription',
+    'cancel_over_cap'     => '{1} Remove :count member to cancel|[2,*] Remove :count members to cancel',
     'resume_subscription' => 'Resume Subscription',
 
-    'grace_period_banner_title' => 'Subscription cancellation in progress',
-    'grace_period_banner_body' => ':count members will lose access in :days days.',
+    'over_cap_banner_title'         => 'Your team is over the member cap',
+    'over_cap_banner_body_active'   => '{1} Remove :count member to restore access.|[2,*] Remove :count members to restore access.',
+    'over_cap_banner_body_canceled' => 'Fix your payment to restore access.',
 
     'attributes' => [
         'interval' => 'billing interval',

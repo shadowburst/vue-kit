@@ -14,12 +14,11 @@ use Illuminate\Support\Facades\Gate;
 use Spatie\Permission\PermissionRegistrar;
 
 // Build dataset from enum so future matrix changes propagate automatically.
-// `create` is excluded: it is a combined permission + seat-cap check tested
-// separately below.
+// `create` is excluded: it is a combined permission + seat-cap check tested separately below.
+// `update` is excluded: it is a combined permission + over-cap check tested separately below.
 $userPermissionMap = [
     'viewAny' => Permission::UserViewAny,
     'view'    => Permission::UserView,
-    'update'  => Permission::UserUpdate,
     'delete'  => Permission::UserDelete,
 ];
 
@@ -99,7 +98,7 @@ it('does not grant UserPolicy::update to an admin via a before() bypass', functi
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
     // Admin only holds 'admin' (the permission); no user.update — no before() bypass exists.
-    expect(Gate::forUser($admin)->allows('update', $target))->toBeFalse();
+    expect(Gate::forUser($admin)->allows('update', [$target, $team]))->toBeFalse();
 });
 
 // ─── UserPolicy::create — seat-cap matrix ──────────────────────────────────
@@ -238,4 +237,48 @@ it('UserPolicy::create: Pro/over-cap/Owner → false (involuntary-cancellation p
     pushNonOwnerMember($team);
 
     assertCreateDenied($owner, $team);
+});
+
+// ─── UserPolicy::update — combined permission + over-cap ─────────────────────
+//
+// Over-cap blocks update even for roles with user.update permission.
+// UserPolicy::delete is NOT gated by isOverCap (escape hatch for member removal).
+
+it('UserPolicy::update: Manager under-cap → true (has permission, under Free cap with Pro sub)', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
+    insertProSubscription($team);
+    assignRoleInTeam($owner, $team, Role::Manager);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+
+    $target = User::factory()->createOne();
+
+    expect(Gate::forUser($owner)->allows('update', [$target, $team]))->toBeTrue();
+});
+
+it('UserPolicy::update: Manager over-cap → false (Free cap=0, 1 non-owner member present)', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
+    assignRoleInTeam($owner, $team, Role::Manager);
+    pushNonOwnerMember($team);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+
+    $target = User::factory()->createOne();
+
+    expect(Gate::forUser($owner)->allows('update', [$target, $team]))->toBeFalse();
+});
+
+it('UserPolicy::delete: allowed even when team is over-cap (escape hatch)', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
+    assignRoleInTeam($owner, $team, Role::Manager);
+    $member = pushNonOwnerMember($team);
+
+    app(TeamContext::class)->setTeam($team);
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+
+    // Over-cap (1 non-owner vs Free cap=0) must NOT block delete.
+    expect(Gate::forUser($owner)->allows('delete', $member))->toBeTrue();
 });

@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Enums\Feature\Feature as FeatureEnum;
 use App\Enums\Permission\Permission;
+use App\Models\Team;
 use App\Models\User;
 use App\Services\Team\TeamContext;
 use Laravel\Pennant\Feature;
@@ -34,15 +35,18 @@ final class UserPolicy
             return false;
         }
 
-        $cap           = (int) Feature::for($team)->value(FeatureEnum::TeamMemberCap->value);
-        $nonOwnerCount = $team->members()->whereKeyNot($team->owner_id)->count();
+        $cap = (int) Feature::for($team)->value(FeatureEnum::TeamMemberCap->value);
 
-        return $nonOwnerCount < $cap;
+        return $team->members_count < $cap;
     }
 
-    public function update(User $user, User $target): bool
+    public function update(User $user, User $target, Team $team): bool
     {
-        return $user->can(Permission::UserUpdate->value);
+        if (! $user->can(Permission::UserUpdate->value)) {
+            return false;
+        }
+
+        return ! $team->isOverCap();
     }
 
     public function delete(User $user, User $target): bool

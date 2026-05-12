@@ -16,7 +16,7 @@ final class CancelController extends Controller
     {
         $team = $teamContext->currentOrFail();
 
-        Gate::authorize('update', [Subscription::class, $team]);
+        Gate::authorize('cancel', [Subscription::class, $team]);
 
         $team->subscription('default')?->cancel();
 

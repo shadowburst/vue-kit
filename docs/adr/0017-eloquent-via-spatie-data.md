@@ -129,6 +129,7 @@ A `{Noun}Resource` class is created once per Eloquent model, with all fields and
 - **Database columns** are declared as plain typed properties (`public int $id`, `public string $name`). Required in PHP and required in the generated TS.
 - **Computed / appended fields** are declared as `Lazy|T` (`public Lazy|bool $is_owner`). Included at runtime when listed by `defaultIncludes()` (Decision 5).
 - **Relationships** are declared as `Lazy|TResource` using `Lazy::whenLoaded(...)`. The controller decides whether to eager-load; the resource gates inclusion accordingly.
+- **`withCount` / `loadCount` attributes** are declared as `Lazy|int` and named to match the Eloquent attribute (`members_count`, not `member_count`). The controller decides loading with `loadCount('members')`; the resource reads `$team->members_count` (or a wrapping method) and declares the field under the same name.
 
 The TS type for a `Lazy` field is optional (`?: T`). Consumers handle optionality with optional chaining.
 

@@ -92,6 +92,22 @@ test('cancel sets ends_at and redirects to billing for an Owner', function (): v
     expect($endsAt)->not->toBeNull();
 });
 
+test('cancel returns 403 for an Owner when over Free cap', function (): void {
+    $owner = User::factory()->createOne();
+    $team  = (new CreateTeam)->execute('Test Team', $owner);
+    $owner->update(['current_team_id' => $team->id]);
+
+    $member = User::factory()->createOne();
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    $member->assignRole(Role::Member->value);
+
+    config(['billing.tiers.free.member_cap' => 0]);
+
+    $response = actingAs($owner)->post(route('teams.billing.cancel.store'));
+
+    $response->assertForbidden();
+});
+
 test('cancel returns 403 for an Admin', function (): void {
     $owner = User::factory()->createOne();
     $team  = (new CreateTeam)->execute('Test Team', $owner);

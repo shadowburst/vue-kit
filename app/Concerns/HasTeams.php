@@ -23,6 +23,6 @@ trait HasTeams
 
     public function isMemberOf(Team $team): bool
     {
-        return $this->teams()->whereKey($team->getKey())->exists();
+        return (bool) $this->teams()->whereKey($team->getKey())->exists();
     }
 }

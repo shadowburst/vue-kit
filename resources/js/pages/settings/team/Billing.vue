@@ -9,7 +9,7 @@ import CheckoutController from '@/wayfinder/App/Http/Controllers/Settings/Team/C
 import PortalController from '@/wayfinder/App/Http/Controllers/Settings/Team/PortalController';
 import ResumeController from '@/wayfinder/App/Http/Controllers/Settings/Team/ResumeController';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
-import { trans } from 'laravel-vue-i18n';
+import { trans, trans_choice } from 'laravel-vue-i18n';
 import { computed, onMounted, ref, watch } from 'vue';
 
 type Props = {
@@ -36,7 +36,10 @@ defineOptions({
 
 const page = usePage();
 
-const canManageBilling = computed(() => page.props.auth.abilities.subscription.update === true);
+const canManageSubscription = computed(() => page.props.auth.abilities.subscription.update === true);
+const canCancel = computed(() => page.props.auth.abilities.subscription.cancel === true);
+const canResume = computed(() => page.props.auth.abilities.subscription.resume === true);
+const membersCount = computed(() => page.props.currentTeam?.members_count ?? 0);
 
 const selectedInterval = ref<'monthly' | 'yearly'>('monthly');
 
@@ -101,7 +104,7 @@ onMounted(() => {
                 </button>
             </div>
 
-            <Form :form="checkoutForm" :action="CheckoutController.store().url" method="post">
+            <Form :form="checkoutForm" :action="CheckoutController.store()">
                 <Button type="submit" :disabled="checkoutForm.processing">
                     {{ trans('billing.upgrade_to_pro') }}
                 </Button>
@@ -136,23 +139,26 @@ onMounted(() => {
                 <span class="text-sm">&bull;&bull;&bull;&bull; {{ pmLastFour }}</span>
             </div>
 
-            <template v-if="canManageBilling">
+            <template v-if="canManageSubscription">
                 <Form
                     v-if="subscriptionStatus === 'active'"
                     :form="cancelForm"
-                    :action="CancelController.store().url"
-                    method="post"
+                    :action="CancelController.store()"
+                    :can-submit="canCancel"
                 >
-                    <Button type="submit" variant="destructive" :disabled="cancelForm.processing">
-                        {{ trans('billing.cancel_subscription') }}
+                    <Button type="submit" variant="destructive" :disabled="!canCancel || cancelForm.processing">
+                        {{
+                            canCancel
+                                ? trans('billing.cancel_subscription')
+                                : trans_choice('billing.cancel_over_cap', membersCount, { count: String(membersCount) })
+                        }}
                     </Button>
                 </Form>
 
                 <Form
-                    v-else-if="subscriptionStatus === 'grace'"
+                    v-else-if="subscriptionStatus === 'grace' && canResume"
                     :form="resumeForm"
-                    :action="ResumeController.store().url"
-                    method="post"
+                    :action="ResumeController.store()"
                 >
                     <Button type="submit" :disabled="resumeForm.processing">
                         {{ trans('billing.resume_subscription') }}
@@ -160,7 +166,7 @@ onMounted(() => {
                 </Form>
             </template>
 
-            <Button v-if="canManageBilling" as="a" :href="PortalController.show().url">
+            <Button v-if="canManageSubscription" as="a" :href="PortalController.show().url">
                 {{ trans('billing.manage_billing') }}
             </Button>
         </div>
