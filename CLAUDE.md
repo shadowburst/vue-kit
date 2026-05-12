@@ -50,7 +50,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Stick to existing directory structure; don't create new base folders without approval.
 - Do not change the application's dependencies without approval.
-- When adding a new model under `App\Models`, add the corresponding Filament Resource. When adding a persisted column to a model in `App\Models`, update the corresponding Filament Resource's form, table, or infolist - or add the column to the allow-list in `SchemaCoverageTest` with a comment explaining why it's hidden. The Filament coverage tests will fail otherwise.
 
 ## Frontend Bundling
 
@@ -101,7 +100,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
 - Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
+    - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
 
 === php rules ===
 
@@ -194,6 +193,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 # Inertia + Vue
 
 Vue components must have a single root element.
+
 - IMPORTANT: Activate `inertia-vue-development` when working with Inertia Vue client-side patterns.
 
 === spatie/guidelines-skills rules ===
@@ -208,16 +208,6 @@ Vue components must have a single root element.
 
 </laravel-boost-guidelines>
 
-## Agent skills
+## Notes
 
-### Issue tracker
-
-Issues live in the `shadowburst/vue-kit` GitHub repo, accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
-
-### Triage labels
-
-Canonical role names used as-is (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Single-context layout — `CONTEXT.md` + `docs/adr/` at the repo root (created lazily). See `docs/agents/domain.md`.
+- When adding a new model under `App\Models`, add the corresponding Filament Resource. When adding a persisted column to a model in `App\Models`, update the corresponding Filament Resource's form, table, or infolist - or add the column to the allow-list in `SchemaCoverageTest` with a comment explaining why it's hidden. The Filament coverage tests will fail otherwise.

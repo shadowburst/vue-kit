@@ -100,7 +100,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
 - Always use single quotes to prevent shell expansion: `php artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
+    - Double quotes for PHP strings inside: `php artisan tinker --execute 'User::where("active", true)->count();'`
 
 === php rules ===
 
@@ -193,6 +193,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 # Inertia + Vue
 
 Vue components must have a single root element.
+
 - IMPORTANT: Activate `inertia-vue-development` when working with Inertia Vue client-side patterns.
 
 === spatie/guidelines-skills rules ===
@@ -209,18 +210,10 @@ Vue components must have a single root element.
 
 ## Agent skills
 
-### Issue tracker
+### PHP conventions
 
-Issues live in the `shadowburst/vue-kit` GitHub repo, accessed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+PHP and Laravel code conventions live in `docs/php-conventions.md`. Read it before writing or reviewing PHP code in this repo.
 
-### Pull requests
+### JavaScript conventions
 
-Pull request titles MUST always follow Conventional Commits, matching the style used for commit messages (for example, `feat(frontend): translate Vue view strings`).
-
-### Triage labels
-
-Canonical role names used as-is (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Single-context layout — `CONTEXT.md` + `docs/adr/` at the repo root (created lazily). See `docs/agents/domain.md`.
+JavaScript, TypeScript, and Vue conventions live in `docs/js-conventions.md`. Read it before writing or reviewing frontend code in this repo.

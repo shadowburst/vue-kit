@@ -31,21 +31,12 @@
         "spatie-laravel-php",
         "spatie-security",
         "spatie-version-control",
-        "caveman",
         "custom-form",
-        "diagnose",
-        "grill-me",
-        "grill-with-docs",
-        "improve-codebase-architecture",
         "laravel-filament",
-        "setup-matt-pocock-skills",
-        "shadcn-vue",
-        "tdd",
-        "to-epic",
-        "to-issues",
-        "to-prd",
-        "triage",
-        "write-a-skill",
-        "zoom-out"
+        "openspec-apply-change",
+        "openspec-archive-change",
+        "openspec-explore",
+        "openspec-propose",
+        "shadcn-vue"
     ]
 }

@@ -1,0 +1,41 @@
+schema: spec-driven
+
+context: |
+    Project: vue-kit
+    Repository: shadowburst/vue-kit
+    Type: Laravel + Inertia + Vue starter kit
+    Domain: multi-tenant Teams, Memberships, role-based authorization, i18n, Stripe billing, Operator panel, impersonation, and activity logging.
+    Backend: Laravel 13, PHP 8.5 target, Fortify, Cashier, Pennant, Filament 5, Spatie Permission, Spatie Data, Spatie Activitylog, Wayfinder.
+    Frontend: Inertia v3, Vue 3, TypeScript, Tailwind CSS v4, shadcn-vue/reka-ui, Vitest.
+    Package managers: Composer and pnpm 10.33.0. Node target is 24.
+    Testing: Pest 4 for PHP; Vitest and vue-tsc for frontend.
+    Formatting and analysis: Mago for PHP; ESLint, Prettier, and vue-tsc for frontend.
+    Issue tracker: GitHub issues in shadowburst/vue-kit via gh CLI.
+    Vocabulary: prefer Team, Personal Team, Membership, Role, Permission, Subscription, Tier, Feature, Operator panel, Impersonation, Activity Log, and Over-cap.
+    Authorization: check Permissions, not Roles. Ownership is an identity check through teams.owner_id.
+    Team context: authenticated team-scoped pages use users.current_team_id, not URL prefixes.
+    Billing: Team is the Cashier billable entity. Free tier is absence of an active subscription.
+    Frontend routing: use Wayfinder-generated routes/actions instead of hardcoded backend URLs.
+    Forms: prefer the project custom form primitives under @/components/ui/custom/form.
+    Pull requests: titles must use Conventional Commits.
+
+rules:
+    proposal:
+        - Keep proposals concise and focused on what changes and why.
+        - Include explicit non-goals when the scope could be ambiguous.
+    design:
+        - Prefer the smallest correct change that fits existing conventions.
+        - Check sibling files and existing components before introducing new patterns.
+        - For Laravel changes, follow Spatie/Laravel conventions and use Form Requests, policies, DTOs, and Eloquent patterns already used in the repo.
+        - For Inertia Vue changes, use Inertia v3 patterns and Wayfinder route helpers.
+        - For frontend UI, preserve the existing shadcn-vue/reka-ui, Tailwind, and custom form patterns.
+        - Call out security, authorization, tenant-scoping, billing, and impersonation implications when relevant.
+    specs:
+        - Write requirements in observable, testable language.
+        - Use SHALL-style requirements and concrete scenarios.
+        - Keep capability names aligned with domain nouns.
+    tasks:
+        - Break work into independently verifiable implementation steps.
+        - Include affected tests or verification commands for each meaningful code path.
+        - Prefer minimal targeted test runs, e.g. php artisan test --compact with a file or filter.
+        - Include Wayfinder/type generation steps when backend route/controller changes affect frontend code.

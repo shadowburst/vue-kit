@@ -31,7 +31,7 @@ export default defineConfig({
             },
             script: {
                 globalTypeFiles: [
-                    path.resolve('resources/js/spatie/types.d.ts'),
+                    path.resolve('resources/js/spatie/types.ts'),
                     path.resolve('resources/js/wayfinder/types.d.ts'),
                     path.resolve('resources/js/types/inertia.d.ts'),
                 ],
