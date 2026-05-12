@@ -7,13 +7,18 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Concerns\HasTeams;
 use App\Data\Settings\UserSettingsData;
+use App\Enums\Permission\Permission;
+use App\Enums\Role\Role;
 use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 /**
@@ -35,7 +40,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  */
 #[Fillable(['name', 'email', 'password', 'settings', 'current_team_id'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasTeams, Notifiable, TwoFactorAuthenticatable;
@@ -58,5 +63,23 @@ class User extends Authenticatable
     public function currentTeam(): BelongsTo
     {
         return $this->belongsTo(Team::class, 'current_team_id');
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        // model_has_roles.team_id is NOT NULL (Spatie teams mode), so $this->can() would need
+        // a team context. Operators transcend teams, so we query the pivot directly.
+        return DB::table(config('permission.table_names.model_has_roles') ?? 'model_has_roles')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->where('model_has_roles.model_id', $this->getKey())
+            ->where('model_has_roles.model_type', $this->getMorphClass())
+            ->where('roles.name', Role::Admin->value)
+            ->where('roles.guard_name', 'web')
+            ->exists();
+    }
+
+    public function canRevokeAdminRole(User $target): bool
+    {
+        return $this->isNot($target);
     }
 }
