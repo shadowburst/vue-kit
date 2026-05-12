@@ -25,12 +25,12 @@ final class AuthLoginRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'email'    => (string) __('auth.attributes.email'),
-            'password' => (string) __('auth.attributes.password'),
+            'email'    => __('auth.attributes.email'),
+            'password' => __('auth.attributes.password'),
         ];
     }
 }

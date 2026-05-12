@@ -33,12 +33,12 @@ final class PasswordUpdateRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'current_password' => (string) __('settings.attributes.current_password'),
-            'password'         => (string) __('settings.attributes.password'),
+            'current_password' => __('settings.attributes.current_password'),
+            'password'         => __('settings.attributes.password'),
         ];
     }
 }

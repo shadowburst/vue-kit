@@ -30,14 +30,14 @@ final class AuthResetPasswordRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'token'                 => (string) __('auth.attributes.token'),
-            'email'                 => (string) __('auth.attributes.email'),
-            'password'              => (string) __('auth.attributes.password'),
-            'password_confirmation' => (string) __('auth.attributes.password_confirmation'),
+            'token'                 => __('auth.attributes.token'),
+            'email'                 => __('auth.attributes.email'),
+            'password'              => __('auth.attributes.password'),
+            'password_confirmation' => __('auth.attributes.password_confirmation'),
         ];
     }
 }

@@ -23,11 +23,11 @@ final class LocaleUpdateRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'locale' => (string) __('settings.attributes.locale'),
+            'locale' => __('settings.attributes.locale'),
         ];
     }
 }

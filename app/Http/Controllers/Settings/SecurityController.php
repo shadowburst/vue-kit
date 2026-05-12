@@ -67,8 +67,12 @@ final class SecurityController extends Controller implements HasMiddleware
         return back();
     }
 
-    // Inlines Fortify's InteractsWithTwoFactorState::ensureStateIsValid() so we can use
-    // plain Request + User args instead of the FormRequest mixin (ADR-0017 D6).
+    /**
+     * Inlines Fortify's InteractsWithTwoFactorState::ensureStateIsValid() so we can use
+     * plain Request + User args instead of the FormRequest mixin (ADR-0017 D6).
+     *
+     * @mago-expect analysis:non-existent-method
+     */
     private function ensureTwoFactorStateIsValid(Request $request, User $user): void
     {
         if (! Fortify::confirmsTwoFactorAuthentication()) {

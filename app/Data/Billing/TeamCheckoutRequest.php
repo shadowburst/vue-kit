@@ -23,11 +23,11 @@ final class TeamCheckoutRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'interval' => (string) __('billing.attributes.interval'),
+            'interval' => __('billing.attributes.interval'),
         ];
     }
 }

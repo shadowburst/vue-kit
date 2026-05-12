@@ -23,11 +23,11 @@ final class ProfileDeleteRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'password' => (string) __('settings.attributes.password'),
+            'password' => __('settings.attributes.password'),
         ];
     }
 }

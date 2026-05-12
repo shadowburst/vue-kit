@@ -22,11 +22,11 @@ final class TeamCreateRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'name' => (string) __('team.attributes.name'),
+            'name' => __('team.attributes.name'),
         ];
     }
 }

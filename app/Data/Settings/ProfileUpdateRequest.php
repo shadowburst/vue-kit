@@ -33,12 +33,12 @@ final class ProfileUpdateRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'name'  => (string) __('settings.attributes.name'),
-            'email' => (string) __('settings.attributes.email'),
+            'name'  => __('settings.attributes.name'),
+            'email' => __('settings.attributes.email'),
         ];
     }
 }

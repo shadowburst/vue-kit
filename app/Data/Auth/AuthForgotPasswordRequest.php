@@ -22,11 +22,11 @@ final class AuthForgotPasswordRequest extends Data
         ];
     }
 
-    /** @return array<string, string> */
+    /** @return array<string, string|array<array-key, mixed>|null> */
     public static function attributes(mixed ...$args): array
     {
         return [
-            'email' => (string) __('auth.attributes.email'),
+            'email' => __('auth.attributes.email'),
         ];
     }
 }

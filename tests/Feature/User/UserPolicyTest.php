@@ -23,25 +23,25 @@ $userPermissionMap = [
     'delete'  => Permission::UserDelete,
 ];
 
-$matrixDataset = [];
+$allowedDataset = [];
+$deniedDataset  = [];
 
 foreach (Role::cases() as $role) {
     $rolePermissions = $role->permissions();
 
     foreach ($userPermissionMap as $method => $permission) {
-        $matrixDataset["{$role->value}:{$method}"] = [
-            $role,
-            $method,
-            in_array($permission, $rolePermissions, true),
-        ];
+        $key = "{$role->value}:{$method}";
+
+        if (in_array($permission, $rolePermissions, true)) {
+            $allowedDataset[$key] = [$role, $method];
+        } else {
+            $deniedDataset[$key] = [$role, $method];
+        }
     }
 }
 
-it('is auto-discovered by Laravel for the User model', function (): void {
-    expect(Gate::getPolicyFor(User::class))->toBeInstanceOf(UserPolicy::class);
-});
-
-it('enforces the UserPolicy permission matrix', function (Role $role, string $method, bool $expected): void {
+function evaluateUserPolicy(Role $role, string $method): bool
+{
     $team   = Team::factory()->createOne(['name' => 'Test Team']);
     $user   = User::factory()->createOne();
     $target = User::factory()->createOne();
@@ -51,13 +51,29 @@ it('enforces the UserPolicy permission matrix', function (Role $role, string $me
 
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    $result = match ($method) {
+    return match ($method) {
         'viewAny' => Gate::forUser($user)->allows($method, User::class),
         default   => Gate::forUser($user)->allows($method, $target),
     };
+}
 
-    expect($result)->toBe($expected);
-})->with($matrixDataset);
+it('is auto-discovered by Laravel for the User model', function (): void {
+    expect(Gate::getPolicyFor(User::class))->toBeInstanceOf(UserPolicy::class);
+});
+
+it('grants the UserPolicy action when the role has the matching permission', function (
+    Role $role,
+    string $method,
+): void {
+    expect(evaluateUserPolicy($role, $method))->toBeTrue();
+})->with($allowedDataset);
+
+it('denies the UserPolicy action when the role lacks the matching permission', function (
+    Role $role,
+    string $method,
+): void {
+    expect(evaluateUserPolicy($role, $method))->toBeFalse();
+})->with($deniedDataset);
 
 it('allows a member to delete themselves (leave team) regardless of user.delete permission', function (): void {
     $team   = Team::factory()->createOne(['name' => 'Test Team']);
@@ -116,12 +132,20 @@ function pushNonOwnerMember(Team $team): User
     return $member;
 }
 
-function checkCreatePolicy(User $user, Team $team, bool $expected): void
+function assertCreateAllowed(User $user, Team $team): void
 {
     app(TeamContext::class)->setTeam($team);
     app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
 
-    expect(Gate::forUser($user)->allows('create', User::class))->toBe($expected);
+    expect(Gate::forUser($user)->allows('create', User::class))->toBeTrue();
+}
+
+function assertCreateDenied(User $user, Team $team): void
+{
+    app(TeamContext::class)->setTeam($team);
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+
+    expect(Gate::forUser($user)->allows('create', User::class))->toBeFalse();
 }
 
 // ── Free tier ────────────────────────────────────────────────────────────────
@@ -131,7 +155,7 @@ it('UserPolicy::create: Free/at-cap/Owner → false (has permission, cap=0)', fu
     $team  = Team::factory()->createOne(['owner_id' => $owner->id]);
     assignRoleInTeam($owner, $team, Role::Manager);
 
-    checkCreatePolicy($owner, $team, false);
+    assertCreateDenied($owner, $team);
 });
 
 it('UserPolicy::create: Free/at-cap/Admin → false (has permission, cap=0)', function (): void {
@@ -139,7 +163,7 @@ it('UserPolicy::create: Free/at-cap/Admin → false (has permission, cap=0)', fu
     $admin = User::factory()->createOne();
     assignRoleInTeam($admin, $team, Role::Manager);
 
-    checkCreatePolicy($admin, $team, false);
+    assertCreateDenied($admin, $team);
 });
 
 it('UserPolicy::create: Free/at-cap/Member → false (lacks permission, cap=0)', function (): void {
@@ -147,7 +171,7 @@ it('UserPolicy::create: Free/at-cap/Member → false (lacks permission, cap=0)',
     $member = User::factory()->createOne();
     assignRoleInTeam($member, $team, Role::Member);
 
-    checkCreatePolicy($member, $team, false);
+    assertCreateDenied($member, $team);
 });
 
 it('UserPolicy::create: Free/over-cap/Owner → false (1 non-owner member present)', function (): void {
@@ -156,7 +180,7 @@ it('UserPolicy::create: Free/over-cap/Owner → false (1 non-owner member presen
     assignRoleInTeam($owner, $team, Role::Manager);
     pushNonOwnerMember($team);
 
-    checkCreatePolicy($owner, $team, false);
+    assertCreateDenied($owner, $team);
 });
 
 // ── Pro tier ─────────────────────────────────────────────────────────────────
@@ -169,7 +193,7 @@ it('UserPolicy::create: Pro/under-cap/Owner → true (2 of 3 seats used)', funct
     pushNonOwnerMember($team);
     pushNonOwnerMember($team);
 
-    checkCreatePolicy($owner, $team, true);
+    assertCreateAllowed($owner, $team);
 });
 
 it('UserPolicy::create: Pro/under-cap/Admin → true (1 of 3 seats used)', function (): void {
@@ -179,7 +203,7 @@ it('UserPolicy::create: Pro/under-cap/Admin → true (1 of 3 seats used)', funct
     assignRoleInTeam($admin, $team, Role::Manager);
     pushNonOwnerMember($team);
 
-    checkCreatePolicy($admin, $team, true);
+    assertCreateAllowed($admin, $team);
 });
 
 it('UserPolicy::create: Pro/under-cap/Member → false (lacks permission)', function (): void {
@@ -188,7 +212,7 @@ it('UserPolicy::create: Pro/under-cap/Member → false (lacks permission)', func
     insertProSubscription($team);
     assignRoleInTeam($member, $team, Role::Member);
 
-    checkCreatePolicy($member, $team, false);
+    assertCreateDenied($member, $team);
 });
 
 it('UserPolicy::create: Pro/at-cap/Owner → false (3 of 3 seats used)', function (): void {
@@ -200,7 +224,7 @@ it('UserPolicy::create: Pro/at-cap/Owner → false (3 of 3 seats used)', functio
     pushNonOwnerMember($team);
     pushNonOwnerMember($team);
 
-    checkCreatePolicy($owner, $team, false);
+    assertCreateDenied($owner, $team);
 });
 
 it('UserPolicy::create: Pro/over-cap/Owner → false (involuntary-cancellation path; 4 members)', function (): void {
@@ -213,5 +237,5 @@ it('UserPolicy::create: Pro/over-cap/Owner → false (involuntary-cancellation p
     pushNonOwnerMember($team);
     pushNonOwnerMember($team);
 
-    checkCreatePolicy($owner, $team, false);
+    assertCreateDenied($owner, $team);
 });
