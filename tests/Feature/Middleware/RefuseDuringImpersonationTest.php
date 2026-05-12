@@ -116,6 +116,32 @@ it('billing portal returns 403 during impersonation', function (): void {
         ->assertForbidden();
 });
 
+it('team creation returns 403 during impersonation', function (): void {
+    $operator = makeImpersonationRefuseOperator();
+    $target   = User::factory()->createOne();
+    Team::factory()->createOne(['owner_id' => $target->id]);
+
+    actingAs($target)
+        ->withSession(makeImpersonatedSession($target, $operator))
+        ->post(route('teams.store'), ['name' => 'Mutated Team'])
+        ->assertForbidden();
+});
+
+it('current team switch returns 403 during impersonation', function (): void {
+    $operator = makeImpersonationRefuseOperator();
+    $target   = User::factory()->createOne();
+    $teamA    = Team::factory()->createOne(['owner_id' => $target->id]);
+    $teamB    = Team::factory()->createOne(['owner_id' => $target->id]);
+    $target->update(['current_team_id' => $teamA->id]);
+
+    actingAs($target)
+        ->withSession(makeImpersonatedSession($target, $operator))
+        ->put(route('current-team.update'), ['team_id' => $teamB->id])
+        ->assertForbidden();
+
+    expect($target->fresh()?->current_team_id)->toBe($teamA->id);
+});
+
 it('mutation routes are not blocked for non-impersonated user', function (): void {
     $user = User::factory()->createOne();
     Team::factory()->createOne(['owner_id' => $user->id]);
