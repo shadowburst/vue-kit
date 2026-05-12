@@ -7,7 +7,6 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Concerns\HasTeams;
 use App\Data\Settings\UserSettingsData;
-use App\Enums\Permission\Permission;
 use App\Enums\Role\Role;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
@@ -76,7 +75,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function beforeActivityLogged(Activity $activity, string $eventName): void
     {
-        if (auth()->check() && auth()->user()->can(Permission::Admin->value)) {
+        if (auth()->user() instanceof self && auth()->user()->hasAdminRole()) {
             $activity->log_name = 'admin';
         }
     }
@@ -87,6 +86,11 @@ class User extends Authenticatable implements FilamentUser
     }
 
     public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasAdminRole();
+    }
+
+    public function hasAdminRole(): bool
     {
         // model_has_roles.team_id is NOT NULL (Spatie teams mode), so $this->can() would need
         // a team context. Operators transcend teams, so we query the pivot directly.

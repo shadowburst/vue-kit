@@ -89,3 +89,24 @@ it('Team model update by admin causer stores activity with log_name=admin', func
     expect($activity)->not->toBeNull()
         ->and($activity->log_name)->toBe('admin');
 });
+
+it('model update by operator still stores admin-log entry without a permission team context', function (): void {
+    $operator = User::factory()->createOne();
+    $team     = Team::factory()->createOne(['owner_id' => $operator->id]);
+
+    app(PermissionRegistrar::class)->setPermissionsTeamId($team->id);
+    $operator->assignRole(Role::Admin->value);
+    app(PermissionRegistrar::class)->setPermissionsTeamId(null);
+
+    $this->actingAs($operator);
+    $operator->update(['name' => 'Operator Without Team Context']);
+
+    $activity = ActivityModel::where('subject_type', User::class)
+        ->where('subject_id', $operator->id)
+        ->where('description', 'updated')
+        ->latest()
+        ->first();
+
+    expect($activity)->not->toBeNull()
+        ->and($activity->log_name)->toBe('admin');
+});

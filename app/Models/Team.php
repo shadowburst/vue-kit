@@ -63,7 +63,7 @@ class Team extends Model
 
     public function beforeActivityLogged(Activity $activity, string $eventName): void
     {
-        if (auth()->check() && auth()->user()->can(Permission::Admin->value)) {
+        if (auth()->user() instanceof User && auth()->user()->hasAdminRole()) {
             $activity->log_name = 'admin';
         }
     }

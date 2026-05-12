@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\Permission\Permission;
+use App\Models\User;
 use Spatie\Activitylog\Contracts\Activity;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
@@ -23,7 +23,7 @@ class Subscription extends \Laravel\Cashier\Subscription
 
     public function beforeActivityLogged(Activity $activity, string $eventName): void
     {
-        if (auth()->check() && auth()->user()->can(Permission::Admin->value)) {
+        if (auth()->user() instanceof User && auth()->user()->hasAdminRole()) {
             $activity->log_name = 'admin';
         }
     }
