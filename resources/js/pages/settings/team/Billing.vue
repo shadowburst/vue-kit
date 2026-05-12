@@ -2,17 +2,26 @@
 import Heading from '@/components/Heading.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type { TeamBillingProps } from '@/spatie/types';
+import { Form } from '@/components/ui/custom/form';
 import BillingController from '@/wayfinder/App/Http/Controllers/Settings/Team/BillingController';
 import CancelController from '@/wayfinder/App/Http/Controllers/Settings/Team/CancelController';
 import CheckoutController from '@/wayfinder/App/Http/Controllers/Settings/Team/CheckoutController';
 import PortalController from '@/wayfinder/App/Http/Controllers/Settings/Team/PortalController';
 import ResumeController from '@/wayfinder/App/Http/Controllers/Settings/Team/ResumeController';
-import { Form, Head, router, usePage } from '@inertiajs/vue3';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
 import { trans } from 'laravel-vue-i18n';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
-defineProps<TeamBillingProps>();
+type Props = {
+    tier: 'free' | 'pro';
+    interval: 'monthly' | 'yearly' | null;
+    subscriptionStatus: 'active' | 'grace' | null;
+    pmLastFour: string | null;
+    nextChargeDate: string | null;
+    nextChargeAmount: string | null;
+};
+
+defineProps<Props>();
 
 defineOptions({
     layout: {
@@ -30,6 +39,16 @@ const page = usePage();
 const canManageBilling = computed(() => page.props.auth.abilities.subscription.update === true);
 
 const selectedInterval = ref<'monthly' | 'yearly'>('monthly');
+
+const checkoutForm = useForm({
+    interval: selectedInterval.value,
+});
+const cancelForm = useForm({});
+const resumeForm = useForm({});
+
+watch(selectedInterval, (value) => {
+    checkoutForm.interval = value;
+});
 
 onMounted(() => {
     const params = new URLSearchParams(window.location.search);
@@ -82,9 +101,10 @@ onMounted(() => {
                 </button>
             </div>
 
-            <Form :action="CheckoutController.store().url" method="post">
-                <input type="hidden" name="interval" :value="selectedInterval" />
-                <Button type="submit">{{ trans('billing.upgrade_to_pro') }}</Button>
+            <Form :form="checkoutForm" :action="CheckoutController.store().url" method="post">
+                <Button type="submit" :disabled="checkoutForm.processing">
+                    {{ trans('billing.upgrade_to_pro') }}
+                </Button>
             </Form>
         </div>
 
@@ -117,12 +137,26 @@ onMounted(() => {
             </div>
 
             <template v-if="canManageBilling">
-                <Form v-if="subscriptionStatus === 'active'" :action="CancelController.store().url" method="post">
-                    <Button type="submit" variant="destructive">{{ trans('billing.cancel_subscription') }}</Button>
+                <Form
+                    v-if="subscriptionStatus === 'active'"
+                    :form="cancelForm"
+                    :action="CancelController.store().url"
+                    method="post"
+                >
+                    <Button type="submit" variant="destructive" :disabled="cancelForm.processing">
+                        {{ trans('billing.cancel_subscription') }}
+                    </Button>
                 </Form>
 
-                <Form v-else-if="subscriptionStatus === 'grace'" :action="ResumeController.store().url" method="post">
-                    <Button type="submit">{{ trans('billing.resume_subscription') }}</Button>
+                <Form
+                    v-else-if="subscriptionStatus === 'grace'"
+                    :form="resumeForm"
+                    :action="ResumeController.store().url"
+                    method="post"
+                >
+                    <Button type="submit" :disabled="resumeForm.processing">
+                        {{ trans('billing.resume_subscription') }}
+                    </Button>
                 </Form>
             </template>
 

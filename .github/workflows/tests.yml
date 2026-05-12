@@ -82,6 +82,9 @@ jobs:
       - name: JS static analysis
         run: pnpm run analysis:check
 
+      - name: Run Vitest tests
+        run: pnpm run test
+
       - name: Prepare environment
         run: |
           cp .env.example .env

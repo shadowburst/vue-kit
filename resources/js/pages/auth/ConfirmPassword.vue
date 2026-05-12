@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Field, FieldControl, FieldError, FieldLabel, Form } from '@/components/ui/custom/form';
 import { Spinner } from '@/components/ui/spinner';
-import type { AuthConfirmPasswordProps } from '@/spatie/types';
-import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import ConfirmablePasswordController from '@/wayfinder/Laravel/Fortify/Http/Controllers/ConfirmablePasswordController';
-import { Form, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 
 defineOptions({
     layout: {
@@ -16,32 +13,37 @@ defineOptions({
     },
 });
 
-defineProps<AuthConfirmPasswordProps>();
+const form = useForm({
+    password: '',
+});
 </script>
 
 <template>
     <Head title="Confirm password" />
 
-    <Form :action="ConfirmablePasswordController.store()" reset-on-success v-slot="{ errors, processing }">
+    <Form
+        :form="form"
+        :action="ConfirmablePasswordController.store()"
+        :options="{ onSuccess: () => form.reset('password') }"
+    >
         <div class="space-y-6">
-            <div class="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <PasswordInput
-                    id="password"
-                    name="password"
-                    class="mt-1 block w-full"
-                    required
-                    autocomplete="current-password"
-                    autofocus
-                    :maxlength="StringMaxLength.Short"
-                />
-
-                <InputError :message="errors.password" />
-            </div>
+            <Field required>
+                <FieldLabel>Password</FieldLabel>
+                <FieldControl>
+                    <PasswordInput
+                        v-model="form.password"
+                        name="password"
+                        class="mt-1 block w-full"
+                        autocomplete="current-password"
+                        autofocus
+                    />
+                </FieldControl>
+                <FieldError :errors="[form.errors.password]" />
+            </Field>
 
             <div class="flex items-center">
-                <Button class="w-full" :disabled="processing" data-test="confirm-password-button">
-                    <Spinner v-if="processing" />
+                <Button class="w-full" :disabled="form.processing" data-test="confirm-password-button">
+                    <Spinner v-if="form.processing" />
                     Confirm password
                 </Button>
             </div>

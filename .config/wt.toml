@@ -1,3 +1,6 @@
+[post-switch]
+lerd-env = "lerd env"
+
 [pre-remove]
 lerd-cleanup = '''
 DB=$(grep '^DB_DATABASE=' .env 2>/dev/null | cut -d= -f2-)

@@ -2,15 +2,18 @@
 import AlertError from '@/components/AlertError.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Form } from '@/components/ui/custom/form';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import RecoveryCodeController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RecoveryCodeController';
-import { Form } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { Eye, EyeOff, LockKeyhole, RefreshCw } from '@lucide/vue';
 import { nextTick, onMounted, ref, useTemplateRef } from 'vue';
 
 const { recoveryCodesList, fetchRecoveryCodes, errors } = useTwoFactorAuth();
 const isRecoveryCodesVisible = ref<boolean>(false);
 const recoveryCodeSectionRef = useTemplateRef('recoveryCodeSectionRef');
+
+const regenerateForm = useForm({});
 
 const toggleRecoveryCodesVisibility = async () => {
     if (!isRecoveryCodesVisible.value && !recoveryCodesList.value.length) {
@@ -50,12 +53,11 @@ onMounted(async () => {
 
                 <Form
                     v-if="isRecoveryCodesVisible && recoveryCodesList.length"
+                    :form="regenerateForm"
                     :action="RecoveryCodeController.store()"
-                    :options="{ preserveScroll: true }"
-                    @success="fetchRecoveryCodes"
-                    #default="{ processing }"
+                    :options="{ preserveScroll: true, onSuccess: () => fetchRecoveryCodes() }"
                 >
-                    <Button variant="secondary" type="submit" :disabled="processing">
+                    <Button variant="secondary" type="submit" :disabled="regenerateForm.processing">
                         <RefreshCw /> Regenerate codes
                     </Button>
                 </Form>

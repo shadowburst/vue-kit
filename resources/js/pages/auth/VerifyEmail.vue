@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
+import { Form } from '@/components/ui/custom/form';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Spinner } from '@/components/ui/spinner';
-import type { AuthVerifyEmailProps } from '@/spatie/types';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import EmailVerificationNotificationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/EmailVerificationNotificationController';
-import { Form, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 
 defineOptions({
     layout: {
@@ -14,7 +14,11 @@ defineOptions({
     },
 });
 
-defineProps<AuthVerifyEmailProps>();
+defineProps<{
+    status?: string;
+}>();
+
+const form = useForm({});
 </script>
 
 <template>
@@ -24,18 +28,19 @@ defineProps<AuthVerifyEmailProps>();
         A new verification link has been sent to the email address you provided during registration.
     </div>
 
-    <Form
-        :action="EmailVerificationNotificationController.store()"
-        class="space-y-6 text-center"
-        v-slot="{ processing }"
-    >
-        <Button :disabled="processing" variant="secondary">
-            <Spinner v-if="processing" />
+    <Form :form="form" :action="EmailVerificationNotificationController.store()" class="space-y-6 text-center">
+        <Button :disabled="form.processing" variant="secondary">
+            <Spinner v-if="form.processing" />
             Resend verification email
         </Button>
 
-        <TextLink :href="AuthenticatedSessionController.destroy()" as="button" class="mx-auto block text-sm">
+        <InertiaLink
+            variant="text"
+            :href="AuthenticatedSessionController.destroy()"
+            as="button"
+            class="mx-auto block text-sm"
+        >
             Log out
-        </TextLink>
+        </InertiaLink>
     </Form>
 </template>

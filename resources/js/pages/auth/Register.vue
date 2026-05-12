@@ -1,16 +1,13 @@
 <script setup lang="ts">
-import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
-import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
+import { Field, FieldControl, FieldError, FieldGroup, FieldLabel, Form } from '@/components/ui/custom/form';
+import { InertiaLink } from '@/components/ui/custom/inertia-link';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import type { AuthRegisterProps } from '@/spatie/types';
-import StringMaxLength from '@/wayfinder/App/Enums/Validation/StringMaxLength';
 import AuthenticatedSessionController from '@/wayfinder/Laravel/Fortify/Http/Controllers/AuthenticatedSessionController';
 import RegisteredUserController from '@/wayfinder/Laravel/Fortify/Http/Controllers/RegisteredUserController';
-import { Form, Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 
 defineOptions({
     layout: {
@@ -19,94 +16,99 @@ defineOptions({
     },
 });
 
-defineProps<AuthRegisterProps>();
+const form = useForm({
+    name: '',
+    email: '',
+    password: '',
+    password_confirmation: '',
+});
 </script>
 
 <template>
     <Head title="Register" />
 
     <Form
+        :form="form"
         :action="RegisteredUserController.store()"
-        :reset-on-success="['password', 'password_confirmation']"
-        v-slot="{ errors, processing }"
+        :options="{ onSuccess: () => form.reset('password', 'password_confirmation') }"
         class="flex flex-col gap-6"
     >
-        <div class="grid gap-6">
-            <div class="grid gap-2">
-                <Label for="name">Name</Label>
-                <Input
-                    id="name"
-                    type="text"
-                    required
-                    autofocus
-                    :tabindex="1"
-                    autocomplete="name"
-                    name="name"
-                    :maxlength="StringMaxLength.Short"
-                    placeholder="Full name"
-                />
-                <InputError :message="errors.name" />
-            </div>
+        <FieldGroup>
+            <Field required>
+                <FieldLabel>Name</FieldLabel>
+                <FieldControl>
+                    <Input
+                        v-model="form.name"
+                        type="text"
+                        autofocus
+                        :tabindex="1"
+                        autocomplete="name"
+                        name="name"
+                        placeholder="Full name"
+                    />
+                </FieldControl>
+                <FieldError :errors="[form.errors.name]" />
+            </Field>
 
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    required
-                    :tabindex="2"
-                    autocomplete="email"
-                    name="email"
-                    :maxlength="StringMaxLength.Medium"
-                    placeholder="email@example.com"
-                />
-                <InputError :message="errors.email" />
-            </div>
+            <Field required>
+                <FieldLabel>Email address</FieldLabel>
+                <FieldControl>
+                    <Input
+                        v-model="form.email"
+                        type="email"
+                        :tabindex="2"
+                        autocomplete="email"
+                        name="email"
+                        placeholder="email@example.com"
+                    />
+                </FieldControl>
+                <FieldError :errors="[form.errors.email]" />
+            </Field>
 
-            <div class="grid gap-2">
-                <Label for="password">Password</Label>
-                <PasswordInput
-                    id="password"
-                    required
-                    :tabindex="3"
-                    autocomplete="new-password"
-                    name="password"
-                    :maxlength="StringMaxLength.Short"
-                    placeholder="Password"
-                />
-                <InputError :message="errors.password" />
-            </div>
+            <Field required>
+                <FieldLabel>Password</FieldLabel>
+                <FieldControl>
+                    <PasswordInput
+                        v-model="form.password"
+                        :tabindex="3"
+                        autocomplete="new-password"
+                        name="password"
+                        placeholder="Password"
+                    />
+                </FieldControl>
+                <FieldError :errors="[form.errors.password]" />
+            </Field>
 
-            <div class="grid gap-2">
-                <Label for="password_confirmation">Confirm password</Label>
-                <PasswordInput
-                    id="password_confirmation"
-                    required
-                    :tabindex="4"
-                    autocomplete="new-password"
-                    name="password_confirmation"
-                    :maxlength="StringMaxLength.Short"
-                    placeholder="Confirm password"
-                />
-                <InputError :message="errors.password_confirmation" />
-            </div>
+            <Field required>
+                <FieldLabel>Confirm password</FieldLabel>
+                <FieldControl>
+                    <PasswordInput
+                        v-model="form.password_confirmation"
+                        :tabindex="4"
+                        autocomplete="new-password"
+                        name="password_confirmation"
+                        placeholder="Confirm password"
+                    />
+                </FieldControl>
+                <FieldError :errors="[form.errors.password_confirmation]" />
+            </Field>
 
             <Button
                 type="submit"
                 class="mt-2 w-full"
                 tabindex="5"
-                :disabled="processing"
+                :disabled="form.processing"
                 data-test="register-user-button"
             >
-                <Spinner v-if="processing" />
+                <Spinner v-if="form.processing" />
                 Create account
             </Button>
-        </div>
+        </FieldGroup>
 
         <div class="text-center text-sm text-muted-foreground">
             Already have an account?
-            <TextLink :href="AuthenticatedSessionController.create()" class="underline underline-offset-4" :tabindex="6"
-                >Log in</TextLink
+            <InertiaLink variant="text" :href="AuthenticatedSessionController.create()" :tabindex="6"
+                >Log in</InertiaLink
             >
         </div>
     </Form>
