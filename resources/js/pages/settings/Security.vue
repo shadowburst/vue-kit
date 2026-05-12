@@ -6,14 +6,14 @@ import TwoFactorSetupModal from '@/components/TwoFactorSetupModal.vue';
 import { Button } from '@/components/ui/button';
 import { Field, FieldControl, FieldError, FieldLabel, Form } from '@/components/ui/custom/form';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
+import type { SecurityEditProps } from '@/spatie/types';
 import SecurityController from '@/wayfinder/App/Http/Controllers/Settings/SecurityController';
 import TwoFactorAuthenticationController from '@/wayfinder/Laravel/Fortify/Http/Controllers/TwoFactorAuthenticationController';
-import type { Inertia } from '@/wayfinder/types';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ShieldCheck } from '@lucide/vue';
 import { onUnmounted, ref } from 'vue';
 
-defineProps<Inertia.Pages.Settings.Security>();
+defineProps<SecurityEditProps>();
 
 defineOptions({
     layout: {
