@@ -128,6 +128,11 @@ export function usePageProp<T>(key: MaybeRefOrGetter<string>, options: UsePagePr
             return;
         }
 
+        if (immediate) {
+            reload();
+            return;
+        }
+
         const dataKey = toValue(key);
         const modalValue = modal?.props ? get(modal.props, dataKey) : undefined;
         const pageValue = get(page.props, dataKey);
